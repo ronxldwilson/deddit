@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { LoginForm } from "../components/LoginForm";
-import { NotesList } from "../components/NotesList";
+// import { NotesList } from "../components/NotesList";
+import { FrontPage } from "../components/FrontPage";
 
 declare global {
   interface Window {
@@ -52,15 +53,18 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto py-8 px-4">
         {!userId ? (
-          <LoginForm 
-            sessionId={sessionId} 
-            onLoginSuccess={setUserId} 
+          <LoginForm
+            sessionId={sessionId}
+            onLoginSuccess={setUserId}
           />
         ) : (
-          <NotesList 
-            sessionId={sessionId} 
-            userId={userId} 
-          />
+          <FrontPage
+            sessionId={sessionId}
+            userId={userId} />
+          // <NotesList 
+          //   sessionId={sessionId} 
+          //   userId={userId} 
+          // />
         )}
       </div>
     </div>

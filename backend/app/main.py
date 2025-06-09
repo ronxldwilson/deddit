@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from .routes import posts
 
 from .db.db import db
 from .routes import synthetic, notes
@@ -30,6 +31,9 @@ app.middleware("http")(LogMiddleware())
 # Routers
 app.include_router(synthetic.router, prefix="/_synthetic", tags=["synthetic"])
 app.include_router(notes.router, prefix="/api", tags=["notes"])
+
+# Routes for posts
+app.include_router(posts.router)
 
 @app.get("/")
 def read_root():

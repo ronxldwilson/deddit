@@ -10,6 +10,10 @@ from ..utils.session_manager import session_manager
 
 router = APIRouter()
 
+@router.get("/posts")
+def get_fake_posts():
+    return generate_fake_posts(15)  # can tweak number of posts
+
 def get_current_user(request: Request):
     db_session = next(db.get_db())
     user_id = request.headers.get("x-user-id")

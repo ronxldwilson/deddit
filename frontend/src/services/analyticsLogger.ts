@@ -8,7 +8,8 @@ export enum ActionType {
   GO_FORWARD = "go_forward",
   GO_TO_URL = "go_to_url",
   SET_STORAGE = "set_storage",
-  CUSTOM = "custom"
+  CUSTOM = "custom",
+  PAGE_VIEW = "PAGE_VIEW"
 }
 
 export interface ClickPayload {

@@ -1,9 +1,11 @@
+# app/db/db.py
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from faker import Faker
 import os
 from .base import Base
-from .models import User, Note
+from .models import User, Note, Post
 
 class Database:
     def __init__(self):
@@ -37,7 +39,8 @@ class Database:
             fake.seed_instance(seed)
 
         db = next(self.get_db())
-        # Create users first
+
+        # Create users
         users = []
         for _ in range(5):
             user = User(
@@ -48,15 +51,28 @@ class Database:
             users.append(user)
         db.commit()
 
-        # Create notes for each user
+    # Create notes for each user
         for user in users:
-            for _ in range(3):  # 3 notes per user
+            for _ in range(3):
                 note = Note(
                     title=fake.catch_phrase(),
                     content=fake.text(max_nb_chars=200),
                     user_id=user.id
                 )
                 db.add(note)
+
+        # Create Deddit posts for each user
+        for user in users:
+            for _ in range(5):
+                post = Post(
+                    title=fake.sentence(nb_words=6),
+                    content=fake.paragraph(nb_sentences=3),
+                    votes=fake.random_int(min=-5, max=100),
+                    subreddit=fake.random_element(elements=("general", "memes", "news", "tech")),
+                    author_id=user.id
+                )
+                db.add(post)
+
         db.commit()
 
     def reset_database(self, seed: str = None):
@@ -65,6 +81,7 @@ class Database:
         Base.metadata.create_all(bind=self.engine)
         # Repopulate tables
         self.populate_database(seed)
+        
 
 # Create a singleton instance
 db = Database()
