@@ -13,6 +13,7 @@ def get_fake_posts():
             "title": fake.sentence(nb_words=6),
             "content": fake.paragraph(nb_sentences=3),
             "votes": fake.random_int(min=-5, max=100),
+            "author": fake.user_name(),
             "subreddit": fake.random_element(elements=("general", "memes", "news", "tech")),
         })
     return posts
