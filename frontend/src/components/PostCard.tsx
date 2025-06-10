@@ -4,18 +4,20 @@ import { ArrowUp, ArrowDown } from "lucide-react";
 interface PostCardProps {
   id: string;
   title: string;
-  author: string;
+  // author: string;
   content: string;
   subreddit: string;
   votes: number;
+  userID: string
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
   id,
   title,
-  author,
+  // author,
   subreddit,
   votes,
+  userID,
   content,
 }) => {
   const [voteState, setVoteState] = useState<"up" | "down" | null>(null);
@@ -111,7 +113,8 @@ export const PostCard: React.FC<PostCardProps> = ({
       {/* Post Content */}
       <div className="flex-grow">
         <div className="text-sm text-gray-500 mb-1">
-          <span className="font-medium text-black">r/{subreddit}</span> · Posted by u/{author}
+          <span className="font-medium text-black">r/{subreddit}</span> · 
+          {/* Posted by u/{author} */}
         </div>
         <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
         <p className="text-gray-700 mt-2 whitespace-pre-wrap">

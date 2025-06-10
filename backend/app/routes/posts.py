@@ -32,7 +32,7 @@ def get_fake_posts(db: Session = Depends(database.get_db)):
         db.commit()
         posts = db.query(Post).all()  # Fetch the newly created posts
 
-    return [
+    return [ 
         {
             "id": post.id,
             "title": post.title,

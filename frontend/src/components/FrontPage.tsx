@@ -10,7 +10,7 @@ interface Post {
   title: string;
   content: string;
   votes: number;
-  author: string;
+  // author: string;
   subreddit: string;
 }
 
@@ -98,11 +98,11 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
                   key={post.id}
                   id={post.id}
                   title={post.title}
-                  author={post.author}
+                  // author={post.author}
                   subreddit={post.subreddit}
                   votes={post.votes}
                   content={post.content}
-                  
+                  userID={userId}
                 />
               ))}
             </div>
