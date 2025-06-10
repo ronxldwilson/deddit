@@ -8,7 +8,7 @@ from .base import Base
 from .models import User, Note, Post
 
 class Database:
-    def __init__(self): 
+    def __init__(self):  
         self.db_path = os.path.join(os.path.dirname(__file__), "app.sqlite")
         self.db_url = f"sqlite:///{self.db_path}"
         self.engine = None 

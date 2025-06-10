@@ -17,41 +17,32 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    console.log("Form submitted:", { username, password, isRegister });
 
     logEvent(sessionId, ActionType.CLICK, {
       text: `User clicked on the ${isRegister ? "register" : "login"} button`,
       page_url: window.location.href,
       element_identifier: isRegister ? "register-submit-btn" : "login-submit-btn",
-      coordinates: { x: 0, y: 0 }
+      coordinates: { x: 0, y: 0 },
     });
 
     try {
       const endpoint = isRegister ? "register" : "login";
       const url = `http://localhost:8000/api/${endpoint}?session_id=${sessionId}`;
-      console.log("Making request to:", url);
 
       const res = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
 
-      console.log("Response status:", res.status);
       const data = await res.json();
-      console.log("Response data:", data);
 
       if (res.ok) {
-        console.log("Success! Calling onLoginSuccess with:", data.userId);
         onLoginSuccess(data.userId);
       } else {
-        console.log("Error response:", data);
         setError(data.detail || (isRegister ? "Registration failed" : "Invalid username or password"));
       }
     } catch (error) {
-      console.error("Request failed:", error);
       setError(isRegister ? "Failed to register. Please try again." : "Failed to login. Please try again.");
     }
   };
@@ -62,7 +53,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
       text: `User typed "${value}" into the username field`,
       page_url: window.location.href,
       element_identifier: "login-username",
-      key: value
+      key: value,
     });
   };
 
@@ -72,31 +63,30 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
       text: `User typed "${value}" into the password field`,
       page_url: window.location.href,
       element_identifier: "login-password",
-      key: value
+      key: value,
     });
   };
 
   const toggleMode = () => {
     setIsRegister(!isRegister);
     setError(null);
-    console.log("Toggled to:", isRegister ? "login" : "register");
     logEvent(sessionId, ActionType.CLICK, {
       text: `User clicked on the toggle button to switch to ${isRegister ? "login" : "register"} mode`,
       page_url: window.location.href,
       element_identifier: "toggle-auth-mode",
-      coordinates: { x: 0, y: 0 }
+      coordinates: { x: 0, y: 0 },
     });
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-8 max-w-md mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-        {isRegister ? "Create Account" : "Welcome Back"}
+    <div className="bg-background border border-border rounded-2xl shadow-sm p-6 w-full max-w-md mx-auto">
+      <h2 className="text-center text-2xl font-semibold text-foreground mb-6">
+        {isRegister ? "Create an account" : "Sign in to Deddit"}
       </h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label htmlFor="username" className="block text-sm font-medium text-muted-foreground mb-1">
             Username
           </label>
           <input
@@ -104,14 +94,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
             type="text"
             value={username}
             onChange={(e) => handleTypeUsername(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors duration-200"
-            placeholder="Enter your username"
+            className="w-full px-3 py-2 border border-input rounded-lg bg-input text-sm hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder="e.g. blueberry123"
             required
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-muted-foreground mb-1">
             Password
           </label>
           <input
@@ -119,30 +109,30 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
             type="password"
             value={password}
             onChange={(e) => handleTypePassword(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors duration-200"
-            placeholder="Enter your password"
+            className="w-full px-3 py-2 border border-input rounded-lg bg-input text-sm  hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder="••••••••"
             required
           />
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className="text-sm text-red-600 bg-red-50 border border-red-200 px-4 py-2 rounded-md">
+            {error}
           </div>
         )}
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+          className="w-full py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground bg-white text-black hover:bg-blue-500 transition"
         >
-          {isRegister ? "Create Account" : "Sign In"}
+          {isRegister ? "Register" : "Sign In"}
         </button>
 
-        <div className="text-center">
+        <div className="text-center pt-2">
           <button
             type="button"
             onClick={toggleMode}
-            className="text-sm text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
+            className="text-sm text-muted-foreground hover:underline"
           >
             {isRegister ? "Already have an account? Sign in" : "Need an account? Register"}
           </button>
