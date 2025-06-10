@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException, Depends
+from fastapi import APIRouter, Request, HTTPException, Depends # type: ignore
 from typing import List
 
 from ..db.synthetic_models import ActionType
@@ -6,13 +6,13 @@ from ..db.db import db
 from ..db.models import User, Note
 from ..models import UserIn, NoteIn
 from ..utils.logger import logger
-from ..utils.session_manager import session_manager
+from ..utils.session_manager import session_manager 
 
 router = APIRouter()
 
-@router.get("/posts")
-def get_fake_posts():
-    return generate_fake_posts(15)  # can tweak number of posts
+# @router.get("/posts") 
+# def get_fake_posts():
+#     return generate_fake_posts(15)  # can tweak number of posts
 
 def get_current_user(request: Request):
     db_session = next(db.get_db())

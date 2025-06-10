@@ -60,7 +60,8 @@ export default function Home() {
         ) : (
           <FrontPage
             sessionId={sessionId}
-            userId={userId} />
+            userId={userId} 
+            />
           // <NotesList 
           //   sessionId={sessionId} 
           //   userId={userId} 

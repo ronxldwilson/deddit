@@ -1,20 +1,20 @@
 # app/db/db.py
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from faker import Faker
-import os
+from sqlalchemy import create_engine # type: ignore
+from sqlalchemy.orm import sessionmaker # type: ignore
+from faker import Faker # type: ignore
+import os 
 from .base import Base
 from .models import User, Note, Post
 
 class Database:
-    def __init__(self):
+    def __init__(self): 
         self.db_path = os.path.join(os.path.dirname(__file__), "app.sqlite")
         self.db_url = f"sqlite:///{self.db_path}"
-        self.engine = None
+        self.engine = None 
         self.SessionLocal = None
 
-    def create_database(self):
+    def create_database(self): 
         self.engine = create_engine(self.db_url, connect_args={"check_same_thread": False})
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         Base.metadata.create_all(bind=self.engine)

@@ -8,9 +8,10 @@ import { logEvent, ActionType } from '../services/analyticsLogger';
 interface Post {
   id: string;
   title: string;
+  content: string;
+  votes: number;
   author: string;
   subreddit: string;
-  votes: number;
 }
 
 interface FrontPageProps {
@@ -50,11 +51,15 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
 
   useEffect(() => {
     fetchPosts();
-    logEvent(sessionId, ActionType.PAGE_VIEW, {
-      text: 'User visited Deddit front page',
-      page_url: window.location.href,
-    });
   }, [fetchPosts, sessionId]);
+
+
+  useEffect(() => {
+    if (posts.length > 0) {
+      console.log('First post object:', posts[0]);
+      console.log('All keys in first post:', Object.keys(posts[0]));
+    }
+  }, [posts]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 pb-12">
@@ -89,7 +94,16 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
           ) : (
             <div className="space-y-6">
               {posts.map((post) => (
-                <PostCard key={post.id} {...post} />
+                <PostCard
+                  key={post.id}
+                  id={post.id}
+                  title={post.title}
+                  author={post.author}
+                  subreddit={post.subreddit}
+                  votes={post.votes}
+                  content={post.content}
+                  
+                />
               ))}
             </div>
           )}

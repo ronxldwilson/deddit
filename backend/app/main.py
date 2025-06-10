@@ -1,16 +1,15 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI # type : ignore
+from fastapi.middleware.cors import CORSMiddleware # type : ignore
 from contextlib import asynccontextmanager
-from .routes import posts
+from .routes import posts, vote, synthetic, notes
 
 from .db.db import db
-from .routes import synthetic, notes
 from .utils.logger import LogMiddleware
 
-@asynccontextmanager
+@asynccontextmanager 
 async def lifespan(app: FastAPI):
-    # Startup
-    db.create_database()
+    # Startup 
+    db.create_database() 
     db.populate_database(seed = "0" * 16) # Consistent seed for synthetic data — can add this as a parameter
     yield
     # Shutdown
@@ -23,7 +22,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
+) 
 
 # Attach logging middleware
 app.middleware("http")(LogMiddleware())
@@ -35,6 +34,9 @@ app.include_router(notes.router, prefix="/api", tags=["notes"])
 # Routes for posts
 app.include_router(posts.router)
 
+# Routes for votes
+app.include_router(vote.router)
+
 @app.get("/")
 def read_root():
-    return {"message": "Notes App Backend is running."}
+    return {"message": "Notes App Backend is running."} 

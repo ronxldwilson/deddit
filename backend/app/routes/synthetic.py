@@ -17,7 +17,7 @@ def reset_environment(seed: str = Query(None)):
     return {"status": "ok", "seed": seed}
 
 @router.post("/new_session")
-def new_session(seed: str = Query(None)):
+def new_session(seed: str = Query(None)): 
     # 1) Generate
     session_id = str(uuid.uuid4())
     session_manager.create_session(session_id)
