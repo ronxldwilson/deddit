@@ -30,7 +30,9 @@ class CommentResponse(BaseModel):
     author_username: str
     parent_id: Optional[int] = None
     children: List["CommentResponse"] = []
-
+    votes: int  # <-- Add this line
+    class Config:
+        orm_mode = True
 class VoteCreate(BaseModel):
     post_id: int
     value: int  # 1 or -1
@@ -40,3 +42,6 @@ class VoteResponse(BaseModel):
     user_id: str
     post_id: int
     value: int 
+ 
+
+CommentResponse.update_forward_refs()

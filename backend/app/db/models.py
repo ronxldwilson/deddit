@@ -87,3 +87,21 @@ class Comment(Base):
     author = relationship("User", back_populates="comments")
     post = relationship("Post", back_populates="comments")
     children = relationship("Comment", backref="parent", remote_side=[id])
+    
+    votes = relationship("CommentVote", back_populates="comment", cascade="all, delete-orphan")
+
+    
+class CommentVote(Base):
+    __tablename__ = "comment_votes"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    comment_id = Column(Integer, ForeignKey("comments.id"))
+    value = Column(Integer)  # 1 = upvote, -1 = downvote
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "comment_id", name="unique_user_comment_vote"),
+    )
+
+    user = relationship("User")
+    comment = relationship("Comment", back_populates="votes")

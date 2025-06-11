@@ -3,8 +3,9 @@ Done:
 4. Comment on Post
 5. Nested Comments (threaded)
 8. Upvote/Downvote Post
-21. Sign Up / Login
+19. Comment collapse/expand
 20. Vote score indicator (e.g. +123)
+21. Sign Up / Login
 
 To Do:
 Add Search functionality
@@ -12,13 +13,9 @@ Add Profile Section
 Add Logout Button
 Add voting capabilites in the comments
 Add popular communitites section
-19. Comment collapse/expand
-
 
 12. Sort posts (hot/new/top)
 26. Profile bio
-
-
 
 ### 🧱 Core Functionality (Posts, Comments, Voting)
 2. Edit Post
@@ -34,7 +31,6 @@ Add popular communitites section
 16. Spoiler tag support
 17. Markdown formatting in posts/comments
 18. Post preview
-
 
 ### 👥 User Accounts
 

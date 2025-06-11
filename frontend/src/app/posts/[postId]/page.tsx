@@ -21,8 +21,10 @@ interface Comment {
   created_at: string;
   author_username: string;
   parent_id: number | null;
-  children: Comment[]; // recursive!
+  children: Comment[];
+  votes: number;
 }
+
 
 interface Post {
   id: number;
@@ -119,8 +121,30 @@ export default function PostPage() {
   if (!post) {
     return <div className="p-6 text-center text-red-600">Post not found.</div>;
   }
+
   function CommentThread({ comment }: { comment: Comment }) {
     const [collapsed, setCollapsed] = useState(false);
+    const [voteCount, setVoteCount] = useState(comment.votes);
+    
+    const searchParams = useSearchParams();
+    const userID = searchParams.get("userID");
+    
+    console.log(voteCount);
+    console.log(comment.votes);
+    const handleVote = async (value: 1 | -1) => {
+      try {
+        await fetch(`http://localhost:8000/comments/${comment.id}/vote`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: userID, value }),
+        });
+
+        // Optimistically update
+        setVoteCount((prev) => prev + value);
+      } catch (err) {
+        console.error("Vote failed", err);
+      }
+    };
 
     return (
       <div className="pl-4 border-l border-gray-300">
@@ -139,6 +163,11 @@ export default function PostPage() {
         {!collapsed && (
           <>
             <div className="text-gray-800 mb-2">{comment.content}</div>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <button onClick={() => handleVote(1)} className="hover:text-red-500">▲</button>
+              <span>{voteCount}</span>
+              <button onClick={() => handleVote(-1)} className="hover:text-blue-500">▼</button>
+            </div>
             {comment.children.map((child) => (
               <CommentThread key={child.id} comment={child} />
             ))}
