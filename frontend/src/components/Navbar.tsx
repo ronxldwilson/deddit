@@ -1,17 +1,42 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Home, PlusSquare, User, LogOut, Search } from 'lucide-react';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Home, PlusSquare, User, LogOut, Search } from "lucide-react";
+import { logEvent, ActionType } from "../services/analyticsLogger";
 
 export const Navbar: React.FC = () => {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
+  const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (search.trim()) {
-      console.log('Searching for:', search);
-      // TODO: Trigger search API or redirect
+      console.log("Searching for:", search);
+      // TODO: Implement actual search functionality
     }
+  };
+
+  const handleLogout = () => {
+    console.log("Logging out...");
+    const sessionId = localStorage.getItem("sessionId");
+    const userId = localStorage.getItem("userId");
+
+    // Log the logout event
+    if (sessionId && userId) {
+      logEvent(sessionId, ActionType.CLICK, {
+        text: "User clicked the logout button",
+        page_url: window.location.href,
+        element_identifier: "logout-btn",
+        coordinates: { x: 0, y: 0 },
+      });
+    }
+
+    // Clear user-related storage
+    localStorage.removeItem("userId");
+    localStorage.removeItem("sessionId");
+    // Redirect to login page
+    router.push("/");
   };
 
   return (
@@ -50,7 +75,11 @@ export const Navbar: React.FC = () => {
             <User size={16} />
             Profile
           </button>
-          <button className="flex items-center gap-1 text-red-500 hover:text-red-700">
+          <button
+            className="flex items-center gap-1 text-red-500 hover:text-red-700"
+            onClick={handleLogout}
+            id="logout-btn"
+          >
             <LogOut size={16} />
             Log out
           </button>

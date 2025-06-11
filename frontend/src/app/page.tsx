@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { LoginForm } from "../components/LoginForm";
-// import { NotesList } from "../components/NotesList";
 import { FrontPage } from "../components/FrontPage";
 
 declare global {
@@ -39,6 +38,12 @@ export default function Home() {
       .catch((error) => {
         console.error("Failed to initialize session:", error);
       });
+
+
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
   }, []);
 
   if (!sessionId) {
@@ -55,13 +60,17 @@ export default function Home() {
         {!userId ? (
           <LoginForm
             sessionId={sessionId}
-            onLoginSuccess={setUserId}
+            onLoginSuccess={(id) => {
+              localStorage.setItem("userId", id);
+              setUserId(id);
+            }}
           />
+
         ) : (
           <FrontPage
             sessionId={sessionId}
-            userId={userId} 
-            />
+            userId={userId}
+          />
           // <NotesList 
           //   sessionId={sessionId} 
           //   userId={userId} 

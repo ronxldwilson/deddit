@@ -47,19 +47,11 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
     } finally {
       setLoading(false);
     }
-  }, [userId, sort]);
+  }, [userId, sort, sessionId]);
 
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts, sessionId]);
-
-
-  useEffect(() => {
-    if (posts.length > 0) {
-      console.log('First post object:', posts[0]);
-      console.log('All keys in first post:', Object.keys(posts[0]));
-    }
-  }, [posts]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 pb-12">
