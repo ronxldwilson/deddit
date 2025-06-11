@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ArrowUp, ArrowDown } from "lucide-react";
+import Link from "next/link";
 
 interface PostCardProps {
   id: string;
@@ -89,38 +90,42 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 p-4 flex gap-4">
-      {/* Voting Column */}
-      <div className="flex flex-col items-center w-10 text-gray-500 select-none">
-        <button
-          onClick={handleUpvote}
-          className={`transition-colors ${voteState === "up" ? "text-orange-500" : "hover:text-orange-500"
-            }`}
-        >
-          <ArrowUp size={18} />
-        </button>
-        <span className="text-sm font-semibold">{voteCount}</span>
-        <button
-          onClick={handleDownvote}
-          className={`transition-colors ${voteState === "down" ? "text-blue-500" : "hover:text-blue-500"
-            }`}
-        >
-          <ArrowDown size={18} />
-        </button>
-      </div>
-
-      {/* Post Content */}
-      {/* Post Content */}
-      <div className="flex-grow">
-        <div className="text-sm text-gray-500 mb-1">
-          <span className="font-medium text-black">r/{subreddit}</span> · 
-          {/* Posted by u/{author} */}
+    <>
+    <Link href={`/posts/${id}`} className="block">  
+      <div className="bg-yellow rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 p-4 flex gap-4">
+        {/* Voting Column */}
+        <div className="flex flex-col items-center w-10 text-gray-500 select-none">
+          <button
+            onClick={handleUpvote}
+            className={`transition-colors ${voteState === "up" ? "text-orange-500" : "hover:text-orange-500"
+              }`}
+          >
+            <ArrowUp size={18} />
+          </button>
+          <span className="text-sm font-semibold">{voteCount}</span>
+          <button
+            onClick={handleDownvote}
+            className={`transition-colors ${voteState === "down" ? "text-blue-500" : "hover:text-blue-500"
+              }`}
+          >
+            <ArrowDown size={18} />
+          </button>
         </div>
-        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-        <p className="text-gray-700 mt-2 whitespace-pre-wrap">
-          {typeof content === 'string' ? content : JSON.stringify(content, null, 2)}
-        </p>
+
+        {/* Post Content */}
+        {/* Post Content */}
+        <div className="flex-grow">
+          <div className="text-sm text-gray-500 mb-1">
+            <span className="font-medium text-black">r/{subreddit}</span> ·
+            {/* Posted by u/{author} */}
+          </div>
+          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+          <p className="text-gray-700 mt-2 whitespace-pre-wrap">
+            {typeof content === 'string' ? content : JSON.stringify(content, null, 2)}
+          </p>
+        </div>
       </div>
-    </div>
+      </Link>
+    </>
   );
 };

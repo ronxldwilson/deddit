@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from typing import Optional, List
+from datetime import datetime
 
 class UserIn(BaseModel):
     username: str
@@ -13,3 +15,21 @@ class PostCreate(BaseModel):
     content: str
     subreddit: str 
     user_id: str  
+    
+
+class CommentCreate(BaseModel):
+    content: str
+    post_id: int
+    author_id: str
+    parent_id: Optional[int] = None
+
+class CommentResponse(BaseModel):
+    id: int
+    content: str
+    created_at: datetime
+    author_username: str
+    parent_id: Optional[int] = None
+    children: List["CommentResponse"] = []
+
+    class Config:
+        orm_mode = True

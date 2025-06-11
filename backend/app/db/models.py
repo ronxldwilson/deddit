@@ -1,3 +1,4 @@
+from datetime import datetime
 import uuid
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.sql import func
@@ -35,6 +36,7 @@ class User(Base):
     notes = relationship("Note", back_populates="user")
     votes = relationship("Vote", back_populates="user", cascade="all, delete-orphan")
 
+    comments = relationship("Comment", back_populates="author")
 # ----------------
 # Posts Table
 # ----------------
@@ -51,6 +53,7 @@ class Post(Base):
     author = relationship("User", back_populates="posts")
     votes_relation = relationship("Vote", back_populates="post", cascade="all, delete-orphan")
 
+    comments = relationship("Comment", back_populates="post")
 # ----------------
 # Votes Table
 # ----------------
@@ -68,3 +71,19 @@ class Vote(Base):
   
     user = relationship("User", back_populates="votes")  
     post = relationship("Post", back_populates="votes_relation") 
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    post_id = Column(Integer, ForeignKey("posts.id"), nullable=False)
+    author_id = Column(String, ForeignKey("users.id"), nullable=False)
+    parent_id = Column(Integer, ForeignKey("comments.id"), nullable=True)
+
+    author = relationship("User", back_populates="comments")
+    post = relationship("Post", back_populates="comments")
+    children = relationship("Comment", backref="parent", remote_side=[id])

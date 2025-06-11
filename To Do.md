@@ -1,0 +1,135 @@
+Done: 
+21. Sign Up / Login
+20. Vote score indicator (e.g. +123)
+
+To Do:
+Add Search functionality
+Add Create Post option
+Add Profile Section	
+Add Logout Button
+1. Create Post (text, link, image)
+8. Upvote/Downvote Post
+12. Sort posts (hot/new/top)
+26. Profile bio
+
+
+### 🧱 Core Functionality (Posts, Comments, Voting)
+2. Edit Post
+3. Delete Post
+4. Comment on Post
+5. Nested Comments (threaded)
+6. Edit Comment
+7. Delete Comment
+9. Upvote/Downvote Comment
+10. Save Post
+11. Save Comment
+13. Sort comments (best/new/controversial)
+14. NSFW flag and toggle
+15. Post Flair
+16. Spoiler tag support
+17. Markdown formatting in posts/comments
+18. Post preview
+19. Comment collapse/expand
+
+
+### 👥 User Accounts
+
+22. Password reset
+23. OAuth with Google/GitHub
+24. User profile page
+25. User karma (post/comment)
+27. User avatars
+28. User settings (email, password, preferences)
+29. User history (posts/comments)
+30. Follow/unfollow user
+
+### 🌐 Subreddits ("Subdeddit" Support)
+
+31. Create subreddit
+32. Subreddit description and rules
+33. Subreddit banner and icon
+34. Subreddit moderators
+35. Subreddit settings (visibility, post types)
+36. Subscribe/unsubscribe from subreddits
+37. Filter posts by flair
+38. Moderation queue
+39. Post approval/rejection
+40. Subreddit sidebar (markdown)
+
+### 🛡️ Moderation Tools
+
+41. Report post/comment
+42. Admin dashboard
+43. Auto-moderation rules
+44. Ban user from subreddit
+45. Remove post/comment
+46. Shadowban support
+47. View user reports
+48. Warn users
+49. Lock post/comments
+50. Mute user in subreddit
+
+### 🔍 Search & Discovery
+
+51. Global search
+52. Subreddit-specific search
+53. Search by user
+54. Trending subreddits
+55. Popular posts
+56. Recently created subreddits
+57. Tag support for posts
+58. Suggested subreddits
+59. Search autocomplete
+60. Search filters (date range, type)
+
+### 📩 Notifications & Messaging
+
+61. In-app notifications
+62. Email notifications
+63. Mentions (@username)
+64. Private messages
+65. Mod mail
+66. Notification settings
+67. Comment replies notification
+68. New follower notification
+69. Message threading
+70. Read/unread message status
+
+### 💬 Real-Time Features
+
+71. Live comments (WebSocket)
+72. Real-time upvote count
+73. Real-time mod queue updates
+74. Live subreddit chat
+75. Post edit history
+76. Comment edit history
+77. Online user count
+78. Typing indicators in chat
+79. Live AMA threads
+80. Real-time subreddit activity feed
+
+### 🎨 UI / UX Enhancements
+
+81. Dark mode / light mode toggle
+82. Infinite scroll for posts/comments
+83. Mobile responsive design
+84. PWA support
+85. Drag-and-drop image uploader
+86. Image zoom modal
+87. User tooltips (hover info)
+88. Animated vote button feedback
+89. Sticky top nav
+90. Floating compose post button
+
+### 📊 Analytics & Insights
+
+91. Post view count
+92. Comment count stats
+93. Subreddit growth analytics
+94. Daily active users (DAU)
+95. Karma breakdown chart
+96. Moderator activity log
+97. Upvote/downvote ratio
+98. Popular time of day/week
+99. Traffic source (referrer stats)
+100. Report generation/export

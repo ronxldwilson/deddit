@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker # type: ignore
 from faker import Faker # type: ignore
 import os 
 from .base import Base
-from .models import User, Note, Post
+from .models import User, Note, Post, Comment
 
 class Database:
     def __init__(self):  
@@ -40,7 +40,7 @@ class Database:
 
         db = next(self.get_db())
 
-        # Create users
+        # --- USERS ---
         users = []
         for _ in range(5):
             user = User(
@@ -50,9 +50,9 @@ class Database:
             )
             db.add(user)
             users.append(user)
-        db.commit() 
+        db.commit()
 
-    # Create notes for each user
+        # --- NOTES ---
         for user in users:
             for _ in range(3):
                 note = Note(
@@ -62,7 +62,8 @@ class Database:
                 )
                 db.add(note)
 
-        # Create Deddit posts for each user
+        # --- POSTS ---
+        posts = []
         for user in users:
             for _ in range(5):
                 post = Post(
@@ -73,6 +74,38 @@ class Database:
                     author_id=user.id
                 )
                 db.add(post)
+                posts.append(post)
+        db.commit()
+
+        # --- COMMENTS ---
+        def create_comment(post_id, author_id, parent_id=None):
+            return Comment(
+                content=fake.paragraph(nb_sentences=2),
+                post_id=post_id,
+                author_id=author_id,
+                parent_id=parent_id,
+                created_at=fake.date_time_this_year() 
+            )
+
+        def seed_replies(parent_comment, depth=0, max_depth=2):
+            if depth >= max_depth:
+                return []
+            replies = []
+            for _ in range(fake.random_int(min=0, max=2)):
+                reply = create_comment(parent_comment.post_id, fake.random_element(users).id, parent_comment.id)
+                db.add(reply)
+                db.flush()
+                replies.append(reply)
+                replies += seed_replies(reply, depth + 1, max_depth)
+            return replies
+
+        for post in posts:
+            for _ in range(fake.random_int(min=2, max=5)):
+                top_comment = create_comment(post.id, fake.random_element(users).id)
+                db.add(top_comment)
+                db.flush()
+                replies = seed_replies(top_comment)
+                db.add_all(replies)
 
         db.commit()
 

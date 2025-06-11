@@ -1,7 +1,7 @@
 # app/routes/posts.py
 
 from app.models import PostCreate
-from fastapi import APIRouter, Depends, HTTPException # type: ignore
+from fastapi import APIRouter, Depends, HTTPException, Path # type: ignore
 from faker import Faker # type: ignore
 
 from sqlalchemy.orm import Session # type: ignore
@@ -68,4 +68,21 @@ def create_post(post: PostCreate, db: Session = Depends(database.get_db)):
         "subreddit": new_post.subreddit,
         "votes": new_post.votes,
         "author": user.username,
+    }
+    
+@router.get("/posts/{postId}")
+def get_post(postId: int = Path(...), db: Session = Depends(database.get_db)):
+    post = db.query(Post).filter(Post.id == postId).first()
+      
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+  
+    return {
+        "id": post.id,
+        "title": post.title,
+        "content": post.content,
+        "votes": post.votes,
+        "author": post.author,
+        "subreddit": post.subreddit,
+        "userID": post.author_id,
     }
