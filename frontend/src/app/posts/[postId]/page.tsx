@@ -4,6 +4,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
+import { useSearchParams } from "next/navigation";
+
+
 interface Author {
   username: string;
   id: string;
@@ -38,6 +41,10 @@ export default function PostPage() {
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
+
+
+  const searchParams = useSearchParams();
+
 
   useEffect(() => {
     async function fetchComments(postId: string) {
@@ -77,11 +84,8 @@ export default function PostPage() {
     }
   }
 
-  if (typeof postId === "string") {
-    fetchPost(postId);
-  }
-  
   const handleCommentSubmit = async () => {
+    const userID = searchParams.get("userID");
     if (!newComment.trim()) return;
 
     try {
@@ -92,7 +96,7 @@ export default function PostPage() {
         },
         body: JSON.stringify({
           content: newComment,
-          author_id: 1, // Replace with actual logged-in user ID
+          author_id: userID,
           post_id: post?.id,
           parent_id: null,
         }),
