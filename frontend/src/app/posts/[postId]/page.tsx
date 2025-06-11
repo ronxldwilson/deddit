@@ -119,22 +119,35 @@ export default function PostPage() {
   if (!post) {
     return <div className="p-6 text-center text-red-600">Post not found.</div>;
   }
-
   function CommentThread({ comment }: { comment: Comment }) {
+    const [collapsed, setCollapsed] = useState(false);
+
     return (
       <div className="pl-4 border-l border-gray-300">
-        <div className="mb-1 text-xs text-gray-500">
-          u/{comment.author_username} · {new Date(comment.created_at).toLocaleString()}
+        <div className="flex items-center justify-between">
+          <div className="text-xs text-gray-500 mb-1">
+            u/{comment.author_username} · {new Date(comment.created_at).toLocaleString()}
+          </div>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-xs text-blue-600 ml-2 hover:underline"
+          >
+            [{collapsed ? "+" : "–"}]
+          </button>
         </div>
-        <div className="text-gray-800 mb-2">{comment.content}</div>
 
-        {/* Nested children */}
-        {comment.children.map((child) => (
-          <CommentThread key={child.id} comment={child} />
-        ))}
+        {!collapsed && (
+          <>
+            <div className="text-gray-800 mb-2">{comment.content}</div>
+            {comment.children.map((child) => (
+              <CommentThread key={child.id} comment={child} />
+            ))}
+          </>
+        )}
       </div>
     );
   }
+
   return (
     <div className="flex justify-center p-6 bg-gray-100 min-h-screen">
       <div className="flex max-w-4xl w-full gap-4">

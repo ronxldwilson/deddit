@@ -12,6 +12,7 @@ Add Profile Section
 Add Logout Button
 Add voting capabilites in the comments
 Add popular communitites section
+19. Comment collapse/expand
 
 
 12. Sort posts (hot/new/top)
@@ -33,7 +34,6 @@ Add popular communitites section
 16. Spoiler tag support
 17. Markdown formatting in posts/comments
 18. Post preview
-19. Comment collapse/expand
 
 
 ### 👥 User Accounts
