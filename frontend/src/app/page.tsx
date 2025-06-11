@@ -40,10 +40,10 @@ export default function Home() {
       });
 
 
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setUserId(storedUserId);
-    }
+    // const storedUserId = localStorage.getItem("userId");
+    // if (storedUserId) {
+    //   setUserId(storedUserId);
+    // }
   }, []);
 
   if (!sessionId) {

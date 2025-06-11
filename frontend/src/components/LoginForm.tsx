@@ -39,6 +39,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
 
       if (res.ok) {
         onLoginSuccess(data.userId);
+        console.log(data.userId)
       } else {
         setError(data.detail || (isRegister ? "Registration failed" : "Invalid username or password"));
       }

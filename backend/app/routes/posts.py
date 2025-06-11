@@ -1,16 +1,17 @@
 # app/routes/posts.py
 
+from app.models import PostCreate
 from fastapi import APIRouter, Depends, HTTPException # type: ignore
 from faker import Faker # type: ignore
 
 from sqlalchemy.orm import Session # type: ignore
 from pydantic import BaseModel # type: ignore
-from ..db.db import db as database
+from ..db.db import db as database 
 from ..db.models import Post, User  # Import your models
 
 router = APIRouter()
 
-fake = Faker()
+fake = Faker() 
 
 @router.get("/posts")
 def get_fake_posts(db: Session = Depends(database.get_db)):
@@ -43,3 +44,28 @@ def get_fake_posts(db: Session = Depends(database.get_db)):
         }
         for post in posts
     ]
+    
+@router.post("/posts/create")
+def create_post(post: PostCreate, db: Session = Depends(database.get_db)):
+    user = db.query(User).filter(User.id == post.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    new_post = Post(
+        title=post.title,
+        content=post.content,
+        subreddit=post.subreddit,
+        author_id=user.id,
+    )
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
+
+    return {
+        "id": new_post.id,
+        "title": new_post.title,
+        "content": new_post.content,
+        "subreddit": new_post.subreddit,
+        "votes": new_post.votes,
+        "author": user.username,
+    }

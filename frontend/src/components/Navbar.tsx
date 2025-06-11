@@ -5,9 +5,15 @@ import { useRouter } from "next/navigation";
 import { Home, PlusSquare, User, LogOut, Search } from "lucide-react";
 import { logEvent, ActionType } from "../services/analyticsLogger";
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  userId?: string;
+  sessionId?: string;
+}
+
+export const Navbar: React.FC <NavbarProps> = ({userId, sessionId}) => {
   const [search, setSearch] = useState("");
   const router = useRouter();
+  console.log("Rendering Navbar with user id:", userId, "and session id:", sessionId);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,8 +25,8 @@ export const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     console.log("Logging out...");
-    const sessionId = localStorage.getItem("sessionId");
-    const userId = localStorage.getItem("userId");
+    // const sessionId = localStorage.getItem("sessionId");
+    // const userId = localStorage.getItem("userId");
 
     // Log the logout event
     if (sessionId && userId) {
@@ -33,8 +39,8 @@ export const Navbar: React.FC = () => {
     }
 
     // Clear user-related storage
-    localStorage.removeItem("userId");
-    localStorage.removeItem("sessionId");
+    // localStorage.removeItem("userId");
+    // localStorage.removeItem("sessionId");
     // Redirect to login page
     router.push("/");
   };
@@ -67,7 +73,10 @@ export const Navbar: React.FC = () => {
             <Home size={16} />
             Home
           </button>
-          <button className="flex items-center gap-1 hover:text-black">
+          <button
+            className="flex items-center gap-1 hover:text-black"
+            onClick={() => router.push(`/create-post?userId=${userId}`)}
+            >
             <PlusSquare size={16} />
             Create Post
           </button>

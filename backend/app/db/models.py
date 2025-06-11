@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint
+import uuid
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from .base import Base
@@ -9,12 +10,12 @@ from .base import Base
 class Note(Base):
     __tablename__ = "notes"
  
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    content = Column(String)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    title = Column(String, nullable=False)
+    content = Column(Text, nullable=False) 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
 
     user = relationship("User", back_populates="notes")
 
@@ -23,8 +24,8 @@ class Note(Base):
 # ----------------
 class User(Base):
     __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
+ 
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     username = Column(String, unique=True, index=True)
     password = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -38,14 +39,14 @@ class User(Base):
 # Posts Table
 # ----------------
 class Post(Base):
-    __tablename__ = "posts"
+    __tablename__ = "posts"  
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True) 
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
     votes = Column(Integer, default=0)
     subreddit = Column(String, default="general")
-    author_id = Column(Integer, ForeignKey("users.id"))
+    author_id = Column(String, ForeignKey("users.id"))
 
     author = relationship("User", back_populates="posts")
     votes_relation = relationship("Vote", back_populates="post", cascade="all, delete-orphan")
@@ -56,14 +57,14 @@ class Post(Base):
 class Vote(Base):
     __tablename__ = "votes"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id")) 
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id")) 
     post_id = Column(Integer, ForeignKey("posts.id"))
     value = Column(Integer)  # 1 for upvote, -1 for downvote
 
     __table_args__ = (
-        UniqueConstraint("user_id", "post_id", name="unique_user_post_vote"),
-    )
-
-    user = relationship("User", back_populates="votes")
-    post = relationship("Post", back_populates="votes_relation")
+        UniqueConstraint("user_id", "post_id", name="unique_user_post_vote"), 
+    ) 
+  
+    user = relationship("User", back_populates="votes")  
+    post = relationship("Post", back_populates="votes_relation") 

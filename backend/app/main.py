@@ -1,7 +1,7 @@
 from fastapi import FastAPI # type : ignore
 from fastapi.middleware.cors import CORSMiddleware # type : ignore
 from contextlib import asynccontextmanager
-from .routes import posts, vote, synthetic, notes
+from .routes import posts, vote, synthetic, notes, users
 
 from .db.db import db
 from .utils.logger import LogMiddleware
@@ -37,6 +37,13 @@ app.include_router(posts.router)
 # Routes for votes
 app.include_router(vote.router)
 
-@app.get("/")
+app.include_router(users.router)  # no prefix = available at /debug/users
+
+
+@app.get("/") 
 def read_root():
     return {"message": "Notes App Backend is running."} 
+
+@app.get("/debug/routes")
+def list_routes():
+    return [route.path for route in app.routes]

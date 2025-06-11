@@ -25,6 +25,8 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<'hot' | 'new' | 'top'>('hot');
 
+  console.log('Rendered FrontPage with sessionId:', sessionId, 'and userId:', userId);
+
   const fetchPosts = useCallback(async () => {
     try {
       const res = await fetch(`http://localhost:8000/posts?sort=${sort}`, {
@@ -55,7 +57,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 pb-12">
-      <Navbar />
+      <Navbar userId={userId} sessionId={sessionId}/>
       <div className="pt-24 px-4 max-w-7xl mx-auto flex gap-6">
         {/* Main Content */}
         <div className="flex-1 max-w-2xl mx-auto">

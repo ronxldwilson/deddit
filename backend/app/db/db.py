@@ -44,12 +44,13 @@ class Database:
         users = []
         for _ in range(5):
             user = User(
+                id=str(fake.uuid4()),
                 username=fake.user_name(),
                 password=fake.password()
             )
             db.add(user)
             users.append(user)
-        db.commit()
+        db.commit() 
 
     # Create notes for each user
         for user in users:
