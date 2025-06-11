@@ -1,4 +1,7 @@
 Done: 
+1. Create Post (text, link, image)
+4. Comment on Post
+5. Nested Comments (threaded)
 21. Sign Up / Login
 20. Vote score indicator (e.g. +123)
 
@@ -7,7 +10,6 @@ Add Search functionality
 Add Create Post option
 Add Profile Section	
 Add Logout Button
-1. Create Post (text, link, image)
 8. Upvote/Downvote Post
 12. Sort posts (hot/new/top)
 26. Profile bio
@@ -16,8 +18,6 @@ Add Logout Button
 ### 🧱 Core Functionality (Posts, Comments, Voting)
 2. Edit Post
 3. Delete Post
-4. Comment on Post
-5. Nested Comments (threaded)
 6. Edit Comment
 7. Delete Comment
 9. Upvote/Downvote Comment

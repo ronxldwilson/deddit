@@ -91,27 +91,27 @@ export const PostCard: React.FC<PostCardProps> = ({
 
   return (
     <>
-      <Link href={`/posts/${id}?userID=${userID}`} className="block">
-        <div className="bg-yellow rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 p-4 flex gap-4">
-          {/* Voting Column */}
-          <div className="flex flex-col items-center w-10 text-gray-500 select-none">
-            <button
-              onClick={handleUpvote}
-              className={`transition-colors ${voteState === "up" ? "text-orange-500" : "hover:text-orange-500"
-                }`}
-            >
-              <ArrowUp size={18} />
-            </button>
-            <span className="text-sm font-semibold">{voteCount}</span>
-            <button
-              onClick={handleDownvote}
-              className={`transition-colors ${voteState === "down" ? "text-blue-500" : "hover:text-blue-500"
-                }`}
-            >
-              <ArrowDown size={18} />
-            </button>
-          </div>
+      <div className="bg-yellow rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 p-4 flex gap-4">
+        {/* Voting Column */}
+        <div className="flex flex-col items-center w-10 text-gray-500 select-none">
+          <button
+            onClick={handleUpvote}
+            className={`transition-colors ${voteState === "up" ? "text-orange-500" : "hover:text-orange-500"
+              }`}
+          >
+            <ArrowUp size={18} />
+          </button>
+          <span className="text-sm font-semibold">{voteCount}</span>
+          <button
+            onClick={handleDownvote}
+            className={`transition-colors ${voteState === "down" ? "text-blue-500" : "hover:text-blue-500"
+              }`}
+          >
+            <ArrowDown size={18} />
+          </button>
+        </div>
 
+        <Link href={`/posts/${id}?userID=${userID}`} className="block">
           {/* Post Content */}
           {/* Post Content */}
           <div className="flex-grow">
@@ -124,8 +124,8 @@ export const PostCard: React.FC<PostCardProps> = ({
               {typeof content === 'string' ? content : JSON.stringify(content, null, 2)}
             </p>
           </div>
-        </div>
-      </Link>
+        </Link>
+      </div >
     </>
   );
 };
