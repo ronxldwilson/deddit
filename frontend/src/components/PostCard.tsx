@@ -2,22 +2,30 @@ import React, { useState } from "react";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import Link from "next/link";
 
+interface Author {
+  username: string;
+  id: string;
+  created_at: string;
+  updated_at: string | null;
+  password: string;
+}
+
 interface PostCardProps {
   id: string;
   title: string;
-  // author: string;
+  author: string; 
   content: string;
   subreddit: string;
-  votes: number; 
+  votes: number;
   userID: string;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
   id,
   title,
-  // author,
+  author,
   subreddit,
-  votes, 
+  votes,
   userID,
   content,
 }) => {
@@ -116,8 +124,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           {/* Post Content */}
           <div className="flex-grow">
             <div className="text-sm text-gray-500 mb-1">
-              <span className="font-medium text-black">r/{subreddit}</span> ·
-              {/* Posted by u/{author} */}
+              <span className="font-medium text-black">r/{subreddit}</span> · Posted by u/{author}
             </div>
             <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
             <p className="text-gray-700 mt-2 whitespace-pre-wrap">

@@ -5,12 +5,21 @@ import { Navbar } from './Navbar';
 import { PostCard } from './PostCard';
 import { logEvent, ActionType } from '../services/analyticsLogger';
 
+interface Author {
+  username: string;
+  id: string;
+  created_at: string;
+  updated_at: string | null;
+  password: string;
+}
+
+
 interface Post {
   id: string;
   title: string;
   content: string;
   votes: number;
-  // author: string;
+  author: Author;
   subreddit: string;
 }
 
@@ -57,7 +66,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 pb-12">
-      <Navbar userId={userId} sessionId={sessionId}/>
+      <Navbar userId={userId} sessionId={sessionId} />
       <div className="pt-24 px-4 max-w-7xl mx-auto flex gap-6">
         {/* Main Content */}
         <div className="flex-1 max-w-2xl mx-auto">
@@ -92,7 +101,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
                   key={post.id}
                   id={post.id}
                   title={post.title}
-                  // author={post.author}
+                  author={post.author.username}
                   subreddit={post.subreddit}
                   votes={post.votes}
                   content={post.content}
@@ -105,12 +114,46 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
 
         {/* Sidebar */}
         <aside className="w-80 hidden lg:block">
-          <div className="bg-white border rounded-xl p-4 shadow-md sticky top-24">
+          <div className="bg-white border rounded-xl p-4 shadow-md ">
             <h2 className="text-base font-semibold text-gray-800 mb-2">About Deddit</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
               Deddit is a modern take on classic forums. Here you'll find simulated posts across
               subreddits — for demo, testing, and development purposes.
             </p>
+          </div>
+
+          <div className="bg-white border rounded-xl p-4 mt-6 shadow-md text-black">
+            <h2 className="text-base font-semibold mb-2 ">Popular Communities</h2>
+            <ul className="space-y-2 p-4">
+              <li className="flex items-center justify-between">
+                <div className='flex-col'>
+                  <div>
+
+                    <a href="#" className="text-sm text-blue-600 hover:underline">
+                      r/technology
+                    </a>
+                  </div>
+                  <div>
+                    members: 1.2M
+                  </div>
+                </div>
+              </li>
+              <li className="flex items-center justify-between">
+                <a href="#" className="text-sm text-blue-600 hover:underline">
+                  r/science
+                </a>
+              </li>
+              <li className="flex items-center justify-between">
+                <a href="#" className="text-sm text-blue-600 hover:underline">
+                  r/gaming
+                </a>
+              </li>
+              <li className="flex items-center justify-between">
+                <a href="#" className="text-sm text-blue-600 hover:underline">
+                  r/music
+                </a>
+              </li>
+            </ul>
           </div>
         </aside>
       </div>

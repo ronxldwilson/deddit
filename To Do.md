@@ -8,11 +8,15 @@ Done:
 
 To Do:
 Add Search functionality
-Add Create Post option
 Add Profile Section	
 Add Logout Button
+Add voting capabilites in the comments
+Add popular communitites section
+
+
 12. Sort posts (hot/new/top)
 26. Profile bio
+
 
 
 ### 🧱 Core Functionality (Posts, Comments, Voting)
