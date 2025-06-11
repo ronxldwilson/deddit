@@ -31,5 +31,12 @@ class CommentResponse(BaseModel):
     parent_id: Optional[int] = None
     children: List["CommentResponse"] = []
 
-    class Config:
-        orm_mode = True
+class VoteCreate(BaseModel):
+    post_id: int
+    value: int  # 1 or -1
+
+class VoteResponse(BaseModel):
+    id: str
+    user_id: str
+    post_id: int
+    value: int 

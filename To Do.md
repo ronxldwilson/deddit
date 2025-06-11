@@ -2,6 +2,7 @@ Done:
 1. Create Post (text, link, image)
 4. Comment on Post
 5. Nested Comments (threaded)
+8. Upvote/Downvote Post
 21. Sign Up / Login
 20. Vote score indicator (e.g. +123)
 
@@ -10,7 +11,6 @@ Add Search functionality
 Add Create Post option
 Add Profile Section	
 Add Logout Button
-8. Upvote/Downvote Post
 12. Sort posts (hot/new/top)
 26. Profile bio
 

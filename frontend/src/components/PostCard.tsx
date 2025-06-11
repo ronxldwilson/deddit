@@ -8,8 +8,8 @@ interface PostCardProps {
   // author: string;
   content: string;
   subreddit: string;
-  votes: number;
-  userID: string
+  votes: number; 
+  userID: string;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
@@ -17,7 +17,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   title,
   // author,
   subreddit,
-  votes,
+  votes, 
   userID,
   content,
 }) => {
@@ -33,7 +33,7 @@ export const PostCard: React.FC<PostCardProps> = ({
 
     const votePayload = {
       post_id: numericPostId,
-      user_id: 1, // Hardcoded for now; replace with auth later
+      user_id: userID,
       vote: type,
     };
 

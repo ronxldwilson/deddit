@@ -60,17 +60,17 @@ class Post(Base):
 class Vote(Base):
     __tablename__ = "votes"
 
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id")) 
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    user_id = Column(String, ForeignKey("users.id"))  # UUID as string
     post_id = Column(Integer, ForeignKey("posts.id"))
     value = Column(Integer)  # 1 for upvote, -1 for downvote
 
     __table_args__ = (
-        UniqueConstraint("user_id", "post_id", name="unique_user_post_vote"), 
-    ) 
-  
-    user = relationship("User", back_populates="votes")  
-    post = relationship("Post", back_populates="votes_relation") 
+        UniqueConstraint("user_id", "post_id", name="unique_user_post_vote"),
+    )
+
+    user = relationship("User", back_populates="votes")
+    post = relationship("Post", back_populates="votes_relation")
 
 
 class Comment(Base):

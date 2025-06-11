@@ -10,8 +10,8 @@ from ..db.models import Post, Vote, User  # Import your models
 router = APIRouter()
 
 class VoteRequest(BaseModel):
-    post_id: int 
-    user_id: int 
+    post_id: int  
+    user_id: str  
     vote: str  # "up", "down", "neutral"
 
 @router.post("/vote")
