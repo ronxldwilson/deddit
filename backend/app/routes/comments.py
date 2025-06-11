@@ -2,8 +2,9 @@
 
 import random
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session, joinedload
+from fastapi import APIRouter, Depends, HTTPException # type: ignore
+from sqlalchemy.orm import Session, joinedload # type: ignore
+from sqlalchemy import func # type: ignore
 from ..db.db import db as database
 from ..db.models import Comment, User, Post, CommentVote
 from ..models import CommentCreate, CommentResponse
@@ -12,8 +13,8 @@ router = APIRouter()
 
 def build_comment_tree(comments, parent_id=None):
     tree = []
-    for comment in comments:
-        if comment.parent_id == parent_id:
+    for comment in comments: 
+        if comment.parent_id == parent_id: 
             children = build_comment_tree(comments, comment.id)
             tree.append(CommentResponse(
                 id=comment.id,
@@ -62,15 +63,14 @@ def create_comment(comment: CommentCreate, db: Session = Depends(database.get_db
         children=[]
     )
 
-
 @router.post("/comments/{comment_id}/vote")
 def vote_on_comment(comment_id: int, vote: dict, db: Session = Depends(database.get_db)):
     user_id = vote.get("user_id")
-    value = vote.get("value")  # 1 or -1 
+    value = vote.get("value")  # should be 1 or -1
 
     if value not in [1, -1]:
         raise HTTPException(status_code=400, detail="Invalid vote value")
-
+ 
     comment = db.query(Comment).filter(Comment.id == comment_id).first()
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
@@ -78,10 +78,15 @@ def vote_on_comment(comment_id: int, vote: dict, db: Session = Depends(database.
     existing_vote = db.query(CommentVote).filter_by(user_id=user_id, comment_id=comment_id).first()
 
     if existing_vote:
-        existing_vote.value = value  # Update the vote
+        if existing_vote.value == value:
+            raise HTTPException(status_code=403, detail="You have already voted this way")
+        existing_vote.value = value
     else:
         new_vote = CommentVote(user_id=user_id, comment_id=comment_id, value=value)
         db.add(new_vote)
 
     db.commit()
-    return {"message": "Vote recorded"}
+
+    # Optional: Return updated vote count
+    vote_sum = db.query(func.sum(CommentVote.value)).filter(CommentVote.comment_id == comment_id).scalar() or 0 # type: ignore
+    return {"message": "Vote recorded", "votes": vote_sum} 

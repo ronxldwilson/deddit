@@ -3,6 +3,7 @@ Done:
 4. Comment on Post
 5. Nested Comments (threaded)
 8. Upvote/Downvote Post
+9. Upvote/Downvote Comment
 19. Comment collapse/expand
 20. Vote score indicator (e.g. +123)
 21. Sign Up / Login
@@ -11,6 +12,7 @@ To Do:
 Add Search functionality
 Add Profile Section	
 Add Logout Button
+Fix the Limit of votes for comments
 Add voting capabilites in the comments
 Add popular communitites section
 
@@ -22,7 +24,6 @@ Add popular communitites section
 3. Delete Post
 6. Edit Comment
 7. Delete Comment
-9. Upvote/Downvote Comment
 10. Save Post
 11. Save Comment
 13. Sort comments (best/new/controversial)

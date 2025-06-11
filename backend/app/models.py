@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel # type: ignore
 from typing import Optional, List
 from datetime import datetime
 
@@ -10,7 +10,7 @@ class NoteIn(BaseModel):
     title: str
     content: str
     
-class PostCreate(BaseModel):
+class PostCreate(BaseModel): 
     title: str
     content: str
     subreddit: str 

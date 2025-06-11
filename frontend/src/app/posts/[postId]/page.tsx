@@ -125,10 +125,10 @@ export default function PostPage() {
   function CommentThread({ comment }: { comment: Comment }) {
     const [collapsed, setCollapsed] = useState(false);
     const [voteCount, setVoteCount] = useState(comment.votes);
-    
+
     const searchParams = useSearchParams();
     const userID = searchParams.get("userID");
-    
+
     console.log(voteCount);
     console.log(comment.votes);
     const handleVote = async (value: 1 | -1) => {
@@ -140,7 +140,22 @@ export default function PostPage() {
         });
 
         // Optimistically update
-        setVoteCount((prev) => prev + value);
+        // setVoteCount((prev) => prev + value);
+        const res = await fetch(`http://localhost:8000/comments/${comment.id}/vote`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: userID, value }),
+        });
+
+        if (res.ok) {
+          // Re-fetch latest vote count from backend to ensure correctness
+          const updated = await fetch(`http://localhost:8000/comments/${comment.id}`).then(r => r.json());
+          setVoteCount(updated.votes);
+        } else {
+          const error = await res.json();
+          alert(error.detail); // Optional: inform user of double voting attempt
+        }
+
       } catch (err) {
         console.error("Vote failed", err);
       }
