@@ -215,12 +215,12 @@ def save_post(post_id: int, payload: SavePayload, db: Session = Depends(db.get_d
     return {"status": "saved"}
 
 @router.post("/save_comment/{comment_id}")
-def save_comment(comment_id: int, user: User = Depends(get_current_user), db: Session = Depends(db.get_db)):
-    exists = db.query(SavedComment).filter_by(user_id=user.id, comment_id=comment_id).first()
+def save_comment(comment_id: int, payload: SavePayload, db: Session = Depends(db.get_db)):
+    exists = db.query(SavedComment).filter_by(user_id=payload.user_id, comment_id=comment_id).first()
     if exists:
         db.delete(exists)
         db.commit()
         return {"status": "unsaved"}
-    db.add(SavedComment(user_id=user.id, comment_id=comment_id))
+    db.add(SavedComment(user_id=payload.user_id, comment_id=comment_id))
     db.commit()
     return {"status": "saved"}
