@@ -89,13 +89,14 @@ class Comment(Base):
     children = relationship("Comment", backref="parent", remote_side=[id])
     
     votes = relationship("CommentVote", back_populates="comment", cascade="all, delete-orphan")
+    post = relationship("Post", back_populates="comments")
 
     
 class CommentVote(Base):
     __tablename__ = "comment_votes"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
-    user_id = Column(String, ForeignKey("users.id"))
+    user_id = Column(String, ForeignKey("users.id")) 
     comment_id = Column(Integer, ForeignKey("comments.id"))
     value = Column(Integer)  # 1 = upvote, -1 = downvote
 
@@ -104,4 +105,4 @@ class CommentVote(Base):
     )
 
     user = relationship("User")
-    comment = relationship("Comment", back_populates="votes")
+    comment = relationship("Comment", back_populates="votes") 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ..db.db import db as database
-from ..db.models import User
+from ..db.models import User, Post, Comment
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -51,4 +51,23 @@ def get_user_posts(user_id: str, db: Session = Depends(database.get_db)):
             "subreddit": post.subreddit,
         }
         for post in user.posts
+    ]
+
+
+
+@router.get("/{user_id}/comments", summary="Get all comments by user")
+def get_user_comments(user_id: str, db: Session = Depends(database.get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return [
+        {
+            "id": comment.id,
+            "content": comment.content,
+            "post_id": comment.post_id,
+            "post_title": comment.post.title if comment.post else None,
+            "created_at": comment.created_at.isoformat() if comment.created_at else None,
+        }
+        for comment in user.comments
     ]
