@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
+import { parseUserMentions } from '../../../utils/parseUserMentions';
 
 interface Author {
   username: string;
@@ -183,7 +184,7 @@ export default function PostPage() {
     return (
       <div className="pl-4 border-l border-gray-300 my-2">
         <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-          <span>u/{comment.author_username} · {new Date(comment.created_at).toLocaleString()}</span>
+          <span>{parseUserMentions(`u/${comment.author_username}`)} · {new Date(comment.created_at).toLocaleString()}</span>
           <div className="flex gap-2">
             <button
               onClick={() => handleSave(comment.id, "comment")}
@@ -266,7 +267,7 @@ export default function PostPage() {
         {/* Post and Comments */}
         <div className="flex-1 bg-white p-6 rounded-lg shadow">
           <div className="text-sm text-gray-600 mb-2">
-            Posted by <span className="font-medium">u/{post.author.username}</span> in <span className="font-medium">r/{post.subreddit}</span>
+            Posted by <span className="font-medium">{parseUserMentions(`u/${post.author.username}`)}</span> in <span className="font-medium">r/{post.subreddit}</span>
           </div>
           <h1 className="text-2xl font-bold mb-4 text-black">{post.title}</h1>
           <div className="text-gray-800 whitespace-pre-wrap mb-6">{post.content}</div>

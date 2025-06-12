@@ -34,7 +34,7 @@ interface Post {
 interface FrontPageProps {
   userId: string;
   sessionId: string;
-  onLogout: () => void; 
+  onLogout: () => void;
 }
 
 export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogout }) => {
@@ -76,7 +76,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
       <Navbar
         userId={userId}
         sessionId={sessionId}
-        onLogout={onLogout} 
+        onLogout={onLogout}
       />
 
       <div className="pt-12 flex gap-6 m-0">
