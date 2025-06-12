@@ -47,7 +47,7 @@ export const Navbar: React.FC <NavbarProps> = ({userId, sessionId}) => {
 
   return (
     <nav className="w-full bg-white shadow fixed top-0 left-0 z-10">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div className="max-w-full mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
         <div className="text-2xl font-bold text-red-600 cursor-pointer hover:opacity-90">
           Deddit
@@ -62,7 +62,7 @@ export const Navbar: React.FC <NavbarProps> = ({userId, sessionId}) => {
               placeholder="Search Deddit"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm text-black rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              className="w-full pl-9 pr-3 py-2 text-sm text-black rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </form>

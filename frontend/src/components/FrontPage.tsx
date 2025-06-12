@@ -65,9 +65,46 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
   }, [fetchPosts, sessionId]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 pb-12">
+    <div className="min-h-screen max-w-full bg-gradient-to-b bg-green-400 from-gray-50 via-white to-gray-100 pb-12">
       <Navbar userId={userId} sessionId={sessionId} />
-      <div className="pt-24 px-4 max-w-7xl mx-auto flex gap-6">
+      <div className="pt-12 flex gap-6 m-0">
+
+        {/* Left Sidebar */}
+        <aside className="w-64 hidden lg:block">
+          <div className="sticky top-24 space-y-6">
+
+            <div className="bg-white border rounded-xl p-4 shadow-md">
+              <h2 className="text-base font-semibold text-gray-800 mb-2">Navigation</h2>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li><a href="#" className="hover:underline">🏠 Home</a></li>
+                <li><a href="#" className="hover:underline">📈 Popular</a></li>
+                <li><a href="#" className="hover:underline">🌐 All</a></li>
+              </ul>
+            </div>
+
+            <div className="bg-white border rounded-xl p-4 shadow-md">
+              <h2 className="text-base font-semibold text-gray-800 mb-2">My Stuff</h2>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li><a href="#" className="hover:underline">💾 Saved Posts</a></li>
+                <li><a href="#" className="hover:underline">💬 My Comments</a></li>
+              </ul>
+            </div>
+
+            <div className="bg-white border rounded-xl p-4 shadow-md">
+              <h2 className="text-base font-semibold text-gray-800 mb-2">Your Communities</h2>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li><a href="#" className="hover:underline">r/technology</a></li>
+                <li><a href="#" className="hover:underline">r/gaming</a></li>
+                <li><a href="#" className="hover:underline">r/startups</a></li>
+              </ul>
+            </div>
+
+            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded-xl shadow">
+              + Create Post
+            </button>
+          </div>
+        </aside>
+
         {/* Main Content */}
         <div className="flex-1 max-w-2xl mx-auto">
           {/* Title + Sort */}
@@ -112,36 +149,40 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
           )}
         </div>
 
-        {/* Sidebar */}<aside className="w-80 hidden lg:block space-y-6">
-          {/* About Section */}
-          <div className="bg-white border rounded-xl p-4 shadow-md">
-            <h2 className="text-base font-semibold text-gray-800 mb-2">About Deddit</h2>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Deddit is a modern take on classic forums. Here you'll find simulated posts across
-              subreddits — for demo, testing, and development purposes.
-            </p>
-          </div>
+        {/* Sidebar */}
+        <aside className="w-80 hidden lg:block space-y-6">
+          <div className="sticky top-24 space-y-6">
 
-          {/* Popular Communities Section */}
-          <div className="bg-white border rounded-xl p-4 shadow-md">
-            <h2 className="text-base font-semibold text-gray-800 mb-4">Popular Communities</h2>
-            <ul className="space-y-4">
-              {[
-                { name: "technology", members: "1.2M" },
-                { name: "science", members: "980K" },
-                { name: "gaming", members: "2.1M" },
-                { name: "music", members: "750K" },
-              ].map((community) => (
-                <li key={community.name} className="flex items-center justify-between">
-                  <div>
-                    <a href="#" className="text-sm font-medium text-blue-600 hover:underline">
-                      r/{community.name}
-                    </a>
-                    <div className="text-xs text-gray-500">members: {community.members}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {/* About Section */}
+            <div className="bg-white border rounded-xl p-4 shadow-md">
+              <h2 className="text-base font-semibold text-gray-800 mb-2">About Deddit</h2>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Deddit is a modern take on classic forums. Here you'll find simulated posts across
+                subreddits — for demo, testing, and development purposes.
+              </p>
+            </div>
+
+            {/* Popular Communities Section */}
+            <div className="bg-white border rounded-xl p-4 shadow-md">
+              <h2 className="text-base font-semibold text-gray-800 mb-4">Popular Communities</h2>
+              <ul className="space-y-4">
+                {[
+                  { name: "technology", members: "1.2M" },
+                  { name: "science", members: "980K" },
+                  { name: "gaming", members: "2.1M" },
+                  { name: "music", members: "750K" },
+                ].map((community) => (
+                  <li key={community.name} className="flex items-center justify-between">
+                    <div>
+                      <a href="#" className="text-sm font-medium text-blue-600 hover:underline">
+                        r/{community.name}
+                      </a>
+                      <div className="text-xs text-gray-500">members: {community.members}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </aside>
 

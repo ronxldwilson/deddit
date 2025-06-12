@@ -55,8 +55,8 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="min-h-screen max-w-full bg-gradient-to-b from-gray-50 via-white to-gray-100 pb-12">
+      <div className="mx-auto py-8 px-4">
         {!userId ? (
           <LoginForm
             sessionId={sessionId}

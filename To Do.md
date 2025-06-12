@@ -4,39 +4,38 @@ Done:
 5. Nested Comments (threaded)
 8. Upvote/Downvote Post
 9. Upvote/Downvote Comment
+10. Save Post
+11. Save Comment
 19. Comment collapse/expand
 20. Vote score indicator (e.g. +123)
 21. Sign Up / Login
 24. User profile page
+29. User history (posts/comments)
 
 To Do:
 
-10. Save Post
-11. Save Comment
+2. Edit Post
+6. Edit Comment
+7. Delete Comment
+3. Delete Post
+12. Sort posts (hot/new/top)
+26. Profile bio
+31. Create Subreddit feature
+31.5 Create subreddit by user
 
 Add Search functionality
-Add Profile Section	
 Add Logout Button
 Fix the Limit of votes for comments
-Add voting capabilites in the comments
 Add popular communitites section
 Add Peer To Peer message
 
-12. Sort posts (hot/new/top)
-26. Profile bio
-2. Edit Post
-3. Delete Post
-6. Edit Comment
-7. Delete Comment
 13. Sort comments (best/new/controversial)
 25. User karma - Show Total number of posts/ comments that are made in profile section
 14. NSFW flag and toggle
 16. Spoiler tag support
 22. Password reset
 27. User avatars
-29. User history (posts/comments)
 30. Follow/unfollow user
-31. Create subreddit
 32. Subreddit description and rules
 33. Subreddit banner and icon
 34. Subreddit moderators
@@ -52,16 +51,13 @@ Add Peer To Peer message
 57. Tag support for posts
 58. Suggested subreddits
 61. In-app notifications
+67. Comment replies notification
 69. Message threading
 70. Read/unread message status
 91. Post view count
 82. Infinite scroll for posts/comments
 89. Sticky top nav
 90. Floating compose post button
-
-
-
-
 
 
 ### 🧱 Core Functionality (Posts, Comments, Voting)
@@ -103,7 +99,6 @@ Add Peer To Peer message
 64. Private messages
 65. Mod mail
 66. Notification settings
-67. Comment replies notification
 68. New follower notification
 
 ### 💬 Real-Time Features
