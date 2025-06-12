@@ -4,6 +4,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Navbar } from './Navbar';
 import { PostCard } from './PostCard';
 import { logEvent, ActionType } from '../services/analyticsLogger';
+import Link from 'next/link';
+import { LeftSideBar } from './LeftSideBar';
 
 interface Author {
   username: string;
@@ -11,6 +13,12 @@ interface Author {
   created_at: string;
   updated_at: string | null;
   password: string;
+}
+
+
+interface LeftSideBarProps {
+    userId: string;
+    sessionId: string;
 }
 
 
@@ -70,41 +78,8 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
       <div className="pt-12 flex gap-6 m-0">
 
         {/* Left Sidebar */}
-        <aside className="w-64 hidden lg:block">
-          <div className="sticky top-24 space-y-6">
-
-            <div className="bg-white border rounded-xl p-4 shadow-md">
-              <h2 className="text-base font-semibold text-gray-800 mb-2">Navigation</h2>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li><a href="#" className="hover:underline">🏠 Home</a></li>
-                <li><a href="#" className="hover:underline">📈 Popular</a></li>
-                <li><a href="#" className="hover:underline">🌐 All</a></li>
-              </ul>
-            </div>
-
-            <div className="bg-white border rounded-xl p-4 shadow-md">
-              <h2 className="text-base font-semibold text-gray-800 mb-2">My Stuff</h2>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li><a href="#" className="hover:underline">💾 Saved Posts</a></li>
-                <li><a href="#" className="hover:underline">💬 My Comments</a></li>
-              </ul>
-            </div>
-
-            <div className="bg-white border rounded-xl p-4 shadow-md">
-              <h2 className="text-base font-semibold text-gray-800 mb-2">Your Communities</h2>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li><a href="#" className="hover:underline">r/technology</a></li>
-                <li><a href="#" className="hover:underline">r/gaming</a></li>
-                <li><a href="#" className="hover:underline">r/startups</a></li>
-              </ul>
-            </div>
-
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded-xl shadow">
-              + Create Post
-            </button>
-          </div>
-        </aside>
-
+        <LeftSideBar userId={userId} sessionId={sessionId} />
+        
         {/* Main Content */}
         <div className="flex-1 max-w-2xl mx-auto">
           {/* Title + Sort */}
