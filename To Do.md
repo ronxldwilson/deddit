@@ -1,5 +1,5 @@
 Done: 
-1. Create Post (text, link, image)
+-1. Create Post (text, link, image)
 4. Comment on Post
 5. Nested Comments (threaded)
 8. Upvote/Downvote Post
@@ -16,10 +16,10 @@ Fix the Limit of votes for comments
 Add voting capabilites in the comments
 Add popular communitites section
 
+Add Peer To Peer message
+
 12. Sort posts (hot/new/top)
 26. Profile bio
-
-### 🧱 Core Functionality (Posts, Comments, Voting)
 2. Edit Post
 3. Delete Post
 6. Edit Comment
@@ -27,31 +27,53 @@ Add popular communitites section
 10. Save Post
 11. Save Comment
 13. Sort comments (best/new/controversial)
+25. User karma - Show Total number of posts/ comments that are made in profile section
 14. NSFW flag and toggle
-15. Post Flair
 16. Spoiler tag support
-17. Markdown formatting in posts/comments
-18. Post preview
-
-### 👥 User Accounts
-
 22. Password reset
-23. OAuth with Google/GitHub
 24. User profile page
-25. User karma (post/comment)
 27. User avatars
-28. User settings (email, password, preferences)
 29. User history (posts/comments)
 30. Follow/unfollow user
-
-### 🌐 Subreddits ("Subdeddit" Support)
-
 31. Create subreddit
 32. Subreddit description and rules
 33. Subreddit banner and icon
 34. Subreddit moderators
 35. Subreddit settings (visibility, post types)
 36. Subscribe/unsubscribe from subreddits
+41. Report post/comment
+51. Global search
+52. Subreddit-specific search
+53. Search by user
+54. Trending subreddits
+55. Popular posts
+56. Recently created subreddits
+57. Tag support for posts
+58. Suggested subreddits
+61. In-app notifications
+69. Message threading
+70. Read/unread message status
+91. Post view count
+82. Infinite scroll for posts/comments
+89. Sticky top nav
+90. Floating compose post button
+
+
+
+
+
+
+### 🧱 Core Functionality (Posts, Comments, Voting)
+15. Post Flair
+17. Markdown formatting in posts/comments
+18. Post preview
+
+### 👥 User Accounts
+
+23. OAuth with Google/GitHub
+28. User settings (email, password, preferences)
+
+### 🌐 Subreddits ("Subdeddit" Support)
 37. Filter posts by flair
 38. Moderation queue
 39. Post approval/rejection
@@ -59,7 +81,6 @@ Add popular communitites section
 
 ### 🛡️ Moderation Tools
 
-41. Report post/comment
 42. Admin dashboard
 43. Auto-moderation rules
 44. Ban user from subreddit
@@ -71,21 +92,11 @@ Add popular communitites section
 50. Mute user in subreddit
 
 ### 🔍 Search & Discovery
-
-51. Global search
-52. Subreddit-specific search
-53. Search by user
-54. Trending subreddits
-55. Popular posts
-56. Recently created subreddits
-57. Tag support for posts
-58. Suggested subreddits
 59. Search autocomplete
 60. Search filters (date range, type)
 
 ### 📩 Notifications & Messaging
 
-61. In-app notifications
 62. Email notifications
 63. Mentions (@username)
 64. Private messages
@@ -93,8 +104,6 @@ Add popular communitites section
 66. Notification settings
 67. Comment replies notification
 68. New follower notification
-69. Message threading
-70. Read/unread message status
 
 ### 💬 Real-Time Features
 
@@ -112,19 +121,15 @@ Add popular communitites section
 ### 🎨 UI / UX Enhancements
 
 81. Dark mode / light mode toggle
-82. Infinite scroll for posts/comments
 83. Mobile responsive design
 84. PWA support
 85. Drag-and-drop image uploader
 86. Image zoom modal
 87. User tooltips (hover info)
 88. Animated vote button feedback
-89. Sticky top nav
-90. Floating compose post button
 
 ### 📊 Analytics & Insights
 
-91. Post view count
 92. Comment count stats
 93. Subreddit growth analytics
 94. Daily active users (DAU)

@@ -80,7 +80,10 @@ export const Navbar: React.FC <NavbarProps> = ({userId, sessionId}) => {
             <PlusSquare size={16} />
             Create Post
           </button>
-          <button className="flex items-center gap-1 hover:text-black">
+          <button 
+          className="flex items-center gap-1 hover:text-black"
+          onClick={() => router.push(`/profile?userId=${userId}`)}
+          >
             <User size={16} />
             Profile
           </button>

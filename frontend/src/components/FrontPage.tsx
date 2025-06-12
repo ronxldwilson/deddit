@@ -112,9 +112,9 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
           )}
         </div>
 
-        {/* Sidebar */}
-        <aside className="w-80 hidden lg:block">
-          <div className="bg-white border rounded-xl p-4 shadow-md ">
+        {/* Sidebar */}<aside className="w-80 hidden lg:block space-y-6">
+          {/* About Section */}
+          <div className="bg-white border rounded-xl p-4 shadow-md">
             <h2 className="text-base font-semibold text-gray-800 mb-2">About Deddit</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
               Deddit is a modern take on classic forums. Here you'll find simulated posts across
@@ -122,40 +122,29 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
             </p>
           </div>
 
-          <div className="bg-white border rounded-xl p-4 mt-6 shadow-md text-black">
-            <h2 className="text-base font-semibold mb-2 ">Popular Communities</h2>
-            <ul className="space-y-2 p-4">
-              <li className="flex items-center justify-between">
-                <div className='flex-col'>
+          {/* Popular Communities Section */}
+          <div className="bg-white border rounded-xl p-4 shadow-md">
+            <h2 className="text-base font-semibold text-gray-800 mb-4">Popular Communities</h2>
+            <ul className="space-y-4">
+              {[
+                { name: "technology", members: "1.2M" },
+                { name: "science", members: "980K" },
+                { name: "gaming", members: "2.1M" },
+                { name: "music", members: "750K" },
+              ].map((community) => (
+                <li key={community.name} className="flex items-center justify-between">
                   <div>
-
-                    <a href="#" className="text-sm text-blue-600 hover:underline">
-                      r/technology
+                    <a href="#" className="text-sm font-medium text-blue-600 hover:underline">
+                      r/{community.name}
                     </a>
+                    <div className="text-xs text-gray-500">members: {community.members}</div>
                   </div>
-                  <div>
-                    members: 1.2M
-                  </div>
-                </div>
-              </li>
-              <li className="flex items-center justify-between">
-                <a href="#" className="text-sm text-blue-600 hover:underline">
-                  r/science
-                </a>
-              </li>
-              <li className="flex items-center justify-between">
-                <a href="#" className="text-sm text-blue-600 hover:underline">
-                  r/gaming
-                </a>
-              </li>
-              <li className="flex items-center justify-between">
-                <a href="#" className="text-sm text-blue-600 hover:underline">
-                  r/music
-                </a>
-              </li>
+                </li>
+              ))}
             </ul>
           </div>
         </aside>
+
       </div>
     </div>
   );

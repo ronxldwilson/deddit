@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Synthetic Website Template",
-  description: "Template for generating synthetic websites",
+  title: "Deddit",
+  description: "A modern platform for discussions and communities by developers, for developers.",
 };
 
 export default function RootLayout({
