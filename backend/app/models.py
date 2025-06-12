@@ -1,4 +1,4 @@
-from pydantic import BaseModel # type: ignore
+from pydantic import BaseModel, Field # type: ignore
 from typing import Optional, List
 from datetime import datetime
 
@@ -29,10 +29,12 @@ class CommentResponse(BaseModel):
     created_at: datetime
     author_username: str
     parent_id: Optional[int] = None
-    children: List["CommentResponse"] = []
+    post_id: int  # <-- Add this
+    children: List["CommentResponse"] = Field(default_factory=list)
     votes: int  # <-- Add this line
     class Config:
         orm_mode = True
+        
 class VoteCreate(BaseModel):
     post_id: int
     value: int  # 1 or -1

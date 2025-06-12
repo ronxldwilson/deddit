@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship # type: ignore
 from .base import Base
 
 # ----------------
-# Notes Table
+# Notes Table 
 # ----------------
 class Note(Base):
     __tablename__ = "notes"

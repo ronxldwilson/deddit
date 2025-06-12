@@ -1,11 +1,7 @@
 'use client';
-// app/posts/[postId]/page.tsx
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-
-import { useSearchParams } from "next/navigation";
-
+import { useParams, useSearchParams } from "next/navigation";
 
 interface Author {
   username: string;
@@ -14,7 +10,7 @@ interface Author {
   updated_at: string | null;
   password: string;
 }
-
+ 
 interface Comment {
   id: number;
   content: string;
@@ -23,8 +19,8 @@ interface Comment {
   parent_id: number | null;
   children: Comment[];
   votes: number;
+  post_id: number;
 }
-
 
 interface Post {
   id: number;
@@ -39,28 +35,13 @@ interface Post {
 
 export default function PostPage() {
   const { postId } = useParams();
+  const searchParams = useSearchParams();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
 
-
-  const searchParams = useSearchParams();
-
-
   useEffect(() => {
-    async function fetchComments(postId: string) {
-      try {
-        const res = await fetch(`http://localhost:8000/posts/${postId}/comments`);
-        if (res.ok) {
-          const data = await res.json();
-          setComments(data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch comments", err);
-      }
-    }
-
     if (typeof postId === "string") {
       fetchPost(postId);
       fetchComments(postId);
@@ -72,17 +53,26 @@ export default function PostPage() {
       const res = await fetch(`http://localhost:8000/posts/${postId}`, {
         cache: "no-store",
       });
-      if (!res.ok) {
-        setPost(null);
-      } else {
+      if (res.ok) {
         const data = await res.json();
         setPost(data);
       }
     } catch (err) {
       console.error("Failed to fetch post", err);
-      setPost(null);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchComments(postId: string) {
+    try {
+      const res = await fetch(`http://localhost:8000/posts/${postId}/comments`);
+      if (res.ok) {
+        const data = await res.json();
+        setComments(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch comments", err);
     }
   }
 
@@ -106,41 +96,53 @@ export default function PostPage() {
 
       if (res.ok) {
         setNewComment("");
-        const updatedComments = await fetch(`http://localhost:8000/posts/${post?.id}/comments`).then(r => r.json());
-        setComments(updatedComments);
+        fetchComments(String(post?.id));
       }
     } catch (err) {
       console.error("Error posting comment:", err);
     }
   };
 
-  if (loading) {
-    return <div className="p-6 text-center text-black">Loading post...</div>;
-  }
-
-  if (!post) {
-    return <div className="p-6 text-center text-red-600">Post not found.</div>;
-  }
-
   function CommentThread({ comment }: { comment: Comment }) {
     const [collapsed, setCollapsed] = useState(false);
     const [voteCount, setVoteCount] = useState(comment.votes);
+    const [replying, setReplying] = useState(false);
+    const [replyText, setReplyText] = useState("");
 
-    const searchParams = useSearchParams();
     const userID = searchParams.get("userID");
 
-    console.log(voteCount);
-    console.log(comment.votes);
-    const handleVote = async (value: 1 | -1) => {
+    const handleReplySubmit = async () => {
+      if (!replyText.trim()) return;
+      console.log("Posting reply:", replyText);
+      console.log("To comment:", comment);
+      console.log("User ID:", userID);
+      console.log("Post ID:", comment.post_id);
+      console.log("Parent ID:", comment.id);
+
       try {
-        await fetch(`http://localhost:8000/comments/${comment.id}/vote`, {
+        const res = await fetch("http://localhost:8000/comments/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_id: userID, value }),
+          body: JSON.stringify({
+            content: replyText,
+            author_id: userID,
+            post_id: comment.post_id,
+            parent_id: comment.id,
+          }),
         });
 
-        // Optimistically update
-        // setVoteCount((prev) => prev + value);
+        if (res.ok) {
+          setReplyText("");
+          setReplying(false);
+          fetchComments(String(comment.post_id));
+        }
+      } catch (err) {
+        console.error("Failed to post reply:", err);
+      }
+    };
+
+    const handleVote = async (value: 1 | -1) => {
+      try {
         const res = await fetch(`http://localhost:8000/comments/${comment.id}/vote`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -148,29 +150,24 @@ export default function PostPage() {
         });
 
         if (res.ok) {
-          // Re-fetch latest vote count from backend to ensure correctness
           const updated = await fetch(`http://localhost:8000/comments/${comment.id}`).then(r => r.json());
           setVoteCount(updated.votes);
         } else {
           const error = await res.json();
-          alert(error.detail); // Optional: inform user of double voting attempt
+          alert(error.detail);
         }
-
       } catch (err) {
         console.error("Vote failed", err);
       }
     };
 
     return (
-      <div className="pl-4 border-l border-gray-300">
+      <div className="pl-4 border-l border-gray-300 my-2">
         <div className="flex items-center justify-between">
           <div className="text-xs text-gray-500 mb-1">
             u/{comment.author_username} · {new Date(comment.created_at).toLocaleString()}
           </div>
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="text-xs text-blue-600 ml-2 hover:underline"
-          >
+          <button onClick={() => setCollapsed(!collapsed)} className="text-xs text-blue-600 ml-2 hover:underline">
             [{collapsed ? "+" : "–"}]
           </button>
         </div>
@@ -182,7 +179,27 @@ export default function PostPage() {
               <button onClick={() => handleVote(1)} className="hover:text-red-500">▲</button>
               <span>{voteCount}</span>
               <button onClick={() => handleVote(-1)} className="hover:text-blue-500">▼</button>
+              <button onClick={() => setReplying(!replying)} className="text-xs text-blue-600 hover:underline ml-2">Reply</button>
             </div>
+
+            {replying && (
+              <div className="mt-2 ml-4">
+                <textarea
+                  className="w-full p-2 border border-gray-300 rounded-lg text-black"
+                  rows={2}
+                  placeholder="Write your reply..."
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                />
+                <button
+                  className="mt-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                  onClick={handleReplySubmit}
+                >
+                  Submit Reply
+                </button>
+              </div>
+            )}
+
             {comment.children.map((child) => (
               <CommentThread key={child.id} comment={child} />
             ))}
@@ -190,6 +207,14 @@ export default function PostPage() {
         )}
       </div>
     );
+  }
+
+  if (loading) {
+    return <div className="p-6 text-center text-black">Loading post...</div>;
+  }
+
+  if (!post) {
+    return <div className="p-6 text-center text-red-600">Post not found.</div>;
   }
 
   return (
@@ -232,7 +257,6 @@ export default function PostPage() {
               <CommentThread key={comment.id} comment={comment} />
             ))}
           </div>
-
         </div>
       </div>
     </div>

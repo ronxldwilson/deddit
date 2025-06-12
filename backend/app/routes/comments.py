@@ -22,6 +22,7 @@ def build_comment_tree(comments, parent_id=None):
                 created_at=comment.created_at,
                 author_username=comment.author.username,
                 parent_id=comment.parent_id,
+                post_id=comment.post_id,  # <-- include this
                 children=children, 
                 votes=random.randint(-5, 100)  # Simulating votes for the example
             )) 
@@ -37,13 +38,14 @@ def get_comments(post_id: int, db: Session = Depends(database.get_db)):
 
 @router.post("/comments/", response_model=CommentResponse)
 def create_comment(comment: CommentCreate, db: Session = Depends(database.get_db)):
+    print("Received comment:", comment)
     user = db.query(User).filter(User.id == comment.author_id).first()
     post = db.query(Post).filter(Post.id == comment.post_id).first()
 
     if not user or not post:
         raise HTTPException(status_code=404, detail="User or Post not found")
 
-    db_comment = Comment(
+    db_comment = Comment( 
         content=comment.content,
         post_id=comment.post_id,
         author_id=comment.author_id,
@@ -58,13 +60,15 @@ def create_comment(comment: CommentCreate, db: Session = Depends(database.get_db
         id=db_comment.id,
         content=db_comment.content,
         created_at=db_comment.created_at,
-        author_username=user.username,
+        author_username=user.username, 
         parent_id=db_comment.parent_id,
-        children=[]
+        post_id=db_comment.post_id,    
+        children=[],
+        votes=0  # default vote count for a new comment
     )
 
 @router.post("/comments/{comment_id}/vote")
-def vote_on_comment(comment_id: int, vote: dict, db: Session = Depends(database.get_db)):
+def vote_on_comment(comment_id: int, vote: dict, db: Session = Depends(database.get_db)): 
     user_id = vote.get("user_id")
     value = vote.get("value")  # should be 1 or -1
 
