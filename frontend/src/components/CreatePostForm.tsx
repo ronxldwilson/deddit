@@ -29,15 +29,6 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
             }),
         });
 
-        console.log('Response:', res);
-        console.log('Response status:', res.status);
-        console.log(title, content, subreddit, userId);
-        console.log('Request body:', JSON.stringify({
-            title,
-            content,
-            subreddit,
-            user_id: userId,
-        }));
         if (res.ok) {
             router.push('/');
         } else {

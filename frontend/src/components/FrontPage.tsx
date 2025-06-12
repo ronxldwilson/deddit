@@ -43,8 +43,6 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<'hot' | 'new' | 'top'>('hot');
 
-  console.log('Rendered FrontPage with sessionId:', sessionId, 'and userId:', userId);
-
   const fetchPosts = useCallback(async () => {
     try {
       const res = await fetch(`http://localhost:8000/posts?sort=${sort}`, {

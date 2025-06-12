@@ -14,7 +14,6 @@ export default function CreatePostPage() {
     const searchParams = useSearchParams();
     const userId = searchParams.get("userId");
 
-    console.log('Rendering CreatePostPage with use rId:', userId);
     if (!userId) {
         return <div className="text-center mt-10 text-red-500">Please log in to create a post.</div>;
     }

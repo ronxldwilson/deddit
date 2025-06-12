@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
     const data = await req.json();
-    console.log('Incoming post data:', data);
 
     const res = await fetch('http://localhost:8000/posts/create', {
         method: 'POST',
