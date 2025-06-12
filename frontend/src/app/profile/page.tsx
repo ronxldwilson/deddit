@@ -33,10 +33,6 @@ export default function ProfilePage() {
     const [savedPosts, setSavedPosts] = useState<Post[]>([]);
     const [savedComments, setSavedComments] = useState<Comment[]>([]);
 
-    console.log("Saved Posts:", savedPosts);
-    console.log("Saved Comments:", savedComments);
-
-
     const [comments, setComments] = useState<Comment[]>([]);
 
     useEffect(() => {
@@ -45,8 +41,6 @@ export default function ProfilePage() {
         const fetchProfileData = async () => {
             setLoading(true);
             try {
-                console.log("test")
-                console.log(`Fetching profile data for user ID: ${userId}`);
                 const userRes = await fetch(`http://localhost:8000/users/${userId}`);
                 const postsRes = await fetch(`http://localhost:8000/users/${userId}/posts`);
                 const commentsRes = await fetch(`http://localhost:8000/users/${userId}/comments`);
@@ -111,10 +105,6 @@ export default function ProfilePage() {
             </div>
         );
     }
-
-
-    console.log("Saved Posts:", savedPosts);
-    console.log("Saved Comments:", savedComments);
 
     return (
         <div className="flex max-w-5xl mx-auto mt-10 space-x-6 px-4 bg-white py-6 rounded-lg shadow-md">

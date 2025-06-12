@@ -17,8 +17,8 @@ interface Author {
 
 
 interface LeftSideBarProps {
-    userId: string;
-    sessionId: string;
+  userId: string;
+  sessionId: string;
 }
 
 
@@ -34,9 +34,10 @@ interface Post {
 interface FrontPageProps {
   userId: string;
   sessionId: string;
+  onLogout: () => void; 
 }
 
-export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
+export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogout }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,12 +75,17 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId }) => {
 
   return (
     <div className="min-h-screen max-w-full bg-gradient-to-b bg-green-400 from-gray-50 via-white to-gray-100 pb-12">
-      <Navbar userId={userId} sessionId={sessionId} />
+      <Navbar
+        userId={userId}
+        sessionId={sessionId}
+        onLogout={onLogout} 
+      />
+
       <div className="pt-12 flex gap-6 m-0">
 
         {/* Left Sidebar */}
         <LeftSideBar userId={userId} sessionId={sessionId} />
-        
+
         {/* Main Content */}
         <div className="flex-1 max-w-2xl mx-auto">
           {/* Title + Sort */}

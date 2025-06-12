@@ -15,35 +15,29 @@ export default function Home() {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Initialize session on component mount
-    console.log("Initializing session...");
     fetch("http://localhost:8000/_synthetic/new_session?seed=123", {
       method: "POST",
     })
       .then(async (r) => {
-        console.log("Session response status:", r.status);
         const text = await r.text();
-        console.log("Raw response:", text);
         return JSON.parse(text);
       })
       .then((d) => {
-        console.log("Session data:", d);
         if (!d.session_id) {
           throw new Error("No session_id in response");
         }
+
         setSessionId(d.session_id);
         window.__SESSION_ID__ = d.session_id;
-        console.log("Session ID stored:", d.session_id);
+        
+        const storedUserId = localStorage.getItem("userId");
+        if (storedUserId) {
+          setUserId(storedUserId);
+        }
       })
       .catch((error) => {
         console.error("Failed to initialize session:", error);
       });
-
-
-    // const storedUserId = localStorage.getItem("userId");
-    // if (storedUserId) {
-    //   setUserId(storedUserId);
-    // }
   }, []);
 
   if (!sessionId) {
@@ -68,13 +62,13 @@ export default function Home() {
 
         ) : (
           <FrontPage
-            sessionId={sessionId}
             userId={userId}
+            sessionId={sessionId}
+            onLogout={() => {
+              localStorage.removeItem("userId");
+              setUserId(null); 
+            }}
           />
-          // <NotesList 
-          //   sessionId={sessionId} 
-          //   userId={userId} 
-          // />
         )}
       </div>
     </div>

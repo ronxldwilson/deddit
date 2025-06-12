@@ -10,9 +10,7 @@ export async function POST(req: NextRequest) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
     });
-    console.log("Hello from create-post route.ts");
-    console.log('Response status:', res.status);
-
+  
     const body = await res.json();
     return NextResponse.json(body, { status: res.status });
 }

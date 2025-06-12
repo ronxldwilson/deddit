@@ -46,8 +46,6 @@ export const PostCard: React.FC<PostCardProps> = ({
       vote: type,
     };
 
-    console.log("Sending vote request:", votePayload);
-
     try {
       const res = await fetch("http://localhost:8000/vote", {
         method: "POST",
@@ -107,7 +105,6 @@ export const PostCard: React.FC<PostCardProps> = ({
     });
     // optionally update UI
   };
-
 
   return (
     <>

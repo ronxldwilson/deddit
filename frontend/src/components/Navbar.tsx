@@ -8,43 +8,35 @@ import { logEvent, ActionType } from "../services/analyticsLogger";
 interface NavbarProps {
   userId?: string;
   sessionId?: string;
+  onLogout?: () => void; 
 }
 
-export const Navbar: React.FC <NavbarProps> = ({userId, sessionId}) => {
+export const Navbar: React.FC <NavbarProps> = ({userId, sessionId, onLogout}) => {
   const [search, setSearch] = useState("");
   const router = useRouter();
-  console.log("Rendering Navbar with user id:", userId, "and session id:", sessionId);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (search.trim()) {
-      console.log("Searching for:", search);
       // TODO: Implement actual search functionality
     }
   };
 
   const handleLogout = () => {
-    console.log("Logging out...");
-    // const sessionId = localStorage.getItem("sessionId");
-    // const userId = localStorage.getItem("userId");
+  if (sessionId && userId) {
+    logEvent(sessionId, ActionType.CLICK, {
+      text: "User clicked the logout button",
+      page_url: window.location.href,
+      element_identifier: "logout-btn",
+      coordinates: { x: 0, y: 0 },
+    });
+  }
 
-    // Log the logout event
-    if (sessionId && userId) {
-      logEvent(sessionId, ActionType.CLICK, {
-        text: "User clicked the logout button",
-        page_url: window.location.href,
-        element_identifier: "logout-btn",
-        coordinates: { x: 0, y: 0 },
-      });
-    }
-
-    // Clear user-related storage
-    // localStorage.removeItem("userId");
-    // localStorage.removeItem("sessionId");
-    // Redirect to login page
-    router.push("/");
-  };
-
+  // Call the parent's logout handler
+  if (onLogout) {
+    onLogout();
+  }
+};
   return (
     <nav className="w-full bg-white shadow fixed top-0 left-0 z-10">
       <div className="max-w-full mx-auto px-4 py-3 flex justify-between items-center">
