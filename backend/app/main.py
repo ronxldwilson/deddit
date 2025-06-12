@@ -1,7 +1,7 @@
 from fastapi import FastAPI # type : ignore
 from fastapi.middleware.cors import CORSMiddleware # type : ignore
 from contextlib import asynccontextmanager
-from .routes import posts, vote, synthetic, notes, users, comments
+from .routes import posts, vote, synthetic, notes, users, comments, messages
 
 from .db.db import db
 from .utils.logger import LogMiddleware
@@ -40,6 +40,8 @@ app.include_router(vote.router)
 app.include_router(users.router)  # no prefix = available at /debug/users
 
 app.include_router(comments.router)
+
+app.include_router(messages.router)
 
 @app.get("/") 
 def read_root():

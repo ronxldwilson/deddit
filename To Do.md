@@ -12,6 +12,8 @@ Done:
 24. User profile page
 29. User history (posts/comments)
 
+Add Logout Button
+
 To Do:
 
 2. Edit Post
@@ -23,8 +25,8 @@ To Do:
 31. Create Subreddit feature
 31.5 Create subreddit by user
 
+UserHoverCard
 Add Search functionality
-Add Logout Button
 Fix the Limit of votes for comments
 Add popular communitites section
 Add Peer To Peer message

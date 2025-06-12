@@ -1,3 +1,5 @@
+#app/models.py
+
 from pydantic import BaseModel, Field # type: ignore
 from typing import Optional, List
 from datetime import datetime
@@ -44,6 +46,16 @@ class VoteResponse(BaseModel):
     user_id: str
     post_id: int
     value: int 
+
+class MessageCreate(BaseModel):
+    sender_id: str
+    receiver_id: str
+    content: str
+
+class MessageRead(MessageCreate):
+    id: str
+    timestamp: datetime
+
  
 
 CommentResponse.update_forward_refs()
