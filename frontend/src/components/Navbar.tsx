@@ -82,7 +82,7 @@ export const Navbar: React.FC <NavbarProps> = ({userId, sessionId}) => {
           </button>
           <button 
           className="flex items-center gap-1 hover:text-black"
-          onClick={() => router.push(`/profile?userId=${userId}`)}
+          onClick={() => router.push(`/profile?users=${userId}`)}
           >
             <User size={16} />
             Profile
