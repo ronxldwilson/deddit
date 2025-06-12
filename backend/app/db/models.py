@@ -37,6 +37,13 @@ class User(Base):
     votes = relationship("Vote", back_populates="user", cascade="all, delete-orphan")
 
     comments = relationship("Comment", back_populates="author")
+    
+    saved_posts = relationship("SavedPost", back_populates="user", cascade="all, delete-orphan")
+    saved_comments = relationship("SavedComment", back_populates="user", cascade="all, delete-orphan")
+
+    
+    
+    
 # ----------------
 # Posts Table
 # ----------------
@@ -106,3 +113,21 @@ class CommentVote(Base):
 
     user = relationship("User")
     comment = relationship("Comment", back_populates="votes") 
+
+class SavedPost(Base):
+    __tablename__ = "saved_posts"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(ForeignKey("users.id"))
+    post_id = Column(ForeignKey("posts.id"))
+
+    user = relationship("User", back_populates="saved_posts")
+    post = relationship("Post")
+
+class SavedComment(Base):
+    __tablename__ = "saved_comments"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(ForeignKey("users.id"))
+    comment_id = Column(ForeignKey("comments.id"))
+
+    user = relationship("User", back_populates="saved_comments")
+    comment = relationship("Comment")

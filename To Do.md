@@ -1,5 +1,5 @@
 Done: 
--1. Create Post (text, link, image)
+1. Create Post (text, link, image)
 4. Comment on Post
 5. Nested Comments (threaded)
 8. Upvote/Downvote Post
@@ -7,15 +7,19 @@ Done:
 19. Comment collapse/expand
 20. Vote score indicator (e.g. +123)
 21. Sign Up / Login
+24. User profile page
 
 To Do:
+
+10. Save Post
+11. Save Comment
+
 Add Search functionality
 Add Profile Section	
 Add Logout Button
 Fix the Limit of votes for comments
 Add voting capabilites in the comments
 Add popular communitites section
-
 Add Peer To Peer message
 
 12. Sort posts (hot/new/top)
@@ -24,14 +28,11 @@ Add Peer To Peer message
 3. Delete Post
 6. Edit Comment
 7. Delete Comment
-10. Save Post
-11. Save Comment
 13. Sort comments (best/new/controversial)
 25. User karma - Show Total number of posts/ comments that are made in profile section
 14. NSFW flag and toggle
 16. Spoiler tag support
 22. Password reset
-24. User profile page
 27. User avatars
 29. User history (posts/comments)
 30. Follow/unfollow user

@@ -13,7 +13,7 @@ interface Author {
 interface PostCardProps {
   id: string;
   title: string;
-  author: string; 
+  author: string;
   content: string;
   subreddit: string;
   votes: number;
@@ -31,6 +31,7 @@ export const PostCard: React.FC<PostCardProps> = ({
 }) => {
   const [voteState, setVoteState] = useState<"up" | "down" | null>(null);
   const [voteCount, setVoteCount] = useState(votes);
+  const [isSaved, setIsSaved] = useState(false);
 
   const handleVote = async (type: "up" | "down" | "neutral") => {
     const numericPostId = parseInt(id);
@@ -97,6 +98,17 @@ export const PostCard: React.FC<PostCardProps> = ({
     }
   };
 
+  const handleSave = async (id: string, type: 'post' | 'comment') => {
+    const endpoint = type === 'post' ? `/api/save_post/${id}` : `/api/save_comment/${id}`;
+    await fetch(`http://localhost:8000${endpoint}`, {
+      method: "POST",
+      body: JSON.stringify({ user_id: userID }),
+      headers: { "Content-Type": "application/json" }
+    });
+    // optionally update UI
+  };
+
+
   return (
     <>
       <div className="bg-yellow rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 p-4 flex gap-4">
@@ -117,6 +129,11 @@ export const PostCard: React.FC<PostCardProps> = ({
           >
             <ArrowDown size={18} />
           </button>
+
+          <button onClick={() => handleSave(id, 'post')}>
+            {isSaved ? 'Unsave' : 'Save'}
+          </button>
+
         </div>
 
         <Link href={`/posts/${id}?userID=${userID}`} className="block">

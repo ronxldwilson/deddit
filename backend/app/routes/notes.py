@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Request, HTTPException, Depends # type: ignore
-from typing import List
-
+from typing import List, Optional
+from sqlalchemy.orm import Session # type: ignore
 from ..db.synthetic_models import ActionType
 from ..db.db import db
-from ..db.models import User, Note
+from ..db.models import User, Note, SavedComment, SavedPost
 from ..models import UserIn, NoteIn
 from ..utils.logger import logger
 from ..utils.session_manager import session_manager 
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -197,3 +198,29 @@ def delete_note(note_id: int, request: Request, user: User = Depends(get_current
     
     return {"status": "deleted"}
 
+
+
+class SavePayload(BaseModel):
+    user_id: str  # or UUID if you're using UUIDs
+
+@router.post("/save_post/{post_id}")
+def save_post(post_id: int, payload: SavePayload, db: Session = Depends(db.get_db)):
+    exists = db.query(SavedPost).filter_by(user_id=payload.user_id, post_id=post_id).first()
+    if exists:
+        db.delete(exists)
+        db.commit()
+        return {"status": "unsaved"}
+    db.add(SavedPost(user_id=payload.user_id, post_id=post_id))
+    db.commit()
+    return {"status": "saved"}
+
+@router.post("/save_comment/{comment_id}")
+def save_comment(comment_id: int, user: User = Depends(get_current_user), db: Session = Depends(db.get_db)):
+    exists = db.query(SavedComment).filter_by(user_id=user.id, comment_id=comment_id).first()
+    if exists:
+        db.delete(exists)
+        db.commit()
+        return {"status": "unsaved"}
+    db.add(SavedComment(user_id=user.id, comment_id=comment_id))
+    db.commit()
+    return {"status": "saved"}
