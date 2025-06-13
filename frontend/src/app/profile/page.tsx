@@ -212,9 +212,9 @@ export default function ProfilePage() {
                         window.location.href = '/'; // Redirect to home
                     }}
                 />
-                <div className="flex max-w-6xl mx-auto px-6 py-20 space-x-8">
+                <div className="flex max-w-6xl mx-auto px-6 py-20 bg-white space-x-8">
                     {/* Sidebar */}
-                    <aside className="w-60 bg-white border rounded-xl shadow-md p-4 space-y-4">
+                    <aside className="w-60 max-h-fit bg-white border rounded-xl shadow-md p-4 space-y-4">
                         {sections.map((section) => (
                             <button
                                 key={section}
