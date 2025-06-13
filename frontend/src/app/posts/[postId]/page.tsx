@@ -253,7 +253,14 @@ export default function PostPage() {
 
   return (
     <>
-    <Navbar userId="{userID}" />
+      <Navbar
+        userId={userID || localStorage.getItem('userId') || ''}
+        sessionId={window.__SESSION_ID__ || ''}
+        onLogout={() => {
+          localStorage.removeItem('userId');
+          window.location.href = '/'; // Redirect to home
+        }}
+      />
       <div className="flex justify-center p-20 bg-gray-100 min-h-screen">
         <div className="flex max-w-4xl w-full gap-4">
           {/* Votes Sidebar */}
