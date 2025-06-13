@@ -15,6 +15,9 @@ Done:
 29. User history (posts/comments)
 32. Subreddit description and rules
 33. Subreddit banner and icon
+54. Trending subreddits
+55. Popular posts
+89. Sticky top nav
 
 Add Logout Button
 UserHoverCard
@@ -47,8 +50,6 @@ Add Peer To Peer message
 51. Global search
 52. Subreddit-specific search
 53. Search by user
-54. Trending subreddits
-55. Popular posts
 56. Recently created subreddits
 57. Tag support for posts
 58. Suggested subreddits
@@ -58,7 +59,7 @@ Add Peer To Peer message
 70. Read/unread message status
 91. Post view count
 82. Infinite scroll for posts/comments
-89. Sticky top nav
+88. Animated vote button feedback
 90. Floating compose post button
 
 
@@ -124,7 +125,6 @@ Add Peer To Peer message
 85. Drag-and-drop image uploader
 86. Image zoom modal
 87. User tooltips (hover info)
-88. Animated vote button feedback
 
 ### 📊 Analytics & Insights
 

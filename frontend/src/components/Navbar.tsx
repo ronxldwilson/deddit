@@ -4,14 +4,15 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Home, PlusSquare, User, LogOut, Search } from "lucide-react";
 import { logEvent, ActionType } from "../services/analyticsLogger";
+import Link from "next/link";
 
 interface NavbarProps {
   userId?: string;
   sessionId?: string;
-  onLogout?: () => void; 
+  onLogout?: () => void;
 }
 
-export const Navbar: React.FC <NavbarProps> = ({userId, sessionId, onLogout}) => {
+export const Navbar: React.FC<NavbarProps> = ({ userId, sessionId, onLogout }) => {
   const [search, setSearch] = useState("");
   const router = useRouter();
 
@@ -23,27 +24,29 @@ export const Navbar: React.FC <NavbarProps> = ({userId, sessionId, onLogout}) =>
   };
 
   const handleLogout = () => {
-  if (sessionId && userId) {
-    logEvent(sessionId, ActionType.CLICK, {
-      text: "User clicked the logout button",
-      page_url: window.location.href,
-      element_identifier: "logout-btn",
-      coordinates: { x: 0, y: 0 },
-    });
-  }
+    if (sessionId && userId) {
+      logEvent(sessionId, ActionType.CLICK, {
+        text: "User clicked the logout button",
+        page_url: window.location.href,
+        element_identifier: "logout-btn",
+        coordinates: { x: 0, y: 0 },
+      });
+    }
 
-  // Call the parent's logout handler
-  if (onLogout) {
-    onLogout();
-  }
-};
+    // Call the parent's logout handler
+    if (onLogout) {
+      onLogout();
+    }
+  };
   return (
     <nav className="w-full bg-white shadow fixed top-0 left-0 z-10">
       <div className="max-w-full mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
-        <div className="text-2xl font-bold text-red-600 cursor-pointer hover:opacity-90">
-          Deddit
-        </div>
+        <Link href={"/"} className="flex items-center">
+          <div className="text-2xl font-bold text-red-600 cursor-pointer hover:opacity-90">
+            Deddit
+          </div>
+        </Link>
 
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="flex items-center w-full max-w-md mx-6">
@@ -61,20 +64,22 @@ export const Navbar: React.FC <NavbarProps> = ({userId, sessionId, onLogout}) =>
 
         {/* Navigation Links */}
         <div className="flex items-center space-x-6 text-sm text-gray-700">
-          <button className="flex items-center gap-1 hover:text-black">
-            <Home size={16} />
-            Home
-          </button>
+          <Link href="/">
+            <button className="flex items-center gap-1 hover:text-black">
+              <Home size={16} />
+              Home
+            </button>
+          </Link>
           <button
             className="flex items-center gap-1 hover:text-black"
             onClick={() => router.push(`/create-post?userId=${userId}`)}
-            >
+          >
             <PlusSquare size={16} />
             Create Post
           </button>
-          <button 
-          className="flex items-center gap-1 hover:text-black"
-          onClick={() => router.push(`/profile?users=${userId}`)}
+          <button
+            className="flex items-center gap-1 hover:text-black"
+            onClick={() => router.push(`/profile?users=${userId}`)}
           >
             <User size={16} />
             Profile
@@ -89,6 +94,6 @@ export const Navbar: React.FC <NavbarProps> = ({userId, sessionId, onLogout}) =>
           </button>
         </div>
       </div>
-    </nav>
+    </nav >
   );
 };

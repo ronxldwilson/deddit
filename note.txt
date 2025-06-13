@@ -1,3 +1,0 @@
-
-User: Hello
-Model (llama3.2): 
