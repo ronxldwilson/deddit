@@ -92,6 +92,25 @@ export default function ProfilePage() {
         );
     }
 
+    const handleDeletePost = async (postId: string) => {
+        const confirmDelete = window.confirm('Are you sure you want to delete this post?');
+        if (!confirmDelete) return;
+
+        try {
+            const res = await fetch(`http://localhost:8000/posts/${postId}`, {
+                method: 'DELETE',
+            });
+
+            if (res.ok) {
+                setPosts((prev) => prev.filter((post) => post.id !== postId));
+            } else {
+                console.error('Failed to delete post');
+            }
+        } catch (error) {
+            console.error('Error deleting post:', error);
+        }
+    };
+
     const renderSection = () => {
         if (!user) return null;
 
@@ -115,12 +134,20 @@ export default function ProfilePage() {
             case 'Posts':
                 return posts.length ? (
                     posts.map((post) => (
-                        <div key={post.id} className="bg-white border p-4 rounded-lg shadow-sm">
+                        <div key={post.id} className="bg-white border p-4 rounded-lg shadow-sm relative">
                             <h3 className="font-semibold text-lg text-blue-700">{post.title}</h3>
                             <p className="text-gray-700">{post.content}</p>
                             <span className="text-xs text-gray-400">
                                 Posted on {faker.date.past().toLocaleDateString()}
                             </span>
+
+                            {/* 🗑 Delete Button */}
+                            <button
+                                onClick={() => handleDeletePost(post.id)}
+                                className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-sm"
+                            >
+                                Delete
+                            </button>
                         </div>
                     ))
                 ) : (

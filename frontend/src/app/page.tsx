@@ -15,6 +15,19 @@ export default function Home() {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    const alreadyInitialized = sessionStorage.getItem("sessionInitialized");
+    if (alreadyInitialized) {
+      // Get existing sessionId from sessionStorage if needed
+      const existingSessionId = sessionStorage.getItem("sessionId");
+      if (existingSessionId) {
+        setSessionId(existingSessionId);
+        window.__SESSION_ID__ = existingSessionId;
+      }
+      const storedUserId = localStorage.getItem("userId");
+      if (storedUserId) setUserId(storedUserId);
+      return;
+    }
+
     fetch("http://localhost:8000/_synthetic/new_session?seed=123", {
       method: "POST",
     })
@@ -23,17 +36,17 @@ export default function Home() {
         return JSON.parse(text);
       })
       .then((d) => {
-        if (!d.session_id) {
-          throw new Error("No session_id in response");
-        }
+        if (!d.session_id) throw new Error("No session_id in response");
 
         setSessionId(d.session_id);
         window.__SESSION_ID__ = d.session_id;
-        
+
+        // Mark session initialized
+        sessionStorage.setItem("sessionInitialized", "true");
+        sessionStorage.setItem("sessionId", d.session_id);
+
         const storedUserId = localStorage.getItem("userId");
-        if (storedUserId) {
-          setUserId(storedUserId);
-        }
+        if (storedUserId) setUserId(storedUserId);
       })
       .catch((error) => {
         console.error("Failed to initialize session:", error);
@@ -47,6 +60,9 @@ export default function Home() {
       </div>
     );
   }
+
+  console.log("Session ID:", sessionId);
+  console.log("User ID:", userId);
 
   return (
     <div className="min-h-screen max-w-full bg-gradient-to-b from-gray-50 via-white to-gray-100 pb-12">
@@ -66,7 +82,7 @@ export default function Home() {
             sessionId={sessionId}
             onLogout={() => {
               localStorage.removeItem("userId");
-              setUserId(null); 
+              setUserId(null);
             }}
           />
         )}
