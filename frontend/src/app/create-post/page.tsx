@@ -24,7 +24,14 @@ export default function CreatePostPage() {
     return (
         <main className="min-h-screen p-4 bg-white">
             <div className="max-w-6xl mx-auto">
-                <Navbar />
+                <Navbar 
+                    userId={userId}
+                    sessionId={window.__SESSION_ID__ || ''}
+                    onLogout={() => {
+                        localStorage.removeItem('userId');
+                        window.location.href = '/'; // Redirect to home
+                    }}
+                />
 
                 <div className="flex gap-6 mt-20">
                     {/* Left Sidebar */}

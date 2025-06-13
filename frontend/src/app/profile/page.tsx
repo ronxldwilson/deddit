@@ -30,7 +30,7 @@ const sections = ['Profile', 'Posts', 'Comments', 'Saved Posts', 'Saved Comments
 
 export default function ProfilePage() {
     const searchParams = useSearchParams();
-    const userId = searchParams.get('users');
+    const userId = searchParams.get('users') ? searchParams.get('users') : localStorage.getItem('userId');
 
     const [user, setUser] = useState<User | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
@@ -204,7 +204,14 @@ export default function ProfilePage() {
         <>
             <div className="min-h-screen bg-white">
 
-                <Navbar />
+                <Navbar  
+                    userId={userId || localStorage.getItem('userId') || ''}
+                    sessionId={window.__SESSION_ID__}
+                    onLogout={() => {
+                        localStorage.removeItem('userId');
+                        window.location.href = '/'; // Redirect to home
+                    }}
+                />
                 <div className="flex max-w-6xl mx-auto px-6 py-20 space-x-8">
                     {/* Sidebar */}
                     <aside className="w-60 bg-white border rounded-xl shadow-md p-4 space-y-4">

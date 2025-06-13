@@ -23,12 +23,20 @@ Done:
 Add Logout Button
 UserHoverCard
 Add popular communitites section
-
+__________________________________________________________________________________
 Bug List:
 9. Upvote/Downvote Comment
 3. Delete Post - Not working in the profile view
 
+Broken Links
+1. Saved Posts side nav
+2. My Comments side nav
+3. Logout button on different screens 
 
+Navbar make it more resilient
+
+Fix Search Page
+__________________________________________________________________________________
 To Do:
 
 2. Edit Post

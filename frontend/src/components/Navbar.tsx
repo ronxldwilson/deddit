@@ -1,21 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Home, PlusSquare, User, LogOut, Search } from "lucide-react";
 import { logEvent, ActionType } from "../services/analyticsLogger";
 import Link from "next/link";
-import Logo from "../../public/Logo.png"; // Adjust the path as necessary
+import Logo from "../../public/Logo.png";
 
 interface NavbarProps {
-  userId?: string;
-  sessionId?: string;
-  onLogout?: () => void;
+  userId: string;
+  sessionId: string;
+  onLogout: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ userId, sessionId, onLogout }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  userId: propUserId,
+  sessionId,
+  onLogout = () => {}, // No-op by default
+}) => {
   const [search, setSearch] = useState("");
+  const [localUserId, setLocalUserId] = useState<string>("");
+
   const router = useRouter();
+
+  // Read from localStorage only on the client side
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUserId = localStorage.getItem("userId") || "";
+      setLocalUserId(storedUserId);
+    }
+  }, []);
+
+  const effectiveUserId = useMemo(() => {
+    return propUserId?.trim() || localUserId;
+  }, [propUserId, localUserId]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,10 +42,8 @@ export const Navbar: React.FC<NavbarProps> = ({ userId, sessionId, onLogout }) =
     }
   };
 
-
-
   const handleLogout = () => {
-    if (sessionId && userId) {
+    if (sessionId && effectiveUserId) {
       logEvent(sessionId, ActionType.CLICK, {
         text: "User clicked the logout button",
         page_url: window.location.href,
@@ -35,29 +51,24 @@ export const Navbar: React.FC<NavbarProps> = ({ userId, sessionId, onLogout }) =
         coordinates: { x: 0, y: 0 },
       });
     }
-
-    // Call the parent's logout handler
-    if (onLogout) {
-      onLogout();
-    }
+    onLogout();
   };
+
   return (
     <nav className="w-full bg-white shadow fixed top-0 left-0 z-10">
       <div className="max-w-full mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
-        {/* <Link href={"/"} className="flex items-center">
-          <div className="text-2xl font-bold text-red-600 cursor-pointer hover:opacity-90">
-            Deddit
-          </div>
-        </Link> */}
-        <Link href={"/"} className="flex items-center">
+        <Link href="/" className="flex items-center">
           <div className="text-2xl font-bold text-red-600 cursor-pointer hover:opacity-90">
             <img src={Logo.src} alt="Deddit Logo" className="h-8 w-auto" />
           </div>
         </Link>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="flex items-center w-full max-w-md mx-6 space-x-2">
+        <form
+          onSubmit={handleSearch}
+          className="flex items-center w-full max-w-md mx-6 space-x-2"
+        >
           <div className="relative w-full">
             <Search size={16} className="absolute left-3 top-2.5 text-gray-500" />
             <input
@@ -77,7 +88,6 @@ export const Navbar: React.FC<NavbarProps> = ({ userId, sessionId, onLogout }) =
           </button>
         </form>
 
-
         {/* Navigation Links */}
         <div className="flex items-center space-x-6 text-sm text-gray-700">
           <Link href="/">
@@ -86,20 +96,27 @@ export const Navbar: React.FC<NavbarProps> = ({ userId, sessionId, onLogout }) =
               Home
             </button>
           </Link>
+
           <button
             className="flex items-center gap-1 hover:text-black"
-            onClick={() => router.push(`/create-post?userId=${userId}`)}
+            onClick={() =>
+              router.push(`/create-post?userId=${encodeURIComponent(effectiveUserId || "")}`)
+            }
           >
             <PlusSquare size={16} />
             Create Post
           </button>
+
           <button
             className="flex items-center gap-1 hover:text-black"
-            onClick={() => router.push(`/profile?users=${userId}`)}
+            onClick={() =>
+              router.push(`/profile?users=${encodeURIComponent(effectiveUserId || "")}`)
+            }
           >
             <User size={16} />
             Profile
           </button>
+
           <button
             className="flex items-center gap-1 text-red-500 hover:text-red-700"
             onClick={handleLogout}
@@ -110,6 +127,6 @@ export const Navbar: React.FC<NavbarProps> = ({ userId, sessionId, onLogout }) =
           </button>
         </div>
       </div>
-    </nav >
+    </nav>
   );
 };

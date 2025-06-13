@@ -71,7 +71,14 @@ export default function SubredditPage() {
 
     return (
         <div className="min-h-screen max-w-full bg-white pb-12 px-4">
-            <Navbar />
+            <Navbar 
+                userId={userId}
+                sessionId={window.__SESSION_ID__ || ''}
+                onLogout={() => {
+                    localStorage.removeItem('userId');
+                    window.location.href = '/';
+                }}
+            />
 
             {/* Layout Grid */}
             <div className="pt-12 flex gap-6 mx-auto">
