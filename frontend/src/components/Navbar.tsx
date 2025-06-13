@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Home, PlusSquare, User, LogOut, Search } from "lucide-react";
 import { logEvent, ActionType } from "../services/analyticsLogger";
 import Link from "next/link";
+import Logo from "../../public/Logo.png"; // Adjust the path as necessary
 
 interface NavbarProps {
   userId?: string;
@@ -42,9 +43,14 @@ export const Navbar: React.FC<NavbarProps> = ({ userId, sessionId, onLogout }) =
     <nav className="w-full bg-white shadow fixed top-0 left-0 z-10">
       <div className="max-w-full mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
-        <Link href={"/"} className="flex items-center">
+        {/* <Link href={"/"} className="flex items-center">
           <div className="text-2xl font-bold text-red-600 cursor-pointer hover:opacity-90">
             Deddit
+          </div>
+        </Link> */}
+        <Link href={"/"} className="flex items-center">
+          <div className="text-2xl font-bold text-red-600 cursor-pointer hover:opacity-90">
+            <img src={Logo.src} alt="Deddit Logo" className="h-8 w-auto" />
           </div>
         </Link>
 

@@ -79,14 +79,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
   };
 
   return (
-    <div className="bg-background border border-border rounded-2xl shadow-sm p-6 w-full max-w-md mx-auto">
-      <h2 className="text-center text-2xl font-semibold text-foreground mb-6">
+    <div className="bg-white border border-gray-200 rounded-2xl shadow-lg p-8 w-full max-w-md mx-auto mt-12">
+      <h2 className="text-center text-3xl font-bold text-gray-800 mb-6">
         {isRegister ? "Create an account" : "Sign in to Deddit"}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label htmlFor="username" className="block text-sm font-medium text-muted-foreground mb-1">
+          <label htmlFor="username" className="block text-sm font-medium text-black mb-1">
             Username
           </label>
           <input
@@ -94,14 +94,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
             type="text"
             value={username}
             onChange={(e) => handleTypeUsername(e.target.value)}
-            className="w-full px-3 py-2 border border-input rounded-lg bg-input text-sm hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg bg-gray-50 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-300 focus:outline-none"
             placeholder="e.g. blueberry123"
             required
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-muted-foreground mb-1">
+          <label htmlFor="password" className="block text-sm font-medium text-black mb-1">
             Password
           </label>
           <input
@@ -109,21 +109,21 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
             type="password"
             value={password}
             onChange={(e) => handleTypePassword(e.target.value)}
-            className="w-full px-3 py-2 border border-input rounded-lg bg-input text-sm  hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-ring"
-            placeholder="••••••••"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg text-black bg-gray-50 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-300 focus:outline-none"
+            placeholder="******"
             required
           />
         </div>
 
         {error && (
-          <div className="text-sm text-red-600 bg-red-50 border border-red-200 px-4 py-2 rounded-md">
+          <div className="text-sm text-red-600 bg-red-100 border border-red-200 px-4 py-2 rounded-md">
             {error}
           </div>
         )}
 
         <button
           type="submit"
-          className="w-full py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground bg-white text-black hover:bg-blue-500 transition"
+          className="w-full py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
         >
           {isRegister ? "Register" : "Sign In"}
         </button>
@@ -132,7 +132,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
           <button
             type="button"
             onClick={toggleMode}
-            className="text-sm text-muted-foreground hover:underline"
+            className="text-sm text-blue-600 hover:underline"
           >
             {isRegister ? "Already have an account? Sign in" : "Need an account? Register"}
           </button>

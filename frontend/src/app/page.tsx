@@ -55,7 +55,7 @@ export default function Home() {
 
   if (!sessionId) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center bg-white min-h-screen">
         <div className="text-lg">Initializing session...</div>
       </div>
     );
