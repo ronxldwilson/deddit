@@ -23,12 +23,18 @@ Add Logout Button
 UserHoverCard
 Add popular communitites section
 
+Bug List:
+
+
+Create post not working
+
+3. Delete Post - Not working
+
 To Do:
 
 2. Edit Post
 6. Edit Comment
-7. Delete Comment
-3. Delete Post
+7. Delete Comment 
 13. Sort comments (best/new/controversial)
 31. Create Subreddit feature
 31.5 Create subreddit by user

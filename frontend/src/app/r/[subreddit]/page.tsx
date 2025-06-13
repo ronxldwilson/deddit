@@ -105,7 +105,7 @@ export default function SubredditPage() {
                                     id={post.id}
                                     title={post.title}
                                     author={post.author.username}
-                                    subreddit={post.subreddit}
+                                    subreddit={subreddit} //same as the subreddit name
                                     votes={post.votes}
                                     content={post.content}
                                     userID={userId}

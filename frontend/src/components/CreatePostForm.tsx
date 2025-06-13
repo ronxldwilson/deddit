@@ -1,22 +1,53 @@
-// components/CreatePostForm.tsx
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface CreatePostFormProps {
-    userId: string | null; // Assuming userId is a string
+    userId: string | null;
 }
 
-export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
+const availableSubreddits = [
+    'general',
+    'technology',
+    'gaming',
+    'science',
+    'movies',
+    'music',
+    'books',
+    'sports',
+];
 
+export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const [effectiveUserId, setEffectiveUserId] = useState<string | null>(null);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [subreddit, setSubreddit] = useState('general');
-    const router = useRouter();
+
+    useEffect(() => {
+        const searchUserId = searchParams.get('userId');
+        if (searchUserId && searchUserId !== 'undefined') {
+            setEffectiveUserId(searchUserId);
+        } else if (userId && userId !== 'undefined') {
+            setEffectiveUserId(userId);
+        } else {
+            const localStorageUserId = localStorage.getItem('userId');
+            if (localStorageUserId) {
+                setEffectiveUserId(localStorageUserId);
+            }
+        }
+    }, [searchParams, userId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!effectiveUserId) {
+            alert('User ID not found. Please log in again.');
+            return;
+        }
 
         const res = await fetch('/api/create-post', {
             method: 'POST',
@@ -25,7 +56,7 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
                 title,
                 content,
                 subreddit,
-                user_id: userId,
+                user_id: effectiveUserId,
             }),
         });
 
@@ -37,40 +68,60 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded shadow">
-            <h2 className="text-2xl font-bold text-black">Create a New Post</h2>
-
-            <input
-                type="text"
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full border px-4 py-2 rounded text-black"
-                required
-            />
-
-            <textarea
-                placeholder="Content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full border px-4 py-2 rounded h-40 text-black"
-                required
-            />
-
-            <input
-                type="text"
-                placeholder="Subreddit (default: general)"
-                value={subreddit}
-                onChange={(e) => setSubreddit(e.target.value)}
-                className="w-full border px-4 py-2 rounded text-black"
-            />
-
-            <button
-                type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        <div className="px-4 flex justify-center">
+            <form
+                onSubmit={handleSubmit}
+                className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 space-y-6 transition duration-200"
             >
-                Submit
-            </button>
-        </form>
+                <h2 className="text-3xl font-semibold text-gray-800">Create a New Post</h2>
+
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Title</label>
+                    <input
+                        type="text"
+                        placeholder="Enter your post title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        required
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Content</label>
+                    <textarea
+                        placeholder="Write your post content here..."
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        className="w-full border border-gray-300 px-4 py-2 rounded-lg h-40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        required
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Subreddit</label>
+                    <select
+                        value={subreddit}
+                        onChange={(e) => setSubreddit(e.target.value)}
+                        className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                    >
+                        {availableSubreddits.map((sub) => (
+                            <option key={sub} value={sub}>
+                                {sub}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="pt-4">
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-150"
+                    >
+                        Submit Post
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 };

@@ -2,6 +2,9 @@
 
 import { CreatePostForm } from '@/components/CreatePostForm';
 import { useSearchParams } from 'next/navigation';
+import { Navbar } from '../../components/Navbar';
+import { LeftSideBar } from '../../components/LeftSideBar';
+
 
 interface CreatePostPageProps {
     userId: string | null;
@@ -19,8 +22,23 @@ export default function CreatePostPage() {
     }
 
     return (
-        <main className="max-w-2xl mx-auto mt-10 p-4 bg-white rounded shadow">
-            <CreatePostForm userId={userId} />
+        <main className="min-h-screen p-4 bg-white">
+            <div className="max-w-6xl mx-auto">
+                <Navbar />
+
+                <div className="flex gap-6 mt-20">
+                    {/* Left Sidebar */}
+                    <div className="w-64">
+                        <LeftSideBar userId={userId} />
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="flex-1">
+                        <CreatePostForm userId={userId} />
+                    </div>
+                </div>
+            </div>
         </main>
+
     );
 }
