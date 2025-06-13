@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { parseUserMentions } from '../../../utils/parseUserMentions';
+import { Navbar } from "@/components/Navbar";
 
 interface Author {
   username: string;
@@ -182,66 +183,68 @@ export default function PostPage() {
     };
 
     return (
-      <div className="pl-4 border-l border-gray-300 my-2">
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-          <span>{parseUserMentions(`u/${comment.author_username}`)} · {new Date(comment.created_at).toLocaleString()}</span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleSave(comment.id, "comment")}
-              className="text-green-600 hover:underline"
-            >
-              {
-                savedComments[comment.id] === "saving"
-                  ? "Saving..."
-                  : savedComments[comment.id] === "saved"
-                    ? "Saved!"
-                    : "Save"
-              }
-            </button>
+      <>
+        <div className="pl-4 border-l border-gray-300 my-2">
+          <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+            <span>{parseUserMentions(`u/${comment.author_username}`)} · {new Date(comment.created_at).toLocaleString()}</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleSave(comment.id, "comment")}
+                className="text-green-600 hover:underline"
+              >
+                {
+                  savedComments[comment.id] === "saving"
+                    ? "Saving..."
+                    : savedComments[comment.id] === "saved"
+                      ? "Saved!"
+                      : "Save"
+                }
+              </button>
 
-            <button
-              onClick={() => setCollapsed(!collapsed)}
-              className="text-blue-600 hover:underline"
-            >
-              [{collapsed ? "+" : "–"}]
-            </button>
-          </div>
-        </div>
-
-        {!collapsed && (
-          <>
-            <div className="text-gray-800 mb-2">{comment.content}</div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <button onClick={() => handleVote(1)} className="hover:text-red-500">▲</button>
-              <span>{voteCount}</span>
-              <button onClick={() => handleVote(-1)} className="hover:text-blue-500">▼</button>
-              <button onClick={() => setReplying(!replying)} className="text-blue-600 hover:underline ml-2">Reply</button>
+              <button
+                onClick={() => setCollapsed(!collapsed)}
+                className="text-blue-600 hover:underline"
+              >
+                [{collapsed ? "+" : "–"}]
+              </button>
             </div>
+          </div>
 
-            {replying && (
-              <div className="mt-2 ml-4">
-                <textarea
-                  className="w-full p-2 border border-gray-300 rounded-lg text-black"
-                  rows={2}
-                  placeholder="Write your reply..."
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                />
-                <button
-                  className="mt-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                  onClick={handleReplySubmit}
-                >
-                  Submit Reply
-                </button>
+          {!collapsed && (
+            <>
+              <div className="text-gray-800 mb-2">{comment.content}</div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <button onClick={() => handleVote(1)} className="hover:text-red-500">▲</button>
+                <span>{voteCount}</span>
+                <button onClick={() => handleVote(-1)} className="hover:text-blue-500">▼</button>
+                <button onClick={() => setReplying(!replying)} className="text-blue-600 hover:underline ml-2">Reply</button>
               </div>
-            )}
 
-            {comment.children.map((child) => (
-              <CommentThread key={child.id} comment={child} />
-            ))}
-          </>
-        )}
-      </div>
+              {replying && (
+                <div className="mt-2 ml-4">
+                  <textarea
+                    className="w-full p-2 border border-gray-300 rounded-lg text-black"
+                    rows={2}
+                    placeholder="Write your reply..."
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                  />
+                  <button
+                    className="mt-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                    onClick={handleReplySubmit}
+                  >
+                    Submit Reply
+                  </button>
+                </div>
+              )}
+
+              {comment.children.map((child) => (
+                <CommentThread key={child.id} comment={child} />
+              ))}
+            </>
+          )}
+        </div>
+      </>
     );
   }
 
@@ -249,54 +252,57 @@ export default function PostPage() {
   if (!post) return <div className="p-6 text-center text-red-600">Post not found.</div>;
 
   return (
-    <div className="flex justify-center p-6 bg-gray-100 min-h-screen">
-      <div className="flex max-w-4xl w-full gap-4">
-        {/* Votes Sidebar */}
-        <div className="flex flex-col items-center bg-white p-2 rounded-lg shadow h-fit">
-          <button className="text-black hover:text-red-500">▲</button>
-          <span className="font-semibold text-sm my-1 text-black">{post.votes}</span>
-          <button className="text-black hover:text-blue-500">▼</button>
-          <button
-            className="text-xs mt-2 text-green-600 hover:underline"
-            onClick={() => handleSave(post.id, "post")}
-          >
-            {saveStatus === "saving" ? "Saving..." : saveStatus === "saved" ? "Saved!" : "Save Post"}
-          </button>
-        </div>
-
-        {/* Post and Comments */}
-        <div className="flex-1 bg-white p-6 rounded-lg shadow">
-          <div className="text-sm text-gray-600 mb-2">
-            Posted by <span className="font-medium">{parseUserMentions(`u/${post.author.username}`)}</span> in <span className="font-medium">r/{post.subreddit}</span>
-          </div>
-          <h1 className="text-2xl font-bold mb-4 text-black">{post.title}</h1>
-          <div className="text-gray-800 whitespace-pre-wrap mb-6">{post.content}</div>
-
-          {/* Comment Input */}
-          <div className="mb-6">
-            <textarea
-              className="w-full p-3 border border-gray-300 rounded-lg mb-2 text-black"
-              rows={3}
-              placeholder="Write a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
+    <>
+    <Navbar userId="{userID}" />
+      <div className="flex justify-center p-20 bg-gray-100 min-h-screen">
+        <div className="flex max-w-4xl w-full gap-4">
+          {/* Votes Sidebar */}
+          <div className="flex flex-col items-center bg-white p-2 rounded-lg shadow h-fit">
+            <button className="text-black hover:text-red-500">▲</button>
+            <span className="font-semibold text-sm my-1 text-black">{post.votes}</span>
+            <button className="text-black hover:text-blue-500">▼</button>
             <button
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              onClick={handleCommentSubmit}
+              className="text-xs mt-2 text-green-600 hover:underline"
+              onClick={() => handleSave(post.id, "post")}
             >
-              Post Comment
+              {saveStatus === "saving" ? "Saving..." : saveStatus === "saved" ? "Saved!" : "Save Post"}
             </button>
           </div>
 
-          {/* Comment Threads */}
-          <div className="space-y-4">
-            {comments.map((comment) => (
-              <CommentThread key={comment.id} comment={comment} />
-            ))}
+          {/* Post and Comments */}
+          <div className="flex-1 bg-white p-6 rounded-lg shadow">
+            <div className="text-sm text-gray-600 mb-2">
+              Posted by <span className="font-medium">{parseUserMentions(`u/${post.author.username}`)}</span> in <span className="font-medium">r/{post.subreddit}</span>
+            </div>
+            <h1 className="text-2xl font-bold mb-4 text-black">{post.title}</h1>
+            <div className="text-gray-800 whitespace-pre-wrap mb-6">{post.content}</div>
+
+            {/* Comment Input */}
+            <div className="mb-6">
+              <textarea
+                className="w-full p-3 border border-gray-300 rounded-lg mb-2 text-black"
+                rows={3}
+                placeholder="Write a comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+              <button
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                onClick={handleCommentSubmit}
+              >
+                Post Comment
+              </button>
+            </div>
+
+            {/* Comment Threads */}
+            <div className="space-y-4">
+              {comments.map((comment) => (
+                <CommentThread key={comment.id} comment={comment} />
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

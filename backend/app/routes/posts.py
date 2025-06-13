@@ -13,14 +13,20 @@ router = APIRouter()
 
 fake = Faker() 
 
+from fastapi import Query
+
 @router.get("/posts")
-def get_fake_posts(db: Session = Depends(database.get_db)):
-    # Check if there are any posts in the database
+def get_fake_posts(
+    sort: str = Query("hot"),  # default to 'hot'
+    db: Session = Depends(database.get_db)
+    ):
+    """Fetches posts from the database, sorts them based on the specified criteria, and returns a list of posts.
+    If no posts exist, it generates fake posts using Faker and returns them sorted. """
     posts = db.query(Post).all()
+
     if not posts:
-        # Seed the database with fake posts if empty
-        Faker.seed(0)  # Consistent seed for reproducibility
-        for i in range(15):
+        Faker.seed(0)
+        for _ in range(15):
             post = Post(
                 id=fake.unique.random_int(min=1, max=1000),
                 title=fake.sentence(nb_words=6),
@@ -31,9 +37,18 @@ def get_fake_posts(db: Session = Depends(database.get_db)):
             )
             db.add(post)
         db.commit()
-        posts = db.query(Post).all()  # Fetch the newly created posts
+        posts = db.query(Post).all()
 
-    return [ 
+    # 🧠 Simple in-memory sort
+    if sort == "top":
+        posts.sort(key=lambda p: p.votes, reverse=True)
+    elif sort == "new":
+        posts.sort(key=lambda p: p.id, reverse=True)  # assuming higher id = newer
+    else:
+        # Fallback to "hot" or default: can be based on votes or mixed logic
+        posts.sort(key=lambda p: (p.votes + p.id), reverse=True)
+
+    return [
         {
             "id": post.id,
             "title": post.title,
@@ -44,6 +59,7 @@ def get_fake_posts(db: Session = Depends(database.get_db)):
         }
         for post in posts
     ]
+
     
 @router.post("/posts/create")
 def create_post(post: PostCreate, db: Session = Depends(database.get_db)):

@@ -43,36 +43,42 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<'hot' | 'new' | 'top'>('hot');
 
-  const fetchPosts = useCallback(async () => {
-    try {
-      const res = await fetch(`http://localhost:8000/posts?sort=${sort}`, {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': userId,
-        },
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setPosts(data);
-      } else {
-        const errData = await res.json();
-        setError(errData.detail || 'Failed to fetch posts');
-      }
-    } catch {
-      setError('Failed to fetch posts');
-    } finally {
-      setLoading(false);
-    }
-  }, [userId, sort, sessionId]);
-
+  // REMOVE useCallback
   useEffect(() => {
+    console.log('Fetching posts with sort:', sort);
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/posts?sort=${sort}`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-user-id': userId,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setPosts(data);
+        } else {
+          const errData = await res.json();
+          setError(errData.detail || 'Failed to fetch posts');
+        }
+      } catch {
+        setError('Failed to fetch posts');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPosts();
-  }, [fetchPosts, sessionId]);
+  }, [userId, sort, sessionId]); // ✅ Add sort here
+
+  // useEffect(() => {
+  //   fetchPosts();
+  // }, [fetchPosts, sessionId]);
 
   return (
-    <div className="min-h-screen max-w-full bg-gradient-to-b bg-green-400 from-gray-50 via-white to-gray-100 pb-12">
+    <div className="min-h-screen max-w-full bg-white pb-12">
       <Navbar
         userId={userId}
         sessionId={sessionId}
@@ -88,8 +94,8 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
         <div className="flex-1 max-w-2xl mx-auto">
           {/* Title + Sort */}
           <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
-              Top posts for you
+            <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
+              Home
             </h1>
             <select
               value={sort}
@@ -111,7 +117,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
           {loading ? (
             <p className="text-center text-gray-500">Loading posts...</p>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {posts.map((post) => (
                 <PostCard
                   key={post.id}

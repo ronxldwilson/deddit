@@ -109,7 +109,7 @@ export const PostCard: React.FC<PostCardProps> = ({
 
   return (
     <>
-      <div className="bg-yellow rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 p-4 flex gap-4">
+      <div className="bg-yellow rounded-xl shadow-lg hover:shadow-md transition-shadow border border-gray-100 p-4 flex gap-4">
         {/* Voting Column */}
         <div className="flex flex-col items-center w-10 text-gray-500 select-none">
           <button
