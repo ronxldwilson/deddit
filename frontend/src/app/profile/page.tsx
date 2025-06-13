@@ -1,6 +1,9 @@
 'use client';
+
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { faker } from '@faker-js/faker';
+import { Navbar } from '../../components/Navbar';
 
 interface User {
     id: string;
@@ -23,36 +26,46 @@ interface Comment {
     post_title: string;
 }
 
+const sections = ['Profile', 'Posts', 'Comments', 'Saved Posts', 'Saved Comments'];
+
 export default function ProfilePage() {
     const searchParams = useSearchParams();
     const userId = searchParams.get('users');
 
     const [user, setUser] = useState<User | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [comments, setComments] = useState<Comment[]>([]);
     const [savedPosts, setSavedPosts] = useState<Post[]>([]);
     const [savedComments, setSavedComments] = useState<Comment[]>([]);
+    const [activeSection, setActiveSection] = useState(sections[0]);
+    const [loading, setLoading] = useState(true);
 
-    const [comments, setComments] = useState<Comment[]>([]);
+
+    const getSeededFaker = (seedString: string) => {
+        const seed = Array.from(seedString).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        faker.seed(seed); // Just seed the global faker
+        return faker;
+    };
 
     useEffect(() => {
         if (!userId) return;
 
-        const fetchProfileData = async () => {
+        const fetchData = async () => {
             setLoading(true);
             try {
-                const userRes = await fetch(`http://localhost:8000/users/${userId}`);
-                const postsRes = await fetch(`http://localhost:8000/users/${userId}/posts`);
-                const commentsRes = await fetch(`http://localhost:8000/users/${userId}/comments`);
+                const [userRes, postsRes, commentsRes, savedPostsRes, savedCommentsRes] = await Promise.all([
+                    fetch(`http://localhost:8000/users/${userId}`),
+                    fetch(`http://localhost:8000/users/${userId}/posts`),
+                    fetch(`http://localhost:8000/users/${userId}/comments`),
+                    fetch(`http://localhost:8000/users/${userId}/saved_posts`),
+                    fetch(`http://localhost:8000/users/${userId}/saved_comments`)
+                ]);
 
-
-                const userData = await userRes.json();
-                const userPosts = await postsRes.json();
-                const userComments = await commentsRes.json();
-
-                setUser(userData);
-                setPosts(userPosts);
-                setComments(userComments);
+                setUser(await userRes.json());
+                setPosts(await postsRes.json());
+                setComments(await commentsRes.json());
+                setSavedPosts(await savedPostsRes.json());
+                setSavedComments(await savedCommentsRes.json());
             } catch (error) {
                 console.error('Error fetching profile:', error);
             } finally {
@@ -60,35 +73,8 @@ export default function ProfilePage() {
             }
         };
 
-        fetchProfileData();
+        fetchData();
     }, [userId]);
-
-    useEffect(() => {
-        if (!userId) return;
-
-        const fetchSavedItems = async () => {
-            try {
-                const [postsRes, commentsRes] = await Promise.all([
-                    fetch(`http://localhost:8000/users/${userId}/saved_posts`),
-                    fetch(`http://localhost:8000/users/${userId}/saved_comments`),
-                ]);
-
-                const savedPostsData = await postsRes.json();
-                const savedCommentsData = await commentsRes.json();
-
-
-                setSavedPosts(Array.isArray(savedPostsData) ? savedPostsData : []);
-                setSavedComments(Array.isArray(savedCommentsData) ? savedCommentsData : []);
-            } catch (error) {
-                console.error('Error fetching saved items:', error);
-                setSavedPosts([]);       // fallback to empty array
-                setSavedComments([]);
-            }
-        };
-
-        fetchSavedItems();
-    }, [userId]);
-
 
     if (loading) {
         return (
@@ -106,103 +92,113 @@ export default function ProfilePage() {
         );
     }
 
+    const renderSection = () => {
+        if (!user) return null;
+
+        const faker = getSeededFaker(user.username);
+        const fakeAvatar = faker.image.avatar();
+        const fakeBio = faker.person.bio();
+
+        switch (activeSection) {
+            case 'Profile':
+                return (
+                    <div className="space-y-4">
+                        <img
+                            src={fakeAvatar}
+                            alt="avatar"
+                            className="w-24 h-24 rounded-full border-2 border-blue-400 shadow-md"
+                        />
+                        <h2 className="text-2xl text-black font-semibold">{user.username}</h2>
+                        <p className="text-black">{fakeBio}</p>
+                    </div>
+                );
+            case 'Posts':
+                return posts.length ? (
+                    posts.map((post) => (
+                        <div key={post.id} className="bg-white border p-4 rounded-lg shadow-sm">
+                            <h3 className="font-semibold text-lg text-blue-700">{post.title}</h3>
+                            <p className="text-gray-700">{post.content}</p>
+                            <span className="text-xs text-gray-400">
+                                Posted on {faker.date.past().toLocaleDateString()}
+                            </span>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-gray-500">No posts yet.</p>
+                );
+            case 'Comments':
+                return comments.length ? (
+                    comments.map((comment) => (
+                        <div key={comment.id} className="bg-white border p-4 rounded-lg shadow-sm">
+                            <p className="text-gray-700">{comment.content}</p>
+                            <span className="text-xs text-gray-400">
+                                On <span className="font-semibold text-blue-700">{comment.post_title}</span> •{' '}
+                                {new Date(comment.created_at).toLocaleDateString()}
+                            </span>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-gray-500">No comments yet.</p>
+                );
+            case 'Saved Posts':
+                return savedPosts.length ? (
+                    savedPosts.map((post) => (
+                        <div key={post.id} className="bg-white border p-4 rounded-lg shadow-sm">
+                            <h3 className="font-semibold text-lg text-blue-700">{post.title}</h3>
+                            <p className="text-gray-700">{post.content}</p>
+                            <span className="text-xs text-gray-400">
+                                Saved on {faker.date.past().toLocaleDateString()}
+                            </span>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-gray-500">No saved posts.</p>
+                );
+            case 'Saved Comments':
+                return savedComments.length ? (
+                    savedComments.map((comment) => (
+                        <div key={comment.id} className="bg-white border p-4 rounded-lg shadow-sm">
+                            <p className="text-gray-700">{comment.content}</p>
+                            <span className="text-xs text-gray-400">
+                                Saved On <span className="font-semibold text-blue-700">{comment.post_title}</span> •{' '}
+                                {new Date(comment.created_at).toLocaleDateString()}
+                            </span>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-gray-500">No saved comments.</p>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
-        <div className="flex max-w-5xl mx-auto mt-10 space-x-6 px-4 bg-white py-6 rounded-lg shadow-md">
-            {/* Sidebar */}
-            <div className="w-80 bg-white border rounded-xl p-4 shadow-md">
-                <h2 className="text-xl font-semibold text-gray-800">{user.username}</h2>
-                <p className="text-sm text-gray-600 mt-2">
-                    {user.bio || 'This user hasn’t added a bio yet.'}
-                </p>
+        <>
+            <div className="min-h-screen bg-white">
+
+                <Navbar />
+                <div className="flex max-w-6xl mx-auto px-6 py-20 space-x-8">
+                    {/* Sidebar */}
+                    <aside className="w-60 bg-white border rounded-xl shadow-md p-4 space-y-4">
+                        {sections.map((section) => (
+                            <button
+                                key={section}
+                                onClick={() => setActiveSection(section)}
+                                className={`w-full text-left px-4 py-2 rounded-lg transition ${activeSection === section
+                                    ? 'bg-blue-100 text-blue-800 font-semibold'
+                                    : 'text-gray-700 hover:bg-gray-100'
+                                    }`}
+                            >
+                                {section}
+                            </button>
+                        ))}
+                    </aside>
+
+                    {/* Main Content */}
+                    <main className="flex-1 space-y-6">{renderSection()}</main>
+                </div>
             </div>
-            <div>
-
-                {/* Posts Section */}
-                <div className="flex-1 space-y-4">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-4">Posts by {user.username}</h1>
-                    {posts.length === 0 ? (
-                        <p className="text-gray-500">This user hasn't posted anything yet.</p>
-                    ) : (
-                        posts.map((post) => (
-                            <div
-                                key={post.id}
-                                className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition"
-                            >
-                                <h3 className="text-lg font-semibold text-blue-700">{post.title}</h3>
-                                <p className="text-sm text-gray-700 mt-1">{post.content}</p>
-                                <p className="text-xs text-gray-400 mt-2">
-                                    Posted on {new Date(post.created_at).toLocaleDateString()}
-                                </p>
-                            </div>
-                        ))
-                    )}
-                </div>
-
-                {/* Comments Section */}
-                <div className="mt-10 space-y-4">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-4">Comments by {user.username}</h1>
-                    {comments.length === 0 ? (
-                        <p className="text-gray-500">This user hasn't commented yet.</p>
-                    ) : (
-                        comments.map((comment) => (
-                            <div
-                                key={comment.id}
-                                className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition"
-                            >
-                                <p className="text-sm text-gray-700">{comment.content}</p>
-                                <p className="text-xs text-gray-400 mt-2">
-                                    On post <span className="font-semibold text-blue-700">{comment.post_title}</span> •{" "}
-                                    {new Date(comment.created_at).toLocaleDateString()}
-                                </p>
-                            </div>
-                        ))
-                    )}
-                </div>
-
-                {/* Saved Posts Section */}
-                <div className="mt-10 space-y-4">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-4">Saved Posts</h1>
-                    {savedPosts.length === 0 ? (
-                        <p className="text-gray-500">No saved posts.</p>
-                    ) : (
-                        savedPosts.map((post) => (
-                            <div
-                                key={post.id}
-                                className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition"
-                            >
-                                <h3 className="text-lg font-semibold text-blue-700">{post.title}</h3>
-                                <p className="text-sm text-gray-700 mt-1">{post.content}</p>
-                                <p className="text-xs text-gray-400 mt-2">
-                                    Saved on {new Date(post.created_at).toLocaleDateString()}
-                                </p>
-                            </div>
-                        ))
-                    )}
-                </div>
-
-                {/* Saved Comments Section */}
-                <div className="mt-10 space-y-4">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-4">Saved Comments</h1>
-                    {savedComments.length === 0 ? (
-                        <p className="text-gray-500">No saved comments.</p>
-                    ) : (
-                        savedComments.map((comment) => (
-                            <div
-                                key={comment.id}
-                                className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition"
-                            >
-                                <p className="text-sm text-gray-700">{comment.content}</p>
-                                <p className="text-xs text-gray-400 mt-2">
-                                    On post <span className="font-semibold text-blue-700">{comment.post_title}</span> •{" "}
-                                    {new Date(comment.created_at).toLocaleDateString()}
-                                </p>
-                            </div>
-                        ))
-                    )}
-                </div>
-
-
-            </div>
-        </div>
+        </>
     );
 }
