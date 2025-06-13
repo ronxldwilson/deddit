@@ -6,13 +6,19 @@ Done:
 9. Upvote/Downvote Comment
 10. Save Post
 11. Save Comment
+12. Sort posts (hot/new/top)
 19. Comment collapse/expand
 20. Vote score indicator (e.g. +123)
 21. Sign Up / Login
 24. User profile page
+26. Profile bio
 29. User history (posts/comments)
+32. Subreddit description and rules
+33. Subreddit banner and icon
 
 Add Logout Button
+UserHoverCard
+Add popular communitites section
 
 To Do:
 
@@ -20,28 +26,22 @@ To Do:
 6. Edit Comment
 7. Delete Comment
 3. Delete Post
-12. Sort posts (hot/new/top)
-26. Profile bio
+13. Sort comments (best/new/controversial)
 31. Create Subreddit feature
 31.5 Create subreddit by user
+34. Subreddit moderators
+35. Subreddit settings (visibility, post types)
+25. User karma - Show Total number of posts/ comments that are made in profile section
 
-UserHoverCard
 Add Search functionality
 Fix the Limit of votes for comments
-Add popular communitites section
 Add Peer To Peer message
 
-13. Sort comments (best/new/controversial)
-25. User karma - Show Total number of posts/ comments that are made in profile section
 14. NSFW flag and toggle
 16. Spoiler tag support
 22. Password reset
 27. User avatars
 30. Follow/unfollow user
-32. Subreddit description and rules
-33. Subreddit banner and icon
-34. Subreddit moderators
-35. Subreddit settings (visibility, post types)
 36. Subscribe/unsubscribe from subreddits
 41. Report post/comment
 51. Global search

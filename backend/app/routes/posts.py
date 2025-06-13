@@ -8,12 +8,12 @@ from sqlalchemy.orm import Session # type: ignore
 from pydantic import BaseModel # type: ignore
 from ..db.db import db as database 
 from ..db.models import Post, User  # Import your models
+from fastapi import Query # type: ignore
 
 router = APIRouter()
 
 fake = Faker() 
 
-from fastapi import Query
 
 @router.get("/posts")
 def get_fake_posts(

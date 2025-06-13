@@ -45,7 +45,6 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
 
   // REMOVE useCallback
   useEffect(() => {
-    console.log('Fetching posts with sort:', sort);
     const fetchPosts = async () => {
       try {
         const res = await fetch(`http://localhost:8000/posts?sort=${sort}`, {
@@ -159,9 +158,12 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
                 ].map((community) => (
                   <li key={community.name} className="flex items-center justify-between">
                     <div>
-                      <a href="#" className="text-sm font-medium text-blue-600 hover:underline">
+                      <Link
+                        href={`/r/${community.name}`}
+                        className="text-sm font-medium text-blue-600 hover:underline"
+                      >
                         r/{community.name}
-                      </a>
+                      </Link>
                       <div className="text-xs text-gray-500">members: {community.members}</div>
                     </div>
                   </li>
@@ -170,7 +172,6 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
             </div>
           </div>
         </aside>
-
       </div>
     </div>
   );
