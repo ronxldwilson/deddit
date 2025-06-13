@@ -20,9 +20,11 @@ export const Navbar: React.FC<NavbarProps> = ({ userId, sessionId, onLogout }) =
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (search.trim()) {
-      // TODO: Implement actual search functionality
+      router.push(`/search?q=${encodeURIComponent(search.trim())}`);
     }
   };
+
+
 
   const handleLogout = () => {
     if (sessionId && userId) {
@@ -55,9 +57,9 @@ export const Navbar: React.FC<NavbarProps> = ({ userId, sessionId, onLogout }) =
         </Link>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="flex items-center w-full max-w-md mx-6">
+        <form onSubmit={handleSearch} className="flex items-center w-full max-w-md mx-6 space-x-2">
           <div className="relative w-full">
-            <Search size={16} className="absolute left-3 top-2.5 text-black" />
+            <Search size={16} className="absolute left-3 top-2.5 text-gray-500" />
             <input
               type="text"
               placeholder="Search Deddit"
@@ -66,7 +68,15 @@ export const Navbar: React.FC<NavbarProps> = ({ userId, sessionId, onLogout }) =
               className="w-full pl-9 pr-3 py-2 text-sm text-black rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+          >
+            Search
+          </button>
         </form>
+
 
         {/* Navigation Links */}
         <div className="flex items-center space-x-6 text-sm text-gray-700">

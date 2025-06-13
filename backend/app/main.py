@@ -1,7 +1,7 @@
 from fastapi import FastAPI # type : ignore
 from fastapi.middleware.cors import CORSMiddleware # type : ignore
 from contextlib import asynccontextmanager
-from .routes import posts, vote, synthetic, notes, users, comments, messages
+from .routes import posts, vote, synthetic, notes, users, comments, messages, search
 
 from .db.db import db
 from .utils.logger import LogMiddleware
@@ -12,7 +12,7 @@ async def lifespan(app: FastAPI):
     db.create_database() 
     db.populate_database(seed = "0" * 16) # Consistent seed for synthetic data — can add this as a parameter
     yield
-    # Shutdown
+    # Shutdown 
 
 app = FastAPI(title="Synthetic App Template (FastAPI)", lifespan=lifespan)
 
@@ -42,6 +42,8 @@ app.include_router(users.router)  # no prefix = available at /debug/users
 app.include_router(comments.router)
 
 app.include_router(messages.router)
+
+app.include_router(search.router) 
 
 @app.get("/") 
 def read_root():

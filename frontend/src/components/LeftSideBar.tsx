@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link';
 
 interface LeftSideBarProps {
-    userId: string;
+    userId?: string;
     sessionId?: string;
 }
 

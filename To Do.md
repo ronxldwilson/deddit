@@ -3,7 +3,6 @@ Done:
 4. Comment on Post
 5. Nested Comments (threaded)
 8. Upvote/Downvote Post
-9. Upvote/Downvote Comment
 10. Save Post
 11. Save Comment
 12. Sort posts (hot/new/top)
@@ -12,9 +11,11 @@ Done:
 21. Sign Up / Login
 24. User profile page
 26. Profile bio
+27. User avatars
 29. User history (posts/comments)
 32. Subreddit description and rules
 33. Subreddit banner and icon
+51. Global search
 54. Trending subreddits
 55. Popular posts
 89. Sticky top nav
@@ -24,11 +25,9 @@ UserHoverCard
 Add popular communitites section
 
 Bug List:
+9. Upvote/Downvote Comment
+3. Delete Post - Not working in the profile view
 
-
-Create post not working
-
-3. Delete Post - Not working
 
 To Do:
 
@@ -49,11 +48,9 @@ Add Peer To Peer message
 14. NSFW flag and toggle
 16. Spoiler tag support
 22. Password reset
-27. User avatars
+41. Report post/comment
 30. Follow/unfollow user
 36. Subscribe/unsubscribe from subreddits
-41. Report post/comment
-51. Global search
 52. Subreddit-specific search
 53. Search by user
 56. Recently created subreddits
