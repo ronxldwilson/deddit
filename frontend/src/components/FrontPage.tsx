@@ -43,6 +43,8 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<'hot' | 'new' | 'top'>('hot');
 
+  const [savedPostIds, setSavedPostIds] = useState<string[]>([]);
+
   // REMOVE useCallback
   useEffect(() => {
     const fetchPosts = async () => {
@@ -75,6 +77,23 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
   // useEffect(() => {
   //   fetchPosts();
   // }, [fetchPosts, sessionId]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const res = await fetch("http://localhost:8000/posts");
+      const data = await res.json();
+      setPosts(data);
+    };
+
+    const fetchSaved = async () => {
+      const res = await fetch(`http://localhost:8000/users/${userId}/saved_posts`);
+      const data = await res.json();
+      setSavedPostIds(data.map((post: any) => post.id.toString()));
+    };
+
+    fetchPosts();
+    fetchSaved();
+  }, [userId]);
 
   return (
     <div className="min-h-screen max-w-full bg-white pb-12">
@@ -127,6 +146,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
                   votes={post.votes}
                   content={post.content}
                   userID={userId}
+                  isInitiallySaved={savedPostIds.includes(post.id.toString())}
                 />
               ))}
             </div>
