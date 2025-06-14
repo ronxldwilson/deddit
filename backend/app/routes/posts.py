@@ -1,6 +1,6 @@
 # app/routes/posts.py
 
-from app.models import PostCreate
+from app.models import PostCreate, PostUpdate
 from fastapi import APIRouter, Depends, HTTPException, Path, status # type: ignore
 from faker import Faker # type: ignore
 
@@ -115,3 +115,28 @@ def delete_post(post_id: int, db: Session = Depends(database.get_db)):
     db.commit()
 
     return {"message": "Post deleted successfully"}
+
+@router.put("/posts/{post_id}")
+def update_post(
+    post_id: int,
+    post_update: PostUpdate,
+    db: Session = Depends(database.get_db)
+):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    post.title = post_update.title
+    post.content = post_update.content
+    db.commit()
+    db.refresh(post)
+
+    return { 
+        "id": post.id,
+        "title": post.title,
+        "content": post.content,
+        "subreddit": post.subreddit,
+        "votes": post.votes,
+        "author": post.author,
+        "author_id": post.author_id
+    }

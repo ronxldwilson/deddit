@@ -42,6 +42,10 @@ export default function ProfilePage() {
     const [activeSection, setActiveSection] = useState(sections[0]);
     const [loading, setLoading] = useState(true);
 
+    const [editingPostId, setEditingPostId] = useState<string | null>(null);
+    const [editedTitle, setEditedTitle] = useState('');
+    const [editedContent, setEditedContent] = useState('');
+
 
     const getSeededFaker = (seedString: string) => {
         const seed = Array.from(seedString).reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -114,6 +118,36 @@ export default function ProfilePage() {
         }
     };
 
+    const handleSaveEdit = async (postId: string) => {
+        try {
+            const res = await fetch(`http://localhost:8000/posts/${postId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: editedTitle,
+                    content: editedContent,
+                }),
+            });
+
+            if (res.ok) {
+                const updatedPost = await res.json();
+                setPosts((prev) =>
+                    prev.map((post) =>
+                        post.id === postId ? updatedPost : post
+                    )
+                );
+                setEditingPostId(null);
+            } else {
+                console.error('Failed to save edit');
+            }
+        } catch (error) {
+            console.error('Error saving post edit:', error);
+        }
+    };
+
+
     const renderSection = () => {
         if (!user) return null;
 
@@ -168,33 +202,74 @@ export default function ProfilePage() {
                     posts.map((post) => (
                         <div
                             key={post.id}
-                            className="bg-white border p-4 rounded-lg shadow-sm relative cursor-pointer hover:bg-gray-50"
-                            onClick={() => router.push(`/posts/${post.id}?userID=${userId}`)}
+                            className="bg-white border p-4 rounded-lg shadow-sm relative"
                         >
-                            <h3 className="font-semibold text-lg text-blue-700">{post.title}</h3>
+                            {editingPostId === post.id ? (
+                                <>
+                                    <input
+                                        type="text"
+                                        value={editedTitle}
+                                        onChange={(e) => setEditedTitle(e.target.value)}
+                                        className="w-full p-2 mb-2 border text-black rounded"
+                                    />
+                                    <textarea
+                                        value={editedContent}
+                                        onChange={(e) => setEditedContent(e.target.value)}
+                                        className="w-full p-2 mb-2 border text-black rounded"
+                                    />
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleSaveEdit(post.id)}
+                                            className="px-4 py-2 bg-green-500 text-black rounded"
+                                        >
+                                            Save
+                                        </button>
+                                        <button
+                                            onClick={() => setEditingPostId(null)}
+                                            className="px-4 py-2 bg-gray-300 rounded"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <h3 className="font-semibold text-lg text-blue-700">{post.title}</h3>
+                                    <p className="text-gray-700">{post.content}</p>
+                                    <span className="text-xs text-gray-400">
+                                        Posted on {faker.date.past().toLocaleDateString()}
+                                    </span>
 
-                            <p className="text-gray-700">{post.content}</p>
-
-                            <span className="text-xs text-gray-400">
-                                Posted on {faker.date.past().toLocaleDateString()}
-                            </span>
-
-                            {/* 🗑 Delete Button (Vertically Centered) */}
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeletePost(post.id);
-                                }}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700"
-                                aria-label="Delete Post"
-                            >
-                                <Trash2 size={18} />
-                            </button>
+                                    {/* Edit & Delete Buttons */}
+                                    <div className="absolute right-2 top-2 flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setEditingPostId(post.id);
+                                                setEditedTitle(post.title);
+                                                setEditedContent(post.content);
+                                            }}
+                                            className="text-blue-500 hover:text-blue-700 text-sm"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeletePost(post.id);
+                                            }}
+                                            className="text-red-500 hover:text-red-700 text-sm"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     ))
                 ) : (
                     <p className="text-gray-500">No posts yet.</p>
                 );
+
             case 'Comments':
                 return comments.length ? (
                     comments.map((comment) => (

@@ -72,5 +72,8 @@ class MessageResponse(BaseModel):
     class Config:
         orm_mode = True 
 
-
+class PostUpdate(BaseModel):
+    title: str
+    content: str
+    
 CommentResponse.update_forward_refs()

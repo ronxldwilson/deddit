@@ -144,3 +144,4 @@ class Message(Base):
     receiver_id = Column(String, ForeignKey("users.id"))
     content = Column(Text, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
+    
