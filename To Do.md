@@ -30,6 +30,9 @@ Add popular communitites section
 3. Logout button on different screens 
 Navbar make it more resilient
 Fix Search Page
+
+
+
 __________________________________________________________________________________
 # Bug List:
 9. Upvote/Downvote Comment

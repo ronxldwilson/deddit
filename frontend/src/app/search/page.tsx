@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LeftSideBar } from '../../components/LeftSideBar';
 import { Navbar } from '../../components/Navbar';
+import Link from 'next/link';
 
 interface Post {
     id: string;
@@ -32,6 +33,9 @@ export default function SearchPage() {
         }
     }, [query]);
 
+    console.log(results)
+
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Navbar
@@ -58,14 +62,13 @@ export default function SearchPage() {
                     ) : results.length > 0 ? (
                         <div className="space-y-4">
                             {results.map((post) => (
-                                <div
-                                    key={post.id}
-                                    className="border border-gray-200 p-4 rounded-lg hover:shadow transition"
-                                >
-                                    <h2 className="text-sm text-red-600 font-semibold">r/{post.subreddit}</h2>
-                                    <p className="text-lg font-bold mt-1 text-gray-900">{post.title}</p>
-                                    <p className="text-sm text-gray-700 mt-2">{post.content}</p>
-                                </div>
+                                <Link key={post.id} href={`/posts/${post.id}?userID=${userId}`}>
+                                    <div className="border border-gray-200 p-4 rounded-lg hover:shadow transition cursor-pointer">
+                                        <h2 className="text-sm text-black font-semibold">r/{post.subreddit}</h2>
+                                        <p className="text-lg font-bold mt-1 text-gray-900">{post.title}</p>
+                                        <p className="text-sm text-gray-700 mt-2">{post.content}</p>
+                                    </div>
+                                </Link>
                             ))}
                         </div>
                     ) : (
