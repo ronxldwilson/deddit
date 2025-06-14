@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { parseUserMentions } from '../../../utils/parseUserMentions';
 import { Navbar } from "@/components/Navbar";
+import { ArrowUp, ArrowDown, Bookmark, BookmarkCheck } from "lucide-react";
+
 
 interface Author {
   username: string;
@@ -190,15 +192,13 @@ export default function PostPage() {
             <div className="flex gap-2">
               <button
                 onClick={() => handleSave(comment.id, "comment")}
-                className="text-green-600 hover:underline"
+                className="text-green-600 hover:text-green-800"
               >
-                {
-                  savedComments[comment.id] === "saving"
-                    ? "Saving..."
-                    : savedComments[comment.id] === "saved"
-                      ? "Saved!"
-                      : "Save"
-                }
+                {savedComments[comment.id] === "saved" ? (
+                  <BookmarkCheck className="w-4 h-4" />
+                ) : (
+                  <Bookmark className="w-4 h-4" />
+                )}
               </button>
 
               <button
@@ -214,9 +214,13 @@ export default function PostPage() {
             <>
               <div className="text-gray-800 mb-2">{comment.content}</div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <button onClick={() => handleVote(1)} className="hover:text-red-500">▲</button>
+                <button onClick={() => handleVote(1)} className="hover:text-red-500">
+                  <ArrowUp className="w-4 h-4" />
+                </button>
                 <span>{voteCount}</span>
-                <button onClick={() => handleVote(-1)} className="hover:text-blue-500">▼</button>
+                <button onClick={() => handleVote(-1)} className="hover:text-blue-500">
+                  <ArrowDown className="w-4 h-4" />
+                </button>
                 <button onClick={() => setReplying(!replying)} className="text-blue-600 hover:underline ml-2">Reply</button>
               </div>
 
@@ -264,17 +268,26 @@ export default function PostPage() {
       <div className="flex justify-center p-20 bg-gray-100 min-h-screen">
         <div className="flex max-w-4xl w-full gap-4">
           {/* Votes Sidebar */}
-          <div className="flex flex-col items-center bg-white p-2 rounded-lg shadow h-fit">
-            <button className="text-black hover:text-red-500">▲</button>
-            <span className="font-semibold text-sm my-1 text-black">{post.votes}</span>
-            <button className="text-black hover:text-blue-500">▼</button>
+          <div className="flex flex-col items-center bg-white p-2 rounded-lg shadow h-fit text-black">
+            <button className="hover:text-red-500">
+              <ArrowUp className="w-5 h-5" />
+            </button>
+            <span className="font-semibold text-sm my-1">{post.votes}</span>
+            <button className="hover:text-blue-500">
+              <ArrowDown className="w-5 h-5" />
+            </button>
             <button
-              className="text-xs mt-2 text-green-600 hover:underline"
+              className="mt-2 hover:text-green-600"
               onClick={() => handleSave(post.id, "post")}
             >
-              {saveStatus === "saving" ? "Saving..." : saveStatus === "saved" ? "Saved!" : "Save Post"}
+              {saveStatus === "saved" ? (
+                <BookmarkCheck className="w-5 h-5 text-green-600" />
+              ) : (
+                <Bookmark className="w-5 h-5" />
+              )}
             </button>
           </div>
+
 
           {/* Post and Comments */}
           <div className="flex-1 bg-white p-6 rounded-lg shadow">
