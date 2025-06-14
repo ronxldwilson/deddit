@@ -31,7 +31,7 @@ class User(Base):
     password = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
+ 
     posts = relationship("Post", back_populates="author", cascade="all, delete-orphan")
     notes = relationship("Note", back_populates="user")
     votes = relationship("Vote", back_populates="user", cascade="all, delete-orphan")
@@ -134,11 +134,8 @@ class SavedComment(Base):
 class Message(Base):
     __tablename__ = "messages"
 
-    id = Column(Integer, primary_key=True, index=True)
-    sender_id = Column(Integer, ForeignKey("users.id"))
-    receiver_id = Column(Integer, ForeignKey("users.id"))
-    content = Column(String, nullable=False)
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    sender_id = Column(String, ForeignKey("users.id"))
+    receiver_id = Column(String, ForeignKey("users.id"))
+    content = Column(Text, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
-
-    sender = relationship("User", foreign_keys=[sender_id])
-    receiver = relationship("User", foreign_keys=[receiver_id])

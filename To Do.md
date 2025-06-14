@@ -29,11 +29,13 @@ Add popular communitites section
 2. My Comments side nav
 3. Logout button on different screens 
 Navbar make it more resilient
+Fix Search Page
 __________________________________________________________________________________
 # Bug List:
 9. Upvote/Downvote Comment
 3. Delete Post - Not working in the profile view
-Fix Search Page
+
+Profile in Navbar in Post Details Page
 
 # Broken Links
 

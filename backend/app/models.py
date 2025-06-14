@@ -52,10 +52,25 @@ class MessageCreate(BaseModel):
     receiver_id: str
     content: str
 
-class MessageRead(MessageCreate):
-    id: str
+class MessageRead(BaseModel):
+    id: str  # ✅ fix here
+    sender_id: str
+    receiver_id: str
+    content: str
     timestamp: datetime
 
- 
+    class Config:
+        orm_mode = True
+
+class MessageResponse(BaseModel):
+    id: str  # ✅ fix here
+    sender_id: str
+    receiver_id: str
+    content: str
+    timestamp: datetime
+
+    class Config:
+        orm_mode = True 
+
 
 CommentResponse.update_forward_refs()
