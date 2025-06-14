@@ -11,30 +11,61 @@ from ..models import CommentCreate, CommentResponse
 
 router = APIRouter()
 
-def build_comment_tree(comments, parent_id=None):
+def build_comment_tree(comments, parent_id=None, db=None):
+    """Build comment tree with actual vote counts"""
     tree = []
     for comment in comments: 
         if comment.parent_id == parent_id: 
-            children = build_comment_tree(comments, comment.id)
+            children = build_comment_tree(comments, comment.id, db)
+            
+            # Calculate actual vote count from database
+            vote_sum = db.query(func.sum(CommentVote.value)).filter(CommentVote.comment_id == comment.id).scalar() or 0
+            
             tree.append(CommentResponse(
                 id=comment.id,
                 content=comment.content,
                 created_at=comment.created_at,
                 author_username=comment.author.username,
                 parent_id=comment.parent_id,
-                post_id=comment.post_id,  # <-- include this
+                post_id=comment.post_id,
                 children=children, 
-                votes=random.randint(-5, 100)  # Simulating votes for the example
+                votes=vote_sum  # Use actual vote count instead of random
             )) 
     return tree 
 
 @router.get("/posts/{post_id}/comments", response_model=List[CommentResponse])
 def get_comments(post_id: int, db: Session = Depends(database.get_db)):
+    """Get all comments for a post with actual vote counts"""
     comments = db.query(Comment)\
         .options(joinedload(Comment.author), joinedload(Comment.votes))\
         .filter(Comment.post_id == post_id)\
         .all()
-    return build_comment_tree(comments)
+    return build_comment_tree(comments, db=db)
+
+@router.get("/comments/{comment_id}", response_model=CommentResponse)
+def get_comment(comment_id: int, db: Session = Depends(database.get_db)):
+    """Get a single comment by ID with its current vote count"""
+    comment = db.query(Comment)\
+        .options(joinedload(Comment.author), joinedload(Comment.votes))\
+        .filter(Comment.id == comment_id)\
+        .first()
+    
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    
+    # Calculate actual vote count from the database
+    vote_sum = db.query(func.sum(CommentVote.value)).filter(CommentVote.comment_id == comment_id).scalar() or 0
+    
+    return CommentResponse(
+        id=comment.id,
+        content=comment.content,
+        created_at=comment.created_at,
+        author_username=comment.author.username,
+        parent_id=comment.parent_id,
+        post_id=comment.post_id,
+        children=[],  # Single comment doesn't need children populated
+        votes=vote_sum  # Return actual vote count
+    )
 
 @router.post("/comments/", response_model=CommentResponse)
 def create_comment(comment: CommentCreate, db: Session = Depends(database.get_db)):
@@ -64,7 +95,7 @@ def create_comment(comment: CommentCreate, db: Session = Depends(database.get_db
         parent_id=db_comment.parent_id,
         post_id=db_comment.post_id,    
         children=[],
-        votes=0  # default vote count for a new comment
+        votes=0  # New comments start with 0 votes
     )
 
 @router.post("/comments/{comment_id}/vote")
@@ -91,10 +122,9 @@ def vote_on_comment(comment_id: int, vote: dict, db: Session = Depends(database.
 
     db.commit()
 
-    # Optional: Return updated vote count
-    vote_sum = db.query(func.sum(CommentVote.value)).filter(CommentVote.comment_id == comment_id).scalar() or 0 # type: ignore
+    # Return updated vote count
+    vote_sum = db.query(func.sum(CommentVote.value)).filter(CommentVote.comment_id == comment_id).scalar() or 0
     return {"message": "Vote recorded", "votes": vote_sum} 
-
 
 @router.put("/comments/{comment_id}", response_model=CommentResponse)
 def update_comment(comment_id: int, updated_data: CommentCreate, db: Session = Depends(database.get_db)):
@@ -106,6 +136,9 @@ def update_comment(comment_id: int, updated_data: CommentCreate, db: Session = D
     db.commit()
     db.refresh(comment)
 
+    # Calculate actual vote count for the updated comment
+    vote_sum = db.query(func.sum(CommentVote.value)).filter(CommentVote.comment_id == comment_id).scalar() or 0
+
     return CommentResponse(
         id=comment.id,
         content=comment.content,
@@ -114,15 +147,15 @@ def update_comment(comment_id: int, updated_data: CommentCreate, db: Session = D
         parent_id=comment.parent_id,
         post_id=comment.post_id,
         children=[],
-        votes=0,
+        votes=vote_sum,  # Return actual vote count
     )
 
 @router.delete("/comments/{comment_id}")
 def delete_comment(comment_id: int, db: Session = Depends(database.get_db)): 
     comment = db.query(Comment).filter(Comment.id == comment_id).first()
     if not comment:
-        raise HTTPException(status_code=404, detail="Comment not found")
+        raise HTTPException(status_code=404, detail="Comment not found") 
 
     db.delete(comment)
-    db.commit()
+    db.commit() 
     return {"message": "Comment deleted"}

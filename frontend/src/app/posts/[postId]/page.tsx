@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { parseUserMentions } from '../../../utils/parseUserMentions';
 import { Navbar } from "@/components/Navbar";
 import { ArrowUp, ArrowDown, Bookmark, BookmarkCheck } from "lucide-react";
-
+import { LeftSideBar } from "@/components/LeftSideBar";
 
 interface Author {
   username: string;
@@ -46,9 +46,12 @@ export default function PostPage() {
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
-  const [saveStatus, setSaveStatus] = useState<null | 'saving' | 'saved'>(null);
   const [savedComments, setSavedComments] = useState<{ [id: number]: 'saving' | 'saved' | null }>({});
 
+  // Post voting state - refactored similar to PostCard
+  const [voteState, setVoteState] = useState<"up" | "down" | null>(null);
+  const [voteCount, setVoteCount] = useState<number>(0);
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     if (typeof postId === "string") {
@@ -57,10 +60,25 @@ export default function PostPage() {
     }
   }, [postId]);
 
+  // Initialize vote count and saved state when post loads
+  useEffect(() => {
+    if (post && userID) {
+      setVoteCount(post.votes);
+      
+      // Check if post is saved
+      const savedPostsKey = `savedPosts:${userID}`;
+      const savedPosts = JSON.parse(localStorage.getItem(savedPostsKey) || "[]");
+      setIsSaved(savedPosts.includes(post.id.toString()));
+    }
+  }, [post, userID]);
+
   async function fetchPost(postId: string) {
     try {
       const res = await fetch(`http://localhost:8000/posts/${postId}`, { cache: "no-store" });
-      if (res.ok) setPost(await res.json());
+      if (res.ok) {
+        const postData = await res.json();
+        setPost(postData);
+      }
     } catch (err) {
       console.error("Failed to fetch post", err);
     } finally {
@@ -101,41 +119,124 @@ export default function PostPage() {
     }
   };
 
-  const handleSave = async (id: number, type: 'post' | 'comment') => {
-    if (!userID) return alert("Login required to save.");
+  // Refactored voting logic similar to PostCard
+  const handleVote = async (type: "up" | "down" | "neutral") => {
+    if (!post || !userID) return;
 
-    const endpoint = type === 'post' ? `/api/save_post/${id}` : `/api/save_comment/${id}`;
-    if (type === 'comment') {
-      setSavedComments(prev => ({ ...prev, [id]: 'saving' }));
-    } else {
-      setSaveStatus("saving");
-    }
+    const votePayload = {
+      post_id: post.id,
+      user_id: userID,
+      vote: type,
+    };
 
     try {
-      const res = await fetch(`http://localhost:8000${endpoint}`, {
+      const res = await fetch("http://localhost:8000/vote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(votePayload),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.new_votes !== undefined) {
+          setVoteCount(data.new_votes);
+        }
+      } else {
+        const error = await res.json();
+        console.error("Vote failed", error.detail);
+      }
+    } catch (err) {
+      console.error("Error voting on post", err);
+    }
+  };
+
+  const handleUpvote = () => {
+    if (voteState === "up") {
+      setVoteState(null);
+      setVoteCount(voteCount - 1);
+      handleVote("neutral");
+    } else if (voteState === "down") {
+      setVoteState("up");
+      setVoteCount(voteCount + 2);
+      handleVote("up");
+    } else {
+      setVoteState("up");
+      setVoteCount(voteCount + 1);
+      handleVote("up");
+    }
+  };
+
+  const handleDownvote = () => {
+    if (voteState === "down") {
+      setVoteState(null);
+      setVoteCount(voteCount + 1);
+      handleVote("neutral");
+    } else if (voteState === "up") {
+      setVoteState("down");
+      setVoteCount(voteCount - 2);
+      handleVote("down");
+    } else {
+      setVoteState("down");
+      setVoteCount(voteCount - 1);
+      handleVote("down");
+    }
+  };
+
+  // Refactored save logic similar to PostCard
+  const handleSavePost = async () => {
+    if (!post || !userID) return;
+
+    try {
+      // Optional backend call
+      await fetch(`http://localhost:8000/api/save_post/${post.id}`, {
+        method: "POST",
+        body: JSON.stringify({ user_id: userID }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      // LocalStorage logic scoped to current user
+      const savedPostsKey = `savedPosts:${userID}`;
+      const savedPosts = JSON.parse(localStorage.getItem(savedPostsKey) || "[]");
+      let updatedPosts;
+
+      if (isSaved) {
+        updatedPosts = savedPosts.filter((postId: string) => postId !== post.id.toString());
+      } else {
+        updatedPosts = [...savedPosts, post.id.toString()];
+      }
+
+      localStorage.setItem(savedPostsKey, JSON.stringify(updatedPosts));
+      setIsSaved(!isSaved);
+    } catch (err) {
+      console.error("Save failed", err);
+    }
+  };
+
+  const handleSaveComment = async (id: number) => {
+    if (!userID) return alert("Login required to save.");
+
+    setSavedComments(prev => ({ ...prev, [id]: 'saving' }));
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/save_comment/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userID }),
       });
 
       if (res.ok) {
-        if (type === 'comment') {
-          setSavedComments(prev => ({ ...prev, [id]: 'saved' }));
-          setTimeout(() => setSavedComments(prev => ({ ...prev, [id]: null })), 1000);
-        } else {
-          setSaveStatus("saved");
-          setTimeout(() => setSaveStatus(null), 1000);
-        }
+        setSavedComments(prev => ({ ...prev, [id]: 'saved' }));
+        setTimeout(() => setSavedComments(prev => ({ ...prev, [id]: null })), 1000);
       }
     } catch (err) {
       console.error("Save failed", err);
+      setSavedComments(prev => ({ ...prev, [id]: null }));
     }
   };
 
-
   function CommentThread({ comment }: { comment: Comment }) {
     const [collapsed, setCollapsed] = useState(false);
-    const [voteCount, setVoteCount] = useState(comment.votes);
+    const [commentVoteCount, setCommentVoteCount] = useState(comment.votes);
     const [replying, setReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
 
@@ -164,7 +265,9 @@ export default function PostPage() {
       }
     };
 
-    const handleVote = async (value: 1 | -1) => {
+    const handleCommentVote = async (value: 1 | -1) => {
+      if (!userID) return;
+
       try {
         const res = await fetch(`http://localhost:8000/comments/${comment.id}/vote`, {
           method: "POST",
@@ -174,7 +277,7 @@ export default function PostPage() {
 
         if (res.ok) {
           const updated = await fetch(`http://localhost:8000/comments/${comment.id}`).then(r => r.json());
-          setVoteCount(updated.votes);
+          setCommentVoteCount(updated.votes);
         } else {
           const error = await res.json();
           alert(error.detail);
@@ -185,70 +288,68 @@ export default function PostPage() {
     };
 
     return (
-      <>
-        <div className="pl-4 border-l border-gray-300 my-2">
-          <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-            <span>{parseUserMentions(`u/${comment.author_username}`)} · {new Date(comment.created_at).toLocaleString()}</span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleSave(comment.id, "comment")}
-                className="text-green-600 hover:text-green-800"
-              >
-                {savedComments[comment.id] === "saved" ? (
-                  <BookmarkCheck className="w-4 h-4" />
-                ) : (
-                  <Bookmark className="w-4 h-4" />
-                )}
-              </button>
-
-              <button
-                onClick={() => setCollapsed(!collapsed)}
-                className="text-blue-600 hover:underline"
-              >
-                [{collapsed ? "+" : "–"}]
-              </button>
-            </div>
-          </div>
-
-          {!collapsed && (
-            <>
-              <div className="text-gray-800 mb-2">{comment.content}</div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <button onClick={() => handleVote(1)} className="hover:text-red-500">
-                  <ArrowUp className="w-4 h-4" />
-                </button>
-                <span>{voteCount}</span>
-                <button onClick={() => handleVote(-1)} className="hover:text-blue-500">
-                  <ArrowDown className="w-4 h-4" />
-                </button>
-                <button onClick={() => setReplying(!replying)} className="text-blue-600 hover:underline ml-2">Reply</button>
-              </div>
-
-              {replying && (
-                <div className="mt-2 ml-4">
-                  <textarea
-                    className="w-full p-2 border border-gray-300 rounded-lg text-black"
-                    rows={2}
-                    placeholder="Write your reply..."
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                  />
-                  <button
-                    className="mt-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                    onClick={handleReplySubmit}
-                  >
-                    Submit Reply
-                  </button>
-                </div>
+      <div className="pl-4 border-l border-gray-300 my-2">
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span>{parseUserMentions(`u/${comment.author_username}`)} · {new Date(comment.created_at).toLocaleString()}</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleSaveComment(comment.id)}
+              className="text-green-600 hover:text-green-800"
+            >
+              {savedComments[comment.id] === "saved" ? (
+                <BookmarkCheck className="w-4 h-4" />
+              ) : (
+                <Bookmark className="w-4 h-4" />
               )}
+            </button>
 
-              {comment.children.map((child) => (
-                <CommentThread key={child.id} comment={child} />
-              ))}
-            </>
-          )}
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="text-blue-600 hover:underline"
+            >
+              [{collapsed ? "+" : "–"}]
+            </button>
+          </div>
         </div>
-      </>
+
+        {!collapsed && (
+          <>
+            <div className="text-gray-800 mb-2">{comment.content}</div>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <button onClick={() => handleCommentVote(1)} className="hover:text-red-500">
+                <ArrowUp className="w-4 h-4" />
+              </button>
+              <span>{commentVoteCount}</span>
+              <button onClick={() => handleCommentVote(-1)} className="hover:text-blue-500">
+                <ArrowDown className="w-4 h-4" />
+              </button>
+              <button onClick={() => setReplying(!replying)} className="text-blue-600 hover:underline ml-2">Reply</button>
+            </div>
+
+            {replying && (
+              <div className="mt-2 ml-4">
+                <textarea
+                  className="w-full p-2 border border-gray-300 rounded-lg text-black"
+                  rows={2}
+                  placeholder="Write your reply..."
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                />
+                <button
+                  className="mt-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                  onClick={handleReplySubmit}
+                >
+                  Submit Reply
+                </button>
+              </div>
+            )}
+
+            {comment.children.map((child) => (
+              <CommentThread key={child.id} comment={child} />
+            ))}
+          </>
+        )}
+      </div>
     );
   }
 
@@ -262,64 +363,74 @@ export default function PostPage() {
         sessionId={window.__SESSION_ID__ || ''}
         onLogout={() => {
           localStorage.removeItem('userId');
-          window.location.href = '/'; // Redirect to home
+          window.location.href = '/';
         }}
       />
-      <div className="flex justify-center p-20 bg-gray-100 min-h-screen">
-        <div className="flex max-w-4xl w-full gap-4">
-          {/* Votes Sidebar */}
-          <div className="flex flex-col items-center bg-white p-2 rounded-lg shadow h-fit text-black">
-            <button className="hover:text-red-500">
-              <ArrowUp className="w-5 h-5" />
-            </button>
-            <span className="font-semibold text-sm my-1">{post.votes}</span>
-            <button className="hover:text-blue-500">
-              <ArrowDown className="w-5 h-5" />
-            </button>
+      <div className="flex py-20 bg-white min-h-screen">
+        <div className="px-4">
+          <LeftSideBar
+            userId=""
+            sessionId=""
+          />
+        </div>
+
+        {/* Post Voting Column - Refactored */}
+        <div className="flex flex-col items-center bg-white p-2 rounded-lg shadow h-fit text-black">
+          <button
+            onClick={handleUpvote}
+            className={`transition-colors ${voteState === "up" ? "text-orange-500" : "hover:text-orange-500"}`}
+          >
+            <ArrowUp className="w-5 h-5" />
+          </button>
+          <span className="font-semibold text-sm my-1">{voteCount}</span>
+          <button
+            onClick={handleDownvote}
+            className={`transition-colors ${voteState === "down" ? "text-blue-500" : "hover:text-blue-500"}`}
+          >
+            <ArrowDown className="w-5 h-5" />
+          </button>
+          <button
+            className="mt-2 hover:text-green-600 transition-colors"
+            onClick={handleSavePost}
+          >
+            {isSaved ? (
+              <BookmarkCheck className="w-5 h-5 text-green-600" />
+            ) : (
+              <Bookmark className="w-5 h-5" />
+            )}
+          </button>
+        </div>
+
+        {/* Post and Comments */}
+        <div className="flex-1 bg-white p-6 rounded-lg shadow">
+          <div className="text-lg text-gray-600 mb-2">
+            Posted by <span className="font-medium">{parseUserMentions(`u/${post.author.username}`)}</span> in <span className="font-medium">r/{post.subreddit}</span>
+          </div>
+          <h1 className="text-2xl font-bold mb-4 text-black">{post.title}</h1>
+          <div className="text-gray-800 whitespace-pre-wrap mb-6">{post.content}</div>
+
+          {/* Comment Input */}
+          <div className="mb-6">
+            <textarea
+              className="w-full p-3 border border-gray-300 rounded-lg mb-2 text-black"
+              rows={3}
+              placeholder="Write a comment..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+            />
             <button
-              className="mt-2 hover:text-green-600"
-              onClick={() => handleSave(post.id, "post")}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={handleCommentSubmit}
             >
-              {saveStatus === "saved" ? (
-                <BookmarkCheck className="w-5 h-5 text-green-600" />
-              ) : (
-                <Bookmark className="w-5 h-5" />
-              )}
+              Post Comment
             </button>
           </div>
 
-
-          {/* Post and Comments */}
-          <div className="flex-1 bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600 mb-2">
-              Posted by <span className="font-medium">{parseUserMentions(`u/${post.author.username}`)}</span> in <span className="font-medium">r/{post.subreddit}</span>
-            </div>
-            <h1 className="text-2xl font-bold mb-4 text-black">{post.title}</h1>
-            <div className="text-gray-800 whitespace-pre-wrap mb-6">{post.content}</div>
-
-            {/* Comment Input */}
-            <div className="mb-6">
-              <textarea
-                className="w-full p-3 border border-gray-300 rounded-lg mb-2 text-black"
-                rows={3}
-                placeholder="Write a comment..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-              />
-              <button
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                onClick={handleCommentSubmit}
-              >
-                Post Comment
-              </button>
-            </div>
-
-            {/* Comment Threads */}
-            <div className="space-y-4">
-              {comments.map((comment) => (
-                <CommentThread key={comment.id} comment={comment} />
-              ))}
-            </div>
+          {/* Comment Threads */}
+          <div className="space-y-4">
+            {comments.map((comment) => (
+              <CommentThread key={comment.id} comment={comment} />
+            ))}
           </div>
         </div>
       </div>

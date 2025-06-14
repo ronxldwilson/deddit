@@ -30,7 +30,7 @@ Add Logout Button
 UserHoverCard
 Add popular communitites section
 
-# Fixed Bug List
+Fixed Bug List
 1. Saved Posts side nav 
 2. My Comments side nav
 3. Logout button on different screens 
