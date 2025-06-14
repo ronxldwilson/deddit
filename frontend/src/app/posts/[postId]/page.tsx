@@ -40,7 +40,10 @@ interface Post {
 export default function PostPage() {
   const { postId } = useParams();
   const searchParams = useSearchParams();
-  const userID = searchParams.get("userID");
+
+  const [savedCommentIds, setSavedCommentIds] = useState<Set<number>>(new Set());
+  const [userID, setUserID] = useState<string | null>(searchParams.get("userID"));
+  // const userID = searchParams.get("userID"); // Removed to avoid redeclaration
 
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,7 +67,7 @@ export default function PostPage() {
   useEffect(() => {
     if (post && userID) {
       setVoteCount(post.votes);
-      
+
       // Check if post is saved
       const savedPostsKey = `savedPosts:${userID}`;
       const savedPosts = JSON.parse(localStorage.getItem(savedPostsKey) || "[]");
@@ -225,7 +228,7 @@ export default function PostPage() {
       });
 
       if (res.ok) {
-        setSavedComments(prev => ({ ...prev, [id]: 'saved' }));
+        setSavedCommentIds(prev => new Set(prev).add(id));
         setTimeout(() => setSavedComments(prev => ({ ...prev, [id]: null })), 1000);
       }
     } catch (err) {
@@ -233,6 +236,34 @@ export default function PostPage() {
       setSavedComments(prev => ({ ...prev, [id]: null }));
     }
   };
+
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserID(storedUserId);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!userID) return;
+
+    const fetchSavedComments = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/users/${userID}/saved_comments`);
+        if (!res.ok) throw new Error("Failed to fetch saved comments");
+
+        const data = await res.json(); // this should be an array of comments
+        const ids = new Set<number>(data.map((comment: { id: number }) => comment.id));
+        setSavedCommentIds(ids);
+      } catch (err) {
+        console.error("Error fetching saved comments:", err);
+      }
+    };
+
+    fetchSavedComments();
+  }, [userID]); // <-- only re-runs if userID changes
+
 
   function CommentThread({ comment }: { comment: Comment }) {
     const [collapsed, setCollapsed] = useState(false);
@@ -296,8 +327,8 @@ export default function PostPage() {
               onClick={() => handleSaveComment(comment.id)}
               className="text-green-600 hover:text-green-800"
             >
-              {savedComments[comment.id] === "saved" ? (
-                <BookmarkCheck className="w-4 h-4" />
+              {savedCommentIds.has(comment.id) ? (
+                <BookmarkCheck className="w-4 h-4 text-green-600" />
               ) : (
                 <Bookmark className="w-4 h-4" />
               )}
