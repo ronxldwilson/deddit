@@ -7,6 +7,7 @@ Done:
 6. Edit Comment
 7. Delete Comment 
 8. Upvote/Downvote Post
+9. Upvote/Downvote Comment
 10. Save Post
 11. Save Comment
 12. Sort posts (hot/new/top)
@@ -37,6 +38,8 @@ Fixed Bug List
 Navbar make it more resilient
 Fix Search Page
 Profile in Navbar in Post Details Page
+Save button doesn't properly retain state in Post Page
+When moving from State post page and saving a post and going back to the home page, the save state is not retained
 
 
 
@@ -44,8 +47,6 @@ ________________________________________________________________________________
 
 # Bug List:
 
-Save button doesn't properly retain state in Post Page
-When moving from State post page and saving a post and going back to the home page, the save state is not retained
 
 When a post is saved in home page and then gone to the same post, the save state is not retained
 
@@ -66,7 +67,6 @@ To Do:
 
 Highlight
 ########################### 
-9. Upvote/Downvote Comment
 ########################### 
 
 
