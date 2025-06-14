@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { faker } from '@faker-js/faker';
 import { Navbar } from '../../components/Navbar';
+import { LeftSideBar } from '@/components/LeftSideBar';
+
 
 import { Trash2, Pencil } from 'lucide-react';
 
@@ -432,8 +434,11 @@ export default function ProfilePage() {
                         window.location.href = '/'; // Redirect to home
                     }}
                 />
-                <div className="flex max-w-6xl mx-auto px-6 py-20 bg-white space-x-8">
+                <div className="flex max-w-full mx-auto px-6 py-20 space-x-8">
                     {/* Sidebar */}
+                    <LeftSideBar />
+                    <div className='max-w-7xl flex px-24 space-x-8'>
+
                     <aside className="w-60 max-h-fit bg-white border rounded-xl shadow-md p-4 space-y-4">
                         {sections.map((section) => (
                             <button
@@ -451,6 +456,7 @@ export default function ProfilePage() {
 
                     {/* Main Content */}
                     <main className="flex-1 space-y-6">{renderSection()}</main>
+                    </div>
                 </div>
             </div>
         </>

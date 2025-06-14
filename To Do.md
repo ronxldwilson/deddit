@@ -43,7 +43,6 @@ Profile in Navbar in Post Details Page
 __________________________________________________________________________________
 
 # Bug List:
-9. Upvote/Downvote Comment
 
 Save button doesn't properly retain state in Post Page
 When moving from State post page and saving a post and going back to the home page, the save state is not retained
@@ -58,21 +57,22 @@ Subreddit posts are not unique
 
 make the saved post entirely DB dependent and not localstorage dependent
 
+Fix Saved Posts and My Comments page
 
 # Broken Links
 
 __________________________________________________________________________________
 To Do:
 
-
 Highlight
 ########################### 
-82. Infinite scroll for posts/comments
+9. Upvote/Downvote Comment
 ########################### 
 
 
-
+82. Infinite scroll for posts/comments
 13. Sort comments (best/new/controversial)
+
 31. Create Subreddit feature
 31.5 Create subreddit by user
 34. Subreddit moderators
