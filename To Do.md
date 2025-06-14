@@ -10,6 +10,7 @@ Done:
 20. Vote score indicator (e.g. +123)
 21. Sign Up / Login
 24. User profile page
+25. User karma - Show Total number of posts/ comments that are made in profile section
 26. Profile bio
 27. User avatars
 29. User history (posts/comments)
@@ -52,13 +53,13 @@ Create post button idempotency is missing
 
 Subreddit posts are not unique
 
+make the saved post entirely DB dependent and not localstorage dependent
+
 
 # Broken Links
 
 __________________________________________________________________________________
 To Do:
-
-25. User karma - Show Total number of posts/ comments that are made in profile section
 
 
 
@@ -73,6 +74,7 @@ To Do:
 
 Fix the Limit of votes for comments
 Add Peer To Peer message
+improve the save post and save comment page ui
 
 14. NSFW flag and toggle
 16. Spoiler tag support
@@ -93,6 +95,10 @@ Add Peer To Peer message
 82. Infinite scroll for posts/comments
 88. Animated vote button feedback
 90. Floating compose post button
+
+
+
+
 
 
 ### 🧱 Core Functionality (Posts, Comments, Voting)

@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { faker } from '@faker-js/faker';
 import { Navbar } from '../../components/Navbar';
+
+import { Trash2 } from 'lucide-react'; // Lucide trash icon
 
 interface User {
     id: string;
@@ -103,6 +105,7 @@ export default function ProfilePage() {
 
             if (res.ok) {
                 setPosts((prev) => prev.filter((post) => post.id !== postId));
+                setSavedPosts((prev) => prev.filter((post) => post.id !== postId));
             } else {
                 console.error('Failed to delete post');
             }
@@ -117,6 +120,8 @@ export default function ProfilePage() {
         const faker = getSeededFaker(user.username);
         const fakeAvatar = faker.image.avatar();
         const fakeBio = faker.person.bio();
+
+        const router = useRouter();
 
         switch (activeSection) {
             case 'Profile':
@@ -161,19 +166,29 @@ export default function ProfilePage() {
             case 'Posts':
                 return posts.length ? (
                     posts.map((post) => (
-                        <div key={post.id} className="bg-white border p-4 rounded-lg shadow-sm relative">
+                        <div
+                            key={post.id}
+                            className="bg-white border p-4 rounded-lg shadow-sm relative cursor-pointer hover:bg-gray-50"
+                            onClick={() => router.push(`/posts/${post.id}?userID=${userId}`)}
+                        >
                             <h3 className="font-semibold text-lg text-blue-700">{post.title}</h3>
+
                             <p className="text-gray-700">{post.content}</p>
+
                             <span className="text-xs text-gray-400">
                                 Posted on {faker.date.past().toLocaleDateString()}
                             </span>
 
-                            {/* 🗑 Delete Button */}
+                            {/* 🗑 Delete Button (Vertically Centered) */}
                             <button
-                                onClick={() => handleDeletePost(post.id)}
-                                className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-sm"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeletePost(post.id);
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700"
+                                aria-label="Delete Post"
                             >
-                                Delete
+                                <Trash2 size={18} />
                             </button>
                         </div>
                     ))

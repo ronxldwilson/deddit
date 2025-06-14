@@ -59,6 +59,8 @@ class Post(Base):
     votes_relation = relationship("Vote", back_populates="post", cascade="all, delete-orphan")
 
     comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
+    saved_by_users = relationship("SavedPost", back_populates="post", cascade="all, delete-orphan")
+
 # ----------------
 # Votes Table
 # ---------------- 
@@ -95,6 +97,8 @@ class Comment(Base):
     
     votes = relationship("CommentVote", back_populates="comment", cascade="all, delete-orphan")
     post = relationship("Post", back_populates="comments")
+    saved_by_users = relationship("SavedComment", back_populates="comment", cascade="all, delete-orphan")
+
 
     
 class CommentVote(Base):
@@ -119,7 +123,8 @@ class SavedPost(Base):
     post_id = Column(ForeignKey("posts.id"))
 
     user = relationship("User", back_populates="saved_posts")
-    post = relationship("Post")
+    post = relationship("Post", back_populates="saved_by_users")
+
 
 class SavedComment(Base):
     __tablename__ = "saved_comments"
@@ -128,7 +133,7 @@ class SavedComment(Base):
     comment_id = Column(ForeignKey("comments.id"))
 
     user = relationship("User", back_populates="saved_comments")
-    comment = relationship("Comment")
+    comment = relationship("Comment", back_populates="saved_by_users")  
 
 
 class Message(Base):
