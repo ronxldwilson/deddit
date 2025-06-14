@@ -1,7 +1,11 @@
 Done: 
 1. Create Post (text, link, image)
+2. Edit Post
+3. Delete Post - Not working in the profile view
 4. Comment on Post
 5. Nested Comments (threaded)
+6. Edit Comment
+7. Delete Comment 
 8. Upvote/Downvote Post
 10. Save Post
 11. Save Comment
@@ -40,7 +44,6 @@ ________________________________________________________________________________
 
 # Bug List:
 9. Upvote/Downvote Comment
-3. Delete Post - Not working in the profile view
 
 Save button doesn't properly retain state in Post Page
 When moving from State post page and saving a post and going back to the home page, the save state is not retained
@@ -64,13 +67,11 @@ To Do:
 
 Highlight
 ########################### 
-2. Edit Post
+82. Infinite scroll for posts/comments
 ########################### 
 
 
 
-6. Edit Comment
-7. Delete Comment 
 13. Sort comments (best/new/controversial)
 31. Create Subreddit feature
 31.5 Create subreddit by user
@@ -97,7 +98,6 @@ improve the save post and save comment page ui
 69. Message threading
 70. Read/unread message status
 91. Post view count
-82. Infinite scroll for posts/comments
 88. Animated vote button feedback
 90. Floating compose post button
 

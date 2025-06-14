@@ -27,6 +27,7 @@ interface Comment {
     created_at: string;
     post_id: number;
     post_title: string;
+    parent_id?: number | null;
 }
 
 const sections = ['Profile', 'Posts', 'Comments', 'Saved Posts', 'Saved Comments'];
@@ -46,6 +47,10 @@ export default function ProfilePage() {
     const [editingPostId, setEditingPostId] = useState<string | null>(null);
     const [editedTitle, setEditedTitle] = useState('');
     const [editedContent, setEditedContent] = useState('');
+
+    const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+    const [editedCommentContent, setEditedCommentContent] = useState('');
+
 
 
     const getSeededFaker = (seedString: string) => {
@@ -147,6 +152,55 @@ export default function ProfilePage() {
             console.error('Error saving post edit:', error);
         }
     };
+
+    const handleSaveCommentEdit = async (commentId: number) => {
+        try {
+            const res = await fetch(`http://localhost:8000/comments/${commentId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    content: editedCommentContent,
+                    author_id: user?.id,
+                    post_id: comments.find(c => c.id === commentId)?.post_id,
+                    parent_id: comments.find(c => c.id === commentId)?.parent_id || null,
+                }),
+            });
+
+            if (res.ok) {
+                const updated = await res.json();
+                setComments((prev) =>
+                    prev.map((c) => (c.id === commentId ? { ...c, content: updated.content } : c))
+                );
+                setEditingCommentId(null);
+            } else {
+                console.error('Failed to edit comment');
+            }
+        } catch (err) {
+            console.error('Error editing comment:', err);
+        }
+    };
+
+    const handleDeleteComment = async (commentId: number) => {
+        const confirmDelete = window.confirm('Are you sure you want to delete this comment?');
+        if (!confirmDelete) return;
+
+        try {
+            const res = await fetch(`http://localhost:8000/comments/${commentId}`, {
+                method: 'DELETE',
+            });
+
+            if (res.ok) {
+                setComments((prev) => prev.filter((c) => c.id !== commentId));
+            } else {
+                console.error('Failed to delete comment');
+            }
+        } catch (err) {
+            console.error('Error deleting comment:', err);
+        }
+    };
+
 
 
     const renderSection = () => {
@@ -278,17 +332,61 @@ export default function ProfilePage() {
             case 'Comments':
                 return comments.length ? (
                     comments.map((comment) => (
-                        <div key={comment.id} className="bg-white border p-4 rounded-lg shadow-sm">
-                            <p className="text-gray-700">{comment.content}</p>
-                            <span className="text-xs text-gray-400">
-                                On <span className="font-semibold text-blue-700">{comment.post_title}</span> •{' '}
-                                {new Date(comment.created_at).toLocaleDateString()}
-                            </span>
+                        <div key={comment.id} className="bg-white border p-4 rounded-lg shadow-sm relative">
+                            {editingCommentId === comment.id ? (
+                                <>
+                                    <textarea
+                                        value={editedCommentContent}
+                                        onChange={(e) => setEditedCommentContent(e.target.value)}
+                                        className="w-full p-2 mb-2 border text-black rounded"
+                                    />
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleSaveCommentEdit(comment.id)}
+                                            className="px-4 py-2 bg-green-500 text-white rounded"
+                                        >
+                                            Save
+                                        </button>
+                                        <button
+                                            onClick={() => setEditingCommentId(null)}
+                                            className="px-4 py-2 bg-gray-300 text-black rounded"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-gray-700">{comment.content}</p>
+                                    <span className="text-xs text-gray-400">
+                                        On <span className="font-semibold text-blue-700">{comment.post_title}</span> •{' '}
+                                        {new Date(comment.created_at).toLocaleDateString()}
+                                    </span>
+                                    <div className="absolute right-2 top-2 flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setEditingCommentId(comment.id);
+                                                setEditedCommentContent(comment.content);
+                                            }}
+                                            className="text-blue-500 hover:text-blue-700 text-sm"
+                                        >
+                                            <Pencil />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteComment(comment.id)}
+                                            className="text-red-500 hover:text-red-700 text-sm"
+                                        >
+                                            <Trash2 />
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     ))
                 ) : (
                     <p className="text-gray-500">No comments yet.</p>
                 );
+
             case 'Saved Posts':
                 return savedPosts.length ? (
                     savedPosts.map((post) => (
