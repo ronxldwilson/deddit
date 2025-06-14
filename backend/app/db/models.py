@@ -42,8 +42,6 @@ class User(Base):
     saved_comments = relationship("SavedComment", back_populates="user", cascade="all, delete-orphan")
 
     
-    
-    
 # ----------------
 # Posts Table
 # ----------------

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ArrowUp, ArrowDown, Bookmark, BookmarkCheck } from "lucide-react";
 import Link from "next/link";
 import { parseUserMentions } from '../utils/parseUserMentions';
 
@@ -33,6 +33,13 @@ export const PostCard: React.FC<PostCardProps> = ({
   const [voteState, setVoteState] = useState<"up" | "down" | null>(null);
   const [voteCount, setVoteCount] = useState(votes);
   const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    const savedPostsKey = `savedPosts:${userID}`;
+    const savedPosts = JSON.parse(localStorage.getItem(savedPostsKey) || "[]");
+    setIsSaved(savedPosts.includes(id));
+  }, [id, userID]);
+
 
   const handleVote = async (type: "up" | "down" | "neutral") => {
     const numericPostId = parseInt(id);
@@ -98,41 +105,60 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
   const handleSave = async (id: string, type: 'post' | 'comment') => {
-    const endpoint = type === 'post' ? `/api/save_post/${id}` : `/api/save_comment/${id}`;
-    await fetch(`http://localhost:8000${endpoint}`, {
+    // Optional backend call
+    await fetch(`http://localhost:8000/api/save_${type}/${id}`, {
       method: "POST",
       body: JSON.stringify({ user_id: userID }),
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     });
-    // optionally update UI
+
+    // LocalStorage logic scoped to current user
+    const savedPostsKey = `savedPosts:${userID}`;
+    const savedPosts = JSON.parse(localStorage.getItem(savedPostsKey) || "[]");
+    let updatedPosts;
+
+    if (isSaved) {
+      updatedPosts = savedPosts.filter((postId: string) => postId !== id);
+    } else {
+      updatedPosts = [...savedPosts, id];
+    }
+
+    localStorage.setItem(savedPostsKey, JSON.stringify(updatedPosts));
+    setIsSaved(!isSaved);
   };
+
 
   return (
     <>
       <div className="bg-yellow rounded-xl shadow-lg hover:shadow-md transition-shadow border border-gray-100 p-4 flex gap-4">
         {/* Voting Column */}
+        {/* Voting Column */}
         <div className="flex flex-col items-center w-10 text-gray-500 select-none">
           <button
             onClick={handleUpvote}
-            className={`transition-colors ${voteState === "up" ? "text-orange-500" : "hover:text-orange-500"
-              }`}
+            className={`transition-colors ${voteState === "up" ? "text-orange-500" : "hover:text-orange-500"}`}
           >
             <ArrowUp size={18} />
           </button>
           <span className="text-sm font-semibold">{voteCount}</span>
           <button
             onClick={handleDownvote}
-            className={`transition-colors ${voteState === "down" ? "text-blue-500" : "hover:text-blue-500"
-              }`}
+            className={`transition-colors ${voteState === "down" ? "text-blue-500" : "hover:text-blue-500"}`}
           >
             <ArrowDown size={18} />
           </button>
 
-          <button onClick={() => handleSave(id, 'post')}>
-            {isSaved ? 'Unsave' : 'Save'}
+          <button
+            onClick={() => {
+              setIsSaved(!isSaved);
+              handleSave(id, 'post');
+            }}
+            className="mt-2 hover:text-purple-600 transition-colors"
+          >
+            {isSaved ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
           </button>
-
         </div>
+
 
         <Link href={`/posts/${id}?userID=${userID}`} className="block">
           {/* Post Content */}

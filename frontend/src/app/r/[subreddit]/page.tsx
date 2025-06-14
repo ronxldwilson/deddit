@@ -135,8 +135,8 @@ export default function SubredditPage() {
                             </p>
                             <hr className="my-2" />
                             <div className="text-sm text-gray-700 space-y-1">
-                                <p>📊 Members: <span className="font-semibold">1.2k</span></p>
-                                <p>🟢 Online: <span className="font-semibold">57</span></p>
+                                <p>📊 Members: <span className="font-semibold">{faker.number.int({max:100000})}</span></p>
+                                <p>🟢 Online: <span className="font-semibold">{faker.number.int({max:1000})}</span></p>
                             </div>
                         </div>
 
@@ -152,7 +152,7 @@ export default function SubredditPage() {
 
                         {/* Create Post Button */}
                         <div className="bg-white border rounded-xl shadow-sm p-4 text-center">
-                            <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2 px-4 rounded"
+                            <button className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold py-2 px-4 rounded"
                                 onClick={() => {
                                     if (userId) {
                                         window.location.href = `/create-post?userId=${userId}`;
