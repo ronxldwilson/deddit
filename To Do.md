@@ -20,6 +20,7 @@ Done:
 55. Popular posts
 89. Sticky top nav
 
+Add Search functionality
 Add Logout Button
 UserHoverCard
 Add popular communitites section
@@ -30,20 +31,34 @@ Add popular communitites section
 3. Logout button on different screens 
 Navbar make it more resilient
 Fix Search Page
+Profile in Navbar in Post Details Page
 
 
 
 __________________________________________________________________________________
+
 # Bug List:
 9. Upvote/Downvote Comment
 3. Delete Post - Not working in the profile view
 
-Profile in Navbar in Post Details Page
+Save button doesn't properly retain state in Post Page
+When moving from State post page and saving a post and going back to the home page, the save state is not retained
+
+When a post is saved in home page and then gone to the same post, the save state is not retained
+
+when we go to a subreddit, the post card shows r/tech but when you open it, it will show r/meme
+
+
+
 
 # Broken Links
 
 __________________________________________________________________________________
 To Do:
+
+25. User karma - Show Total number of posts/ comments that are made in profile section
+
+
 
 2. Edit Post
 6. Edit Comment
@@ -53,9 +68,7 @@ To Do:
 31.5 Create subreddit by user
 34. Subreddit moderators
 35. Subreddit settings (visibility, post types)
-25. User karma - Show Total number of posts/ comments that are made in profile section
 
-Add Search functionality
 Fix the Limit of votes for comments
 Add Peer To Peer message
 

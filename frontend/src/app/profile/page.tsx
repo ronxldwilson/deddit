@@ -121,16 +121,43 @@ export default function ProfilePage() {
         switch (activeSection) {
             case 'Profile':
                 return (
-                    <div className="space-y-4">
-                        <img
-                            src={fakeAvatar}
-                            alt="avatar"
-                            className="w-24 h-24 rounded-full border-2 border-blue-400 shadow-md"
-                        />
-                        <h2 className="text-2xl text-black font-semibold">{user.username}</h2>
-                        <p className="text-black">{fakeBio}</p>
+                    <div className="space-y-4 bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+                        <div className='space-y-4 '>
+
+                            <img
+                                src={fakeAvatar}
+                                alt="avatar"
+                                className="w-24 h-24 mx-auto rounded-full border-2 border-blue-400 shadow-md"
+                            />
+
+                            <div className="text-center space-y-2">
+                                <h2 className="text-2xl font-semibold text-gray-900">@{user.username}</h2>
+                                <p className="text-gray-700 text-lg">{fakeBio}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-around text-sm text-gray-600 pt-2 border-t">
+                            <div className="text-center">
+                                <div className="text-xl py-4 font-bold text-black">{faker.number.int({ min: 100, max: 5000 })}</div>
+                                <div>Post Karma</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-xl py-4 font-bold text-black">{faker.number.int({ min: 100, max: 3000 })}</div>
+                                <div>Comment Karma</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-xl py-4 font-bold text-black">
+                                    {faker.date.past({ years: 3 }).toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        year: 'numeric',
+                                    })}
+                                </div>
+                                <div>Joined</div>
+                            </div>
+                        </div>
                     </div>
                 );
+
             case 'Posts':
                 return posts.length ? (
                     posts.map((post) => (
@@ -204,7 +231,7 @@ export default function ProfilePage() {
         <>
             <div className="min-h-screen bg-white">
 
-                <Navbar  
+                <Navbar
                     userId={userId || localStorage.getItem('userId') || ''}
                     sessionId={window.__SESSION_ID__}
                     onLogout={() => {
