@@ -48,7 +48,9 @@ When a post is saved in home page and then gone to the same post, the save state
 
 when we go to a subreddit, the post card shows r/tech but when you open it, it will show r/meme
 
+Create post button idempotency is missing
 
+Subreddit posts are not unique
 
 
 # Broken Links

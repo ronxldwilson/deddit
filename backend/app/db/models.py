@@ -58,10 +58,10 @@ class Post(Base):
     author = relationship("User", back_populates="posts")
     votes_relation = relationship("Vote", back_populates="post", cascade="all, delete-orphan")
 
-    comments = relationship("Comment", back_populates="post")
+    comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
 # ----------------
 # Votes Table
-# ----------------
+# ---------------- 
 class Vote(Base):
     __tablename__ = "votes"
 
