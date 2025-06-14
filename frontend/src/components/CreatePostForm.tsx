@@ -68,7 +68,7 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
     };
 
     return (
-        <div className="px-4 flex justify-center">
+        <div className="flex justify-center">
             <form
                 onSubmit={handleSubmit}
                 className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 space-y-6 transition duration-200"

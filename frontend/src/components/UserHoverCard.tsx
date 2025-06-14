@@ -26,7 +26,7 @@ export const UserHoverCardWrapper: React.FC<UserHoverCardWrapperProps> = ({ user
       bio: faker.person.bio(),
       joined: faker.date.past({ years: 3 }).toLocaleDateString(),
       karma: faker.number.int({ min: 100, max: 15000 }),
-      avatar: faker.image.avatarGitHub(),
+      avatar: "dummy",
       location: faker.location.city(),
     };
   }, [username]);
@@ -62,11 +62,10 @@ export const UserHoverCardWrapper: React.FC<UserHoverCardWrapperProps> = ({ user
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center space-x-3">
-            <img
-              src={fakeUser.avatar}
-              alt={`${username}'s avatar`}
-              className="w-12 h-12 rounded-full"
-            />
+            <div className="w-12 h-12 rounded-full bg-blue-200 flex items-center justify-center text-white font-bold text-lg">
+              {username[0].toUpperCase()}
+            </div>
+
             <div>
               <h4 className="font-semibold text-md">@{username}</h4>
               <p className="text-xs text-gray-500">{fakeUser.location}</p>

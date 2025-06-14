@@ -33,7 +33,7 @@ export default function CreatePostPage() {
                     }}
                 />
 
-                <div className="flex gap-6 mt-20">
+                <div className="flex mt-20">
                     {/* Left Sidebar */}
                     <div className="w-64">
                         <LeftSideBar userId={userId} />

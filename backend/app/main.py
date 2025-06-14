@@ -10,7 +10,7 @@ from .utils.logger import LogMiddleware
 async def lifespan(app: FastAPI):
     # Startup 
     db.create_database() 
-    db.populate_database(seed = "0" * 16) # Consistent seed for synthetic data — can add this as a parameter
+    db.populate_database(seed = "123")
     yield
     # Shutdown 
 
