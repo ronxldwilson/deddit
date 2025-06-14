@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { faker } from '@faker-js/faker';
 import { Navbar } from '../../components/Navbar';
 
-import { Trash2 } from 'lucide-react'; // Lucide trash icon
+import { Trash2, Pencil } from 'lucide-react';
 
 interface User {
     id: string;
@@ -14,6 +14,7 @@ interface User {
 }
 
 interface Post {
+    subreddit: string;
     id: string;
     title: string;
     content: string;
@@ -220,13 +221,13 @@ export default function ProfilePage() {
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => handleSaveEdit(post.id)}
-                                            className="px-4 py-2 bg-green-500 text-black rounded"
+                                            className="px-4 py-2 bg-blue-500 text-white rounded"
                                         >
                                             Save
                                         </button>
                                         <button
                                             onClick={() => setEditingPostId(null)}
-                                            className="px-4 py-2 bg-gray-300 rounded"
+                                            className="px-4 py-2 bg-gray-300 text-black rounded"
                                         >
                                             Cancel
                                         </button>
@@ -234,34 +235,38 @@ export default function ProfilePage() {
                                 </>
                             ) : (
                                 <>
+                                    <h4 className="text-black">r/{post.subreddit}</h4>
                                     <h3 className="font-semibold text-lg text-blue-700">{post.title}</h3>
                                     <p className="text-gray-700">{post.content}</p>
-                                    <span className="text-xs text-gray-400">
+                                    <span className="text-xs text-black">
                                         Posted on {faker.date.past().toLocaleDateString()}
                                     </span>
 
                                     {/* Edit & Delete Buttons */}
-                                    <div className="absolute right-2 top-2 flex gap-2">
+                                    <div className="absolute right-3 top-3 flex items-center space-x-3">
                                         <button
                                             onClick={() => {
                                                 setEditingPostId(post.id);
                                                 setEditedTitle(post.title);
                                                 setEditedContent(post.content);
                                             }}
-                                            className="text-blue-500 hover:text-blue-700 text-sm"
+                                            className="text-blue-500 hover:text-blue-700 transition"
+                                            title="Edit"
                                         >
-                                            Edit
+                                            <Pencil className="w-5 h-5" />
                                         </button>
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleDeletePost(post.id);
                                             }}
-                                            className="text-red-500 hover:text-red-700 text-sm"
+                                            className="text-red-500 hover:text-red-700 transition"
+                                            title="Delete"
                                         >
-                                            Delete
+                                            <Trash2 className="w-5 h-5" />
                                         </button>
                                     </div>
+
                                 </>
                             )}
                         </div>
