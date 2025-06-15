@@ -140,14 +140,6 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
               {posts.map((post) => (
                 <div
                   key={post.id}
-                  id={`postcard-${post.id}`}
-                  onMouseEnter={() =>
-                    logEvent(sessionId, ActionType.HOVER, {
-                      text: `User hovered over post "${post.title}"`,
-                      page_url: window.location.href,
-                      element_identifier: `postcard-${post.id}`,
-                    })
-                  }
                 >
                   <PostCard
                     id={post.id}
