@@ -6,6 +6,14 @@ import { parseUserMentions } from '../../../utils/parseUserMentions';
 import { Navbar } from "@/components/Navbar";
 import { ArrowUp, ArrowDown, Bookmark, BookmarkCheck } from "lucide-react";
 import { LeftSideBar } from "@/components/LeftSideBar";
+import {
+  logEvent,
+  ActionType,
+  ClickPayload,
+  KeyPressPayload,
+  HoverPayload,
+  PageViewPayload,
+} from '../../../services/analyticsLogger';
 
 interface Author {
   username: string;
@@ -56,6 +64,8 @@ export default function PostPage() {
   const [voteCount, setVoteCount] = useState<number>(0);
   const [isSaved, setIsSaved] = useState(false);
 
+  const sessionId = typeof window !== 'undefined' && (window as any).__SESSION_ID__ ? (window as any).__SESSION_ID__ : '';
+
   useEffect(() => {
     if (typeof postId === "string") {
       fetchPost(postId);
@@ -74,6 +84,15 @@ export default function PostPage() {
       setIsSaved(savedPosts.includes(post.id.toString()));
     }
   }, [post, userID]);
+
+  useEffect(() => {
+    // Log page view
+    const pageViewPayload: PageViewPayload = {
+      text: 'User viewed Post page',
+      page_url: window.location.href,
+    };
+    if (sessionId) logEvent(sessionId, ActionType.PAGE_VIEW, pageViewPayload);
+  }, [postId]);
 
   async function fetchPost(postId: string) {
     try {
@@ -100,6 +119,17 @@ export default function PostPage() {
 
   const handleCommentSubmit = async () => {
     if (!newComment.trim() || !userID || !post?.id) return;
+
+    if (sessionId) {
+      const rect = document.activeElement?.getBoundingClientRect();
+      const clickPayload: ClickPayload = {
+        text: 'User clicked Post Comment',
+        page_url: window.location.href,
+        element_identifier: 'comment-submit',
+        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+      };
+      logEvent(sessionId, ActionType.CLICK, clickPayload);
+    }
 
     try {
       const res = await fetch("http://localhost:8000/comments/", {
@@ -167,6 +197,17 @@ export default function PostPage() {
       setVoteCount(voteCount + 1);
       handleVote("up");
     }
+
+    if (sessionId) {
+      const rect = document.activeElement?.getBoundingClientRect();
+      const clickPayload: ClickPayload = {
+        text: 'User clicked Upvote',
+        page_url: window.location.href,
+        element_identifier: 'post-upvote',
+        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+      };
+      logEvent(sessionId, ActionType.CLICK, clickPayload);
+    }
   };
 
   const handleDownvote = () => {
@@ -182,6 +223,17 @@ export default function PostPage() {
       setVoteState("down");
       setVoteCount(voteCount - 1);
       handleVote("down");
+    }
+
+    if (sessionId) {
+      const rect = document.activeElement?.getBoundingClientRect();
+      const clickPayload: ClickPayload = {
+        text: 'User clicked Downvote',
+        page_url: window.location.href,
+        element_identifier: 'post-downvote',
+        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+      };
+      logEvent(sessionId, ActionType.CLICK, clickPayload);
     }
   };
 
@@ -213,6 +265,17 @@ export default function PostPage() {
     } catch (err) {
       console.error("Save failed", err);
     }
+
+    if (sessionId) {
+      const rect = document.activeElement?.getBoundingClientRect();
+      const clickPayload: ClickPayload = {
+        text: 'User clicked Save Post',
+        page_url: window.location.href,
+        element_identifier: 'post-save',
+        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+      };
+      logEvent(sessionId, ActionType.CLICK, clickPayload);
+    }
   };
 
   const handleSaveComment = async (id: number) => {
@@ -235,8 +298,52 @@ export default function PostPage() {
       console.error("Save failed", err);
       setSavedComments(prev => ({ ...prev, [id]: null }));
     }
+
+    if (sessionId) {
+      const rect = document.activeElement?.getBoundingClientRect();
+      const clickPayload: ClickPayload = {
+        text: 'User clicked Save Comment',
+        page_url: window.location.href,
+        element_identifier: `comment-save-${id}`,
+        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+      };
+      logEvent(sessionId, ActionType.CLICK, clickPayload);
+    }
   };
 
+  const handleCommentVote = async (value: 1 | -1) => {
+    if (!userID) return;
+
+    try {
+      const res = await fetch(`http://localhost:8000/comments/${id}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userID, value }),
+      });
+
+      if (res.ok) {
+        const updated = await fetch(`http://localhost:8000/comments/${id}`).then(r => r.json());
+        // TODO: Update the comment's vote count in the comments state if needed
+        // setCommentVoteCount(updated.votes); // Removed: not defined in this scope
+      } else {
+        const error = await res.json();
+        alert(error.detail);
+      }
+    } catch (err) {
+      console.error("Vote failed", err);
+    }
+
+    if (sessionId) {
+      const rect = document.activeElement?.getBoundingClientRect();
+      const clickPayload: ClickPayload = {
+        text: 'User clicked Comment Upvote',
+        page_url: window.location.href,
+        element_identifier: `comment-upvote-${id}`,
+        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+      };
+      logEvent(sessionId, ActionType.CLICK, clickPayload);
+    }
+  };
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
@@ -263,7 +370,6 @@ export default function PostPage() {
 
     fetchSavedComments();
   }, [userID]); // <-- only re-runs if userID changes
-
 
   function CommentThread({ comment }: { comment: Comment }) {
     const [collapsed, setCollapsed] = useState(false);
@@ -294,6 +400,17 @@ export default function PostPage() {
       } catch (err) {
         console.error("Failed to post reply:", err);
       }
+
+      if (sessionId) {
+        const rect = document.activeElement?.getBoundingClientRect();
+        const clickPayload: ClickPayload = {
+          text: 'User clicked Submit Reply',
+          page_url: window.location.href,
+          element_identifier: `comment-reply-submit-${comment.id}`,
+          coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+        };
+        logEvent(sessionId, ActionType.CLICK, clickPayload);
+      }
     };
 
     const handleCommentVote = async (value: 1 | -1) => {
@@ -316,6 +433,17 @@ export default function PostPage() {
       } catch (err) {
         console.error("Vote failed", err);
       }
+
+      if (sessionId) {
+        const rect = document.activeElement?.getBoundingClientRect();
+        const clickPayload: ClickPayload = {
+          text: 'User clicked Comment Upvote',
+          page_url: window.location.href,
+          element_identifier: `comment-upvote-${comment.id}`,
+          coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+        };
+        logEvent(sessionId, ActionType.CLICK, clickPayload);
+      }
     };
 
     return (
@@ -324,7 +452,19 @@ export default function PostPage() {
           <span>{parseUserMentions(`u/${comment.author_username}`)} · {new Date(comment.created_at).toLocaleString()}</span>
           <div className="flex gap-2">
             <button
-              onClick={() => handleSaveComment(comment.id)}
+              onClick={() => {
+                if (sessionId) {
+                  const rect = document.activeElement?.getBoundingClientRect();
+                  const clickPayload: ClickPayload = {
+                    text: 'User clicked Save Comment',
+                    page_url: window.location.href,
+                    element_identifier: `comment-save-${comment.id}`,
+                    coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+                  };
+                  logEvent(sessionId, ActionType.CLICK, clickPayload);
+                }
+                handleSaveComment(comment.id);
+              }}
               className="text-green-600 hover:text-green-800"
             >
               {savedCommentIds.has(comment.id) ? (
@@ -347,14 +487,61 @@ export default function PostPage() {
           <>
             <div className="text-gray-800 mb-2">{comment.content}</div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
-              <button onClick={() => handleCommentVote(1)} className="hover:text-red-500">
+              <button
+                onClick={() => {
+                  if (sessionId) {
+                    const rect = document.activeElement?.getBoundingClientRect();
+                    const clickPayload: ClickPayload = {
+                      text: 'User clicked Comment Upvote',
+                      page_url: window.location.href,
+                      element_identifier: `comment-upvote-${comment.id}`,
+                      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+                    };
+                    logEvent(sessionId, ActionType.CLICK, clickPayload);
+                  }
+                  handleCommentVote(1);
+                }}
+                className="hover:text-red-500"
+              >
                 <ArrowUp className="w-4 h-4" />
               </button>
               <span>{commentVoteCount}</span>
-              <button onClick={() => handleCommentVote(-1)} className="hover:text-blue-500">
+              <button
+                onClick={() => {
+                  if (sessionId) {
+                    const rect = document.activeElement?.getBoundingClientRect();
+                    const clickPayload: ClickPayload = {
+                      text: 'User clicked Comment Downvote',
+                      page_url: window.location.href,
+                      element_identifier: `comment-downvote-${comment.id}`,
+                      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+                    };
+                    logEvent(sessionId, ActionType.CLICK, clickPayload);
+                  }
+                  handleCommentVote(-1);
+                }}
+                className="hover:text-blue-500"
+              >
                 <ArrowDown className="w-4 h-4" />
               </button>
-              <button onClick={() => setReplying(!replying)} className="text-blue-600 hover:underline ml-2">Reply</button>
+              <button
+                onClick={() => {
+                  if (sessionId) {
+                    const rect = document.activeElement?.getBoundingClientRect();
+                    const clickPayload: ClickPayload = {
+                      text: 'User clicked Reply Button',
+                      page_url: window.location.href,
+                      element_identifier: `comment-reply-btn-${comment.id}`,
+                      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+                    };
+                    logEvent(sessionId, ActionType.CLICK, clickPayload);
+                  }
+                  setReplying(!replying);
+                }}
+                className="text-blue-600 hover:underline ml-2"
+              >
+                Reply
+              </button>
             </div>
 
             {replying && (
@@ -365,10 +552,33 @@ export default function PostPage() {
                   placeholder="Write your reply..."
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (sessionId) {
+                      const payload: KeyPressPayload = {
+                        text: 'User typed in reply input',
+                        page_url: window.location.href,
+                        element_identifier: `comment-reply-input-${comment.id}`,
+                        key: e.key,
+                      };
+                      logEvent(sessionId, ActionType.KEY_PRESS, payload);
+                    }
+                  }}
                 />
                 <button
                   className="mt-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                  onClick={handleReplySubmit}
+                  onClick={() => {
+                    if (sessionId) {
+                      const rect = document.activeElement?.getBoundingClientRect();
+                      const clickPayload: ClickPayload = {
+                        text: 'User clicked Submit Reply',
+                        page_url: window.location.href,
+                        element_identifier: `comment-reply-submit-${comment.id}`,
+                        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+                      };
+                      logEvent(sessionId, ActionType.CLICK, clickPayload);
+                    }
+                    handleReplySubmit();
+                  }}
                 >
                   Submit Reply
                 </button>
@@ -391,7 +601,7 @@ export default function PostPage() {
     <>
       <Navbar
         userId={userID || localStorage.getItem('userId') || ''}
-        sessionId={window.__SESSION_ID__ || ''}
+        sessionId={sessionId || ''}
         onLogout={() => {
           // Clear userId
           localStorage.removeItem("userId");
@@ -412,7 +622,7 @@ export default function PostPage() {
       <div className="flex py-20 bg-white min-h-screen">
         <div className="px-4">
           <LeftSideBar
-            userId=""
+            userId={userID ?? undefined}
             sessionId=""
           />
         </div>
@@ -421,6 +631,16 @@ export default function PostPage() {
         <div className="flex flex-col items-center bg-white p-2 rounded-lg shadow h-fit text-black">
           <button
             onClick={handleUpvote}
+            onMouseEnter={() => {
+              if (sessionId) {
+                const payload: HoverPayload = {
+                  text: 'User hovered on post upvote',
+                  page_url: window.location.href,
+                  element_identifier: 'post-upvote',
+                };
+                logEvent(sessionId, ActionType.HOVER, payload);
+              }
+            }}
             className={`transition-colors ${voteState === "up" ? "text-orange-500" : "hover:text-orange-500"}`}
           >
             <ArrowUp className="w-5 h-5" />
@@ -428,6 +648,16 @@ export default function PostPage() {
           <span className="font-semibold text-sm my-1">{voteCount}</span>
           <button
             onClick={handleDownvote}
+            onMouseEnter={() => {
+              if (sessionId) {
+                const payload: HoverPayload = {
+                  text: 'User hovered on post downvote',
+                  page_url: window.location.href,
+                  element_identifier: 'post-downvote',
+                };
+                logEvent(sessionId, ActionType.HOVER, payload);
+              }
+            }}
             className={`transition-colors ${voteState === "down" ? "text-blue-500" : "hover:text-blue-500"}`}
           >
             <ArrowDown className="w-5 h-5" />
@@ -460,6 +690,17 @@ export default function PostPage() {
               placeholder="Write a comment..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
+              onKeyDown={(e) => {
+                if (sessionId) {
+                  const payload: KeyPressPayload = {
+                    text: 'User typed in comment input',
+                    page_url: window.location.href,
+                    element_identifier: 'comment-input',
+                    key: e.key,
+                  };
+                  logEvent(sessionId, ActionType.KEY_PRESS, payload);
+                }
+              }}
             />
             <button
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
