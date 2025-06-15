@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
     logEvent,
@@ -26,7 +26,7 @@ const availableSubreddits = [
     'sports',
 ];
 
-export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
+function CreatePostFormContent({ userId }: { userId: string | null }) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -228,4 +228,20 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
             </form>
         </div>
     );
-};
+
+}
+
+function CreatePostFormLoading() {
+    return (
+        <div className="flex justify-center items-center h-screen">
+            <p>Loading profile...</p>
+        </div>
+    );
+}
+
+export default function CreatePostForm({ userId }: CreatePostFormProps) {
+    return (<Suspense fallback={<CreatePostFormLoading />}>
+        <CreatePostFormContent userId={userId}/>
+    </Suspense>
+    )
+}

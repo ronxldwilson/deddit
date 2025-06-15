@@ -1,12 +1,14 @@
 'use client';
 
-import { CreatePostForm } from '@/components/CreatePostForm';
+export const dynamic = 'force-dynamic';
+
+import CreatePostForm from '@/components/CreatePostForm';
 import { useSearchParams } from 'next/navigation';
 import { Navbar } from '../../components/Navbar';
 import { LeftSideBar } from '../../components/LeftSideBar';
+import { Suspense } from 'react';
 
-export default function CreatePostPage() {
-
+function CreatePostPageContent() {
     const searchParams = useSearchParams();
     const userId = searchParams.get("userId");
 
@@ -53,4 +55,13 @@ export default function CreatePostPage() {
         </main>
 
     );
+}
+
+export default function CreatePostPage() {
+
+    <Suspense fallback={< div > Loading...</div >}>
+        <CreatePostPageContent />
+    </Suspense >
+
+
 }

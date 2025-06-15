@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+export const dynamic = 'force-dynamic';
+
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { faker } from '@faker-js/faker';
 import { Navbar } from '../../components/Navbar';
@@ -24,8 +26,7 @@ declare global {
     }
 }
 
-
-export default function SavedPostsPage() {
+function SavedPostsPageContent() {
     const searchParams = useSearchParams();
     const userId = (searchParams.get('userId') === 'undefined' || null) ? searchParams.get('userId') : localStorage.getItem('userId');
 
@@ -272,4 +273,11 @@ export default function SavedPostsPage() {
             </div>
         </>
     );
+}
+
+export default function SavedPostsPage() {
+    <Suspense fallback={< div > Loading...</div >}>
+        <SavedPostsPageContent />
+    </Suspense >
+
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { faker } from '@faker-js/faker';
 import { Navbar } from '../../components/Navbar';
@@ -10,7 +10,6 @@ import { logEvent, ActionType } from '../../services/analyticsLogger'
 
 import { Trash2, Pencil } from 'lucide-react';
 import Image from 'next/image';
-
 
 interface User {
     id: string;
@@ -37,7 +36,8 @@ interface Comment {
 
 const sections = ['Profile', 'Posts', 'Comments', 'Saved Posts', 'Saved Comments'];
 
-export default function ProfilePage() {
+// Extract the component that uses useSearchParams into a separate component
+function ProfileContent() {
     const searchParams = useSearchParams();
     const userId = searchParams.get('users') ? searchParams.get('users') : localStorage.getItem('userId');
     const sessionId = window.__SESSION_ID__ || '';
@@ -150,7 +150,7 @@ export default function ProfilePage() {
                 text: `Clicked on ${section} section`,
                 page_url: window.location.href,
                 element_identifier: `section-${section.toLowerCase().replace(' ', '-')}`,
-                coordinates: { x: 0, y: 0 } // Could be enhanced with actual coordinates
+                coordinates: { x: 0, y: 0 }
             });
         }
     };
@@ -686,11 +686,28 @@ export default function ProfilePage() {
                             })}
                         </aside>
 
-
                         <main className="flex-1 space-y-6">{renderSection()}</main>
                     </div>
                 </div>
             </div>
         </>
+    );
+}
+
+// Loading component for Suspense fallback
+function ProfileLoading() {
+    return (
+        <div className="flex justify-center items-center h-screen">
+            <p>Loading profile...</p>
+        </div>
+    );
+}
+
+// Main component that wraps ProfileContent with Suspense
+export default function ProfilePage() {
+    return (
+        <Suspense fallback={<ProfileLoading />}>
+            <ProfileContent />
+        </Suspense>
     );
 }

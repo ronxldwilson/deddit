@@ -1,7 +1,9 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { LeftSideBar } from '../../components/LeftSideBar';
 import { Navbar } from '../../components/Navbar';
 import Link from 'next/link';
@@ -13,7 +15,7 @@ interface Post {
     subreddit: string;
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
     const params = useSearchParams();
     const query = params.get('q') || '';
     const [results, setResults] = useState<Post[]>([]);
@@ -30,7 +32,7 @@ export default function SearchPage() {
                 .then(setResults)
                 .catch(console.error)
                 .finally(() => setLoading(false));
-            }
+        }
     }, [query]);
 
     console.log(results)
@@ -90,4 +92,11 @@ export default function SearchPage() {
             </div>
         </div>
     );
+}
+
+export default function SearchPage() {
+    <Suspense fallback={<div>Loading...</div>}>
+        <SearchPageContent />
+    </Suspense>
+
 }

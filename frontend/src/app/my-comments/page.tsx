@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+export const dynamic = 'force-dynamic';
+
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Navbar } from '../../components/Navbar';
 import { LeftSideBar } from '@/components/LeftSideBar';
@@ -16,7 +18,7 @@ interface Comment {
 
 const sections = ['Comments'];
 
-export default function CommentPage() {
+function CommentPageContent() {
     const searchParams = useSearchParams();
     const userIdRaw = ((searchParams.get('userId') === "undefined") || null) ?? localStorage.getItem('userId');
     const userId = userIdRaw === null ? undefined : userIdRaw;
@@ -150,4 +152,10 @@ export default function CommentPage() {
             </div>
         </div>
     );
+}
+
+export default function CommentPage() {
+    <Suspense fallback={<div>Loading...</div>}>
+        <CommentPageContent />
+    </Suspense>
 }
