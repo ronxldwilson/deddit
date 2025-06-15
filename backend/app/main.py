@@ -47,7 +47,7 @@ app.include_router(search.router)
 
 @app.get("/") 
 def read_root():
-    return {"message": "Notes App Backend is running."} 
+    return {"message": "Backend is running."} 
 
 @app.get("/debug/routes")
 def list_routes():
