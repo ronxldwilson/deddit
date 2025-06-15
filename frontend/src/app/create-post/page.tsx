@@ -15,6 +15,7 @@ function CreatePostPageContent() {
     if (!userId) {
         return <div className="text-center mt-10 text-red-500">Please log in to create a post.</div>;
     }
+    console.log("from create post page:", userId)
 
     return (
         <main className="min-h-screen p-4 bg-white">
@@ -58,10 +59,9 @@ function CreatePostPageContent() {
 }
 
 export default function CreatePostPage() {
-
-    <Suspense fallback={< div > Loading...</div >}>
-        <CreatePostPageContent />
-    </Suspense >
-
-
+    return (
+        <Suspense fallback={< div className='text-white' > Loading...</div >}>
+            <CreatePostPageContent />
+        </Suspense >
+    )
 }

@@ -276,8 +276,9 @@ function SavedPostsPageContent() {
 }
 
 export default function SavedPostsPage() {
-    <Suspense fallback={< div > Loading...</div >}>
-        <SavedPostsPageContent />
-    </Suspense >
-
+    return (
+        <Suspense fallback={< div > Loading...</div >}>
+            <SavedPostsPageContent />
+        </Suspense >
+    )
 }

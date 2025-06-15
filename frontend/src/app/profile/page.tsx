@@ -6,10 +6,10 @@ import { faker } from '@faker-js/faker';
 import { Navbar } from '../../components/Navbar';
 import { LeftSideBar } from '@/components/LeftSideBar';
 
+
 import { logEvent, ActionType } from '../../services/analyticsLogger'
 
 import { Trash2, Pencil } from 'lucide-react';
-import Image from 'next/image';
 
 interface User {
     id: string;
@@ -40,7 +40,13 @@ const sections = ['Profile', 'Posts', 'Comments', 'Saved Posts', 'Saved Comments
 function ProfileContent() {
     const searchParams = useSearchParams();
     const userId = searchParams.get('users') ? searchParams.get('users') : localStorage.getItem('userId');
-    const sessionId = window.__SESSION_ID__ || '';
+    const [sessionId, setSessionId] = useState<string>('');
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setSessionId((window as any).__SESSION_ID__ ?? '');
+        }
+    }, []);
 
     const [user, setUser] = useState<User | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
@@ -87,29 +93,33 @@ function ProfileContent() {
                     fetch(`http://localhost:8000/users/${userId}/saved_comments`)
                 ]);
 
-                setUser(await userRes.json());
-                setPosts(await postsRes.json());
-                setComments(await commentsRes.json());
-                setSavedPosts(await savedPostsRes.json());
-                setSavedComments(await savedCommentsRes.json());
+                const userData = await userRes.json();
+                const postsData = await postsRes.json();
+                const commentsData = await commentsRes.json();
+                const savedPostsData = await savedPostsRes.json();
+                const savedCommentsData = await savedCommentsRes.json();
 
-                // Log successful profile data load
+                setUser(userData);
+                setPosts(postsData);
+                setComments(commentsData);
+                setSavedPosts(savedPostsData);
+                setSavedComments(savedCommentsData);
+
                 if (sessionId) {
                     logEvent(sessionId, ActionType.CUSTOM, {
                         text: 'Profile data loaded successfully',
                         custom_action: 'profile_data_loaded',
                         data: {
                             userId,
-                            postsCount: (await postsRes.json()).length,
-                            commentsCount: (await commentsRes.json()).length,
-                            savedPostsCount: (await savedPostsRes.json()).length,
-                            savedCommentsCount: (await savedCommentsRes.json()).length
+                            postsCount: postsData.length,
+                            commentsCount: commentsData.length,
+                            savedPostsCount: savedPostsData.length,
+                            savedCommentsCount: savedCommentsData.length
                         }
                     });
                 }
             } catch (error) {
                 console.error('Error fetching profile:', error);
-                // Log error
                 if (sessionId) {
                     logEvent(sessionId, ActionType.CUSTOM, {
                         text: 'Error fetching profile data',
@@ -437,46 +447,67 @@ function ProfileContent() {
         if (!user) return null;
 
         const faker = getSeededFaker(user.username);
-        const fakeAvatar = faker.image.avatar();
         const fakeBio = faker.person.bio();
-
         switch (activeSection) {
             case 'Profile':
                 return (
-                    <div className="space-y-4 bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-                        <div className='space-y-4 '>
-                            <Image
-                                src={fakeAvatar}
-                                alt="avatar"
-                                className="w-24 h-24 mx-auto rounded-full border-2 border-blue-400 shadow-md"
-                            />
 
-                            <div className="text-center space-y-2">
-                                <h2 className="text-2xl font-semibold text-gray-900">@{user.username}</h2>
-                                <p className="text-gray-700 text-lg">{fakeBio}</p>
+                    <div className="w-full max-w-md bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-xl p-6 space-y-6">
+                        {/* Profile Avatar */}
+                        <div className="flex justify-center">
+                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white font-bold text-2xl flex items-center justify-center shadow-md">
+                                {user.username[0].toUpperCase()}
                             </div>
                         </div>
 
-                        <div className="flex justify-around text-sm text-gray-600 pt-2 border-t">
-                            <div className="text-center">
-                                <div className="text-xl py-4 font-bold text-black">{faker.number.int({ min: 100, max: 5000 })}</div>
-                                <div>Post Karma</div>
+                        {/* Username + Bio */}
+                        <div className="text-center space-y-1">
+                            <h2 className="text-2xl font-semibold text-gray-900">@{user.username}</h2>
+                            <p className="text-gray-600 text-base">{fakeBio}</p>
+                        </div>
+
+                        {/* Stats with Flex */}
+                        <div className="flex justify-between border-t pt-4 text-sm text-gray-700">
+                            {/* Post Karma */}
+                            <div className="flex flex-col items-center flex-1 px-2 bg-blue-50 rounded-lg py-3">
+                                <div className="text-xl font-bold text-gray-900">
+                                    {faker.number.int({ min: 100, max: 5000 })}
+                                </div>
+                                <div className="flex items-center gap-1 mt-1 text-gray-700 font-medium">
+                                    {/* <User size={16} /> */}
+                                    Post Karma
+                                </div>
                             </div>
-                            <div className="text-center">
-                                <div className="text-xl py-4 font-bold text-black">{faker.number.int({ min: 100, max: 3000 })}</div>
-                                <div>Comment Karma</div>
+
+                            {/* Comment Karma */}
+                            <div className="flex flex-col items-center flex-1 px-2 bg-purple-50 rounded-lg py-3 mx-2">
+                                <div className="text-xl font-bold text-gray-900">
+                                    {faker.number.int({ min: 100, max: 3000 })}
+                                </div>
+                                <div className="flex items-center text-center gap-1 mt-1 text-gray-700 font-medium">
+                                    {/* <MessageSquareText size={16} /> */}
+                                    Comment Karma
+                                </div>
                             </div>
-                            <div className="text-center">
-                                <div className="text-xl py-4 font-bold text-black">
-                                    {faker.date.past({ years: 3 }).toLocaleDateString('en-US', {
-                                        month: 'short',
-                                        year: 'numeric',
+
+                            {/* Joined */}
+                            <div className="flex flex-col items-center flex-1 px-2 bg-green-50 rounded-lg py-3">
+                                <div className="text-xl font-bold text-gray-900">
+                                    {faker.date.past({ years: 3 }).toLocaleDateString("en-US", {
+                                        month: "short",
+                                        year: "numeric",
                                     })}
                                 </div>
-                                <div>Joined</div>
+                                <div className="flex items-center gap-1 mt-1 text-gray-700 font-medium">
+                                    {/* <CalendarDays size={16} /> */}
+                                    Joined
+                                </div>
                             </div>
                         </div>
                     </div>
+
+
+
                 );
 
             case 'Posts':
@@ -638,6 +669,9 @@ function ProfileContent() {
         }
     };
 
+    console.log(userId)
+    console.log(sessionId)
+
     return (
         <>
             <div className="min-h-screen bg-white">
@@ -676,8 +710,8 @@ function ProfileContent() {
                                         id={kebabSectionId}
                                         onClick={() => handleSectionClick(section)}
                                         className={`w-full text-left px-4 py-2 rounded-lg transition ${activeSection === section
-                                                ? 'bg-blue-100 text-blue-800 font-semibold'
-                                                : 'text-gray-700 hover:bg-gray-100'
+                                            ? 'bg-blue-100 text-blue-800 font-semibold'
+                                            : 'text-gray-700 hover:bg-gray-100'
                                             }`}
                                     >
                                         {section}

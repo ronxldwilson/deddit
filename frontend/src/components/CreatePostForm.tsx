@@ -240,8 +240,9 @@ function CreatePostFormLoading() {
 }
 
 export default function CreatePostForm({ userId }: CreatePostFormProps) {
-    return (<Suspense fallback={<CreatePostFormLoading />}>
-        <CreatePostFormContent userId={userId}/>
-    </Suspense>
+    return (
+        <Suspense fallback={<CreatePostFormLoading />}>
+            <CreatePostFormContent userId={userId} />
+        </Suspense>
     )
 }

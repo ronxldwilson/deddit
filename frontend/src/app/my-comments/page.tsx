@@ -155,7 +155,9 @@ function CommentPageContent() {
 }
 
 export default function CommentPage() {
-    <Suspense fallback={<div>Loading...</div>}>
-        <CommentPageContent />
-    </Suspense>
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <CommentPageContent />
+        </Suspense>
+    )
 }

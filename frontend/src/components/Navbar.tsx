@@ -104,7 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }
             }}
           >
-            <Image src={Logo.src} alt="Deddit Logo" className="h-8 w-auto" />
+            <Image height={32} width={64} src={Logo.src} alt="Deddit Logo" className="h-8 w-auto" />
           </div>
         </Link>
 
