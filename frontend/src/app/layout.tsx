@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Deddit",
+  title: "deddit",
   description: "A modern platform for discussions and communities by developers, for developers.",
   icons: {
     icon: "/favicon.ico",

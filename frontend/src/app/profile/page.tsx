@@ -11,6 +11,13 @@ import { logEvent, ActionType } from '../../services/analyticsLogger'
 
 import { Trash2, Pencil } from 'lucide-react';
 
+
+declare global {
+    interface Window {
+        __SESSION_ID__?: string;
+    }
+}
+
 interface User {
     id: string;
     username: string;
@@ -44,7 +51,7 @@ function ProfileContent() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            setSessionId((window as any).__SESSION_ID__ ?? '');
+            setSessionId(window.__SESSION_ID__ ?? '');
         }
     }, []);
 
