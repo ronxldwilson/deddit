@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { logEvent, ActionType } from "../services/analyticsLogger";
 
 interface LoginFormProps {
@@ -14,15 +14,26 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
   const [error, setError] = useState<string | null>(null);
   const [isRegister, setIsRegister] = useState(false);
 
+  useEffect(() => {
+    logEvent(sessionId, ActionType.PAGE_VIEW, {
+      text: `User visited the ${isRegister ? "register" : "login"} page`,
+      page_url: window.location.href,
+    });
+  }, [isRegister, sessionId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    const x = Math.round(rect.left);
+    const y = Math.round(rect.top);
+
     logEvent(sessionId, ActionType.CLICK, {
-      text: `User clicked on the ${isRegister ? "register" : "login"} button`,
+      text: "User clicked on the create post button",
       page_url: window.location.href,
-      element_identifier: isRegister ? "register-submit-btn" : "login-submit-btn",
-      coordinates: { x: 0, y: 0 },
+      element_identifier: "create-post-button",
+      coordinates: { x, y }, // ✅ now int
     });
 
     try {
@@ -38,12 +49,29 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
       const data = await res.json();
 
       if (res.ok) {
+        logEvent(sessionId, ActionType.CUSTOM, {
+          text: `User successfully ${isRegister ? "registered" : "logged in"} with username "${username}"`,
+          custom_action: isRegister ? "user_register_success" : "user_login_success",
+          data: { userId: data.userId },
+        });
         onLoginSuccess(data.userId);
       } else {
-        setError(data.detail || (isRegister ? "Registration failed" : "Invalid username or password"));
+        const errText = data.detail || (isRegister ? "Registration failed" : "Login failed");
+        setError(errText);
+        logEvent(sessionId, ActionType.CUSTOM, {
+          text: `User ${isRegister ? "registration" : "login"} failed: ${errText}`,
+          custom_action: isRegister ? "user_register_error" : "user_login_error",
+          data: { username },
+        });
       }
     } catch (error) {
-      setError(isRegister ? "Failed to register. Please try again." : "Failed to login. Please try again.");
+      const errText = isRegister ? "Registration error (network or server)" : "Login error (network or server)";
+      setError(errText);
+      logEvent(sessionId, ActionType.CUSTOM, {
+        text: `Caught exception during ${isRegister ? "registration" : "login"}: ${String(error)}`,
+        custom_action: "exception",
+        data: { username, error: String(error) },
+      });
     }
   };
 
@@ -60,21 +88,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
   const handleTypePassword = (value: string) => {
     setPassword(value);
     logEvent(sessionId, ActionType.KEY_PRESS, {
-      text: `User typed "${value}" into the password field`,
+      text: `User typed into the password field`,
       page_url: window.location.href,
       element_identifier: "login-password",
       key: value,
     });
   };
 
-  const toggleMode = () => {
+  const toggleMode = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
     setIsRegister(!isRegister);
     setError(null);
     logEvent(sessionId, ActionType.CLICK, {
-      text: `User clicked on the toggle button to switch to ${isRegister ? "login" : "register"} mode`,
+      text: `User toggled auth mode to ${!isRegister ? "register" : "login"}`,
       page_url: window.location.href,
       element_identifier: "toggle-auth-mode",
-      coordinates: { x: 0, y: 0 },
+      coordinates: { x: Math.round(rect.left), y: Math.round(rect.top) },
     });
   };
 
@@ -90,10 +119,17 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
             Username
           </label>
           <input
-            id="username"
+            id="login-username"
             type="text"
             value={username}
             onChange={(e) => handleTypeUsername(e.target.value)}
+            onFocus={() =>
+              logEvent(sessionId, ActionType.HOVER, {
+                text: "User focused on the username input field",
+                page_url: window.location.href,
+                element_identifier: "login-username",
+              })
+            }
             className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg bg-gray-50 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-300 focus:outline-none"
             placeholder="e.g. blueberry123"
             required
@@ -105,10 +141,17 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
             Password
           </label>
           <input
-            id="password"
+            id="login-password"
             type="password"
             value={password}
             onChange={(e) => handleTypePassword(e.target.value)}
+            onFocus={() =>
+              logEvent(sessionId, ActionType.HOVER, {
+                text: "User focused on the password input field",
+                page_url: window.location.href,
+                element_identifier: "login-password",
+              })
+            }
             className="w-full px-4 py-2 border border-gray-300 rounded-lg text-black bg-gray-50 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-300 focus:outline-none"
             placeholder="******"
             required
@@ -130,6 +173,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
 
         <div className="text-center pt-2">
           <button
+            id="toggle-auth-mode"
             type="button"
             onClick={toggleMode}
             className="text-sm text-blue-600 hover:underline"
