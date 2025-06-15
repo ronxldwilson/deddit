@@ -2,23 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { faker } from '@faker-js/faker';
 import { Navbar } from '../../components/Navbar';
 import { LeftSideBar } from '@/components/LeftSideBar';
 import { logEvent, ActionType } from '@/services/analyticsLogger';
-
-interface User {
-    id: string;
-    username: string;
-    bio?: string;
-}
-
-interface Post {
-    id: string;
-    title: string;
-    content: string;
-    created_at: string;
-}
 
 interface Comment {
     id: number;

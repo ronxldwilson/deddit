@@ -75,7 +75,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
     const fetchSaved = async () => {
       const res = await fetch(`http://localhost:8000/users/${userId}/saved_posts`);
       const data = await res.json();
-      setSavedPostIds(data.map((post: any) => post.id.toString()));
+      setSavedPostIds(data.map((post: { id: string | number }) => post.id.toString()));
     };
 
     fetchPosts();
@@ -87,16 +87,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
       <Navbar
         userId={userId}
         sessionId={sessionId}
-        onLogout={() => {
-          localStorage.removeItem("userId");
-          sessionStorage.removeItem("sessionInitialized");
-          sessionStorage.removeItem("sessionId");
-
-          if (window.__SESSION_ID__) {
-            delete window.__SESSION_ID__;
-          }
-          window.location.href = '/';
-        }}
+        onLogout={onLogout}
       />
 
       <div className="pt-12 flex gap-6 m-0">
@@ -169,8 +160,8 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
             <div className="bg-white border rounded-xl p-4 shadow-md">
               <h2 className="text-base font-semibold text-gray-800 mb-2">About Deddit</h2>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Deddit is a modern take on classic forums. Here you'll find simulated posts across
-                subreddits — for demo, testing, and development purposes.
+                Deddit is a modern take on classic forums. Here you will find simulated posts across
+                subreddits. A dedicated chat forum for developers made by developers
               </p>
             </div>
 
@@ -178,10 +169,10 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
               <h2 className="text-base font-semibold text-gray-800 mb-4">Popular Communities</h2>
               <ul className="space-y-4">
                 {[
-                  { name: "technology", members: "1.2M" },
-                  { name: "science", members: "980K" },
-                  { name: "gaming", members: "2.1M" },
-                  { name: "music", members: "750K" },
+                  { name: 'technology', members: '1.2M' },
+                  { name: 'science', members: '980K' },
+                  { name: 'gaming', members: '2.1M' },
+                  { name: 'music', members: '750K' },
                 ].map((community) => (
                   <li key={community.name} className="flex items-center justify-between">
                     <div>

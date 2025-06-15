@@ -5,14 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Navbar } from '../../components/Navbar';
 import { LeftSideBar } from '../../components/LeftSideBar';
 
-
-interface CreatePostPageProps {
-    userId: string | null;
-}
-
 export default function CreatePostPage() {
-    // Assuming session user ID is stored globally
-    // const userId = typeof window !== 'undefined' ? window.__USER_ID__ : null;
 
     const searchParams = useSearchParams();
     const userId = searchParams.get("userId");

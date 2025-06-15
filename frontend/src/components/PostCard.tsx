@@ -5,11 +5,15 @@ import { ArrowUp, ArrowDown, Bookmark, BookmarkCheck } from 'lucide-react';
 import Link from 'next/link';
 import { parseUserMentions } from '../utils/parseUserMentions';
 import {
-  logEvent, 
+  logEvent,
   ActionType,
-  ClickPayload,
-  HoverPayload,
 } from '../services/analyticsLogger';
+
+declare global {
+  interface Window {
+    __SESSION_ID__?: string;
+  }
+}
 
 interface PostCardProps {
   id: string;
@@ -39,7 +43,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const sessionId = typeof window !== 'undefined' ? (window as any).__SESSION_ID__ : '';
+  const sessionId = typeof window !== 'undefined' ? window.__SESSION_ID__ ?? '' : '';
 
   const handleVote = async (type: 'up' | 'down' | 'neutral') => {
     if (isVoting) return;

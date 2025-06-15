@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { faker } from '@faker-js/faker';
 import { Navbar } from '../../components/Navbar';
 import { LeftSideBar } from '@/components/LeftSideBar';
@@ -9,6 +9,8 @@ import { LeftSideBar } from '@/components/LeftSideBar';
 import { logEvent, ActionType } from '../../services/analyticsLogger'
 
 import { Trash2, Pencil } from 'lucide-react';
+import Image from 'next/image';
+
 
 interface User {
     id: string;
@@ -443,7 +445,7 @@ export default function ProfilePage() {
                 return (
                     <div className="space-y-4 bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
                         <div className='space-y-4 '>
-                            <img
+                            <Image
                                 src={fakeAvatar}
                                 alt="avatar"
                                 className="w-24 h-24 mx-auto rounded-full border-2 border-blue-400 shadow-md"

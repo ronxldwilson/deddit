@@ -42,6 +42,7 @@ Save button doesn't properly retain state in Post Page
 When moving from State post page and saving a post and going back to the home page, the save state is not retained
 make the saved post entirely DB dependent and not localstorage dependent
 Fix Saved Posts and My Comments page
+Create post button idempotency is missing
 
 
 
@@ -49,14 +50,10 @@ ________________________________________________________________________________
 
 # Bug List:
 
-
 When a post is saved in home page and then gone to the same post, the save state is not retained
-
 when we go to a subreddit, the post card shows r/tech but when you open it, it will show r/meme
-
-Create post button idempotency is missing
-
 Subreddit posts are not unique
+
 
 
 # Broken Links
@@ -66,6 +63,12 @@ To Do:
 
 Highlight
 ########################### 
+build the project
+check if the ids are tagged properly
+check if all pages have logging enabled
+
+add test cases for the various scenarios
+remove notes page
 ########################### 
 
 

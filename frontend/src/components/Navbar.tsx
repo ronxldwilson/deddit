@@ -6,6 +6,7 @@ import { Home, PlusSquare, User, LogOut, Search } from "lucide-react";
 import { logEvent, ActionType } from "../services/analyticsLogger";
 import Link from "next/link";
 import Logo from "../../public/Logo.png";
+import Image from "next/image";
 
 interface NavbarProps {
   userId: string;
@@ -103,7 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }
             }}
           >
-            <img src={Logo.src} alt="Deddit Logo" className="h-8 w-auto" />
+            <Image src={Logo.src} alt="Deddit Logo" className="h-8 w-auto" />
           </div>
         </Link>
 
@@ -140,7 +141,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               }
             }}
           >
-            <Search size={16} className="absolute left-3 top-2.5 text-gray-500" />
+            <Search size={16} className="absolute left-3 top-2.5 text-gray-500"
+              onClick={(e) => {
+                handleSearch(e); // manually call search on icon click
+              }} />
             <input
               id="navbar-search-input"
               type="text"

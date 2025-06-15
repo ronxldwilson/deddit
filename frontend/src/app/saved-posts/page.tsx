@@ -18,10 +18,17 @@ interface Post {
 
 const sections = ['Saved Posts'];
 
+declare global {
+    interface Window {
+        __SESSION_ID__?: string;
+    }
+}
+
+
 export default function SavedPostsPage() {
     const searchParams = useSearchParams();
     const userId = (searchParams.get('userId') === 'undefined' || null) ? searchParams.get('userId') : localStorage.getItem('userId');
-    
+
     const router = useRouter();
 
     const [savedPosts, setSavedPosts] = useState<Post[]>([]);
@@ -29,7 +36,7 @@ export default function SavedPostsPage() {
     const [loading, setLoading] = useState(true);
 
     // Get sessionId from window if available
-    const sessionId = typeof window !== 'undefined' && (window as any).__SESSION_ID__ ? (window as any).__SESSION_ID__ : undefined;
+    const sessionId = typeof window !== 'undefined' ? window.__SESSION_ID__ ?? '' : '';
 
     // Log page view on component mount
     useEffect(() => {
@@ -41,7 +48,6 @@ export default function SavedPostsPage() {
         }
     }, [sessionId, userId]);
 
-    // ✅ FIXED: Moved useEffect to top level - Log section view when posts are loaded
     useEffect(() => {
         if (sessionId && savedPosts.length > 0 && activeSection === 'Saved Posts') {
             logEvent(sessionId, ActionType.CUSTOM, {

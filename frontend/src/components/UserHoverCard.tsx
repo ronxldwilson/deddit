@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { faker } from '@faker-js/faker';
-import { useRouter } from 'next/navigation';
 import { logEvent, ActionType } from '../services/analyticsLogger';
 
 interface UserHoverCardWrapperProps {
@@ -16,9 +15,8 @@ export const UserHoverCardWrapper: React.FC<UserHoverCardWrapperProps> = ({
 }) => {
   const [showCard, setShowCard] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null); // only used for "self" check
+  // const [currentUserId, setCurrentUserId] = useState<string | null>(null); // only used for "self" check
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const router = useRouter();
 
   // Get sessionId from localStorage
   useEffect(() => {
@@ -26,11 +24,11 @@ export const UserHoverCardWrapper: React.FC<UserHoverCardWrapperProps> = ({
     if (session) setSessionId(session);
   }, []);
 
-  // Get userId from localStorage (to compare with target username)
-  useEffect(() => {
-    const user = localStorage.getItem('userId');
-    if (user) setCurrentUserId(user);
-  }, []);
+  // // Get userId from localStorage (to compare with target username)
+  // useEffect(() => {
+  //   const user = localStorage.getItem('userId');
+  //   if (user) setCurrentUserId(user);
+  // }, []);
 
   // Generate mock user details
   const fakeUser = useMemo(() => {

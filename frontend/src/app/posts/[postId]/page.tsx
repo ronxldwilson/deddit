@@ -15,6 +15,12 @@ import {
   PageViewPayload,
 } from '../../../services/analyticsLogger';
 
+declare global {
+  interface Window {
+    __SESSION_ID__?: string;
+  }
+}
+
 interface Author {
   username: string;
   id: string;
@@ -63,7 +69,8 @@ export default function PostPage() {
   const [voteCount, setVoteCount] = useState<number>(0);
   const [isSaved, setIsSaved] = useState(false);
 
-  const sessionId = typeof window !== 'undefined' && (window as any).__SESSION_ID__ ? (window as any).__SESSION_ID__ : '';
+  const sessionId = typeof window !== 'undefined' ? window.__SESSION_ID__ ?? '' : '';
+
 
   // Initialize userID from localStorage if not in URL params
   useEffect(() => {
@@ -80,6 +87,7 @@ export default function PostPage() {
     }
   }, [postId]);
 
+  console.log(savedComments)
   // Initialize vote count and saved state when post loads
   useEffect(() => {
     if (post && userID) {
@@ -158,7 +166,7 @@ export default function PostPage() {
   }
 
   // Helper function for analytics logging with error handling
-  const logAnalyticsEvent = (actionType: ActionType, payload: any) => {
+  const logAnalyticsEvent = (actionType: ActionType, payload: ClickPayload | KeyPressPayload | HoverPayload | PageViewPayload) => {
     if (sessionId) {
       try {
         logEvent(sessionId, actionType, payload);

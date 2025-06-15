@@ -30,7 +30,7 @@ export default function SearchPage() {
                 .then(setResults)
                 .catch(console.error)
                 .finally(() => setLoading(false));
-        }
+            }
     }, [query]);
 
     console.log(results)
@@ -66,7 +66,7 @@ export default function SearchPage() {
 
                 <main className="flex-1 bg-white rounded-lg shadow p-6">
                     <h1 className="text-2xl font-bold text-gray-900 mb-6">
-                        Search Results for <span className="text-blue-600">"{query}"</span>
+                        Search Results for <span className="text-blue-600">{query}</span>
                     </h1>
 
                     {loading ? (
