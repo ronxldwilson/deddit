@@ -58,11 +58,12 @@ export const PostCard: React.FC<PostCardProps> = ({
 
     // Log the vote click event
     if (sessionId) {
+      const rect = document.activeElement?.getBoundingClientRect();
       logEvent(sessionId, ActionType.CLICK, {
         text: `User voted '${type}' on post ${numericPostId}`,
         page_url: window.location.href,
         element_identifier: `vote-${type}-btn-${numericPostId}`,
-        coordinates: { x: 0, y: 0 },
+        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
       });
     }
 
@@ -86,12 +87,12 @@ export const PostCard: React.FC<PostCardProps> = ({
 
 
   const handleClickLog = (action: string, elementId: string, e: React.MouseEvent) => {
-    const coords = { x: e.clientX, y: e.clientY };
+    const rect = document.activeElement?.getBoundingClientRect();
     logEvent(sessionId, ActionType.CLICK, {
       text: `User clicked ${action} on post "${title}"`,
       page_url: window.location.href,
       element_identifier: elementId,
-      coordinates: coords,
+      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
     });
   };
 

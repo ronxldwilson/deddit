@@ -42,11 +42,12 @@ export const UserHoverCardWrapper: React.FC<UserHoverCardWrapperProps> = ({
 
   // const handleMessage = () => {
   //   if (sessionId && currentUserId !== username) {
+  //    const rect = document.activeElement?.getBoundingClientRect();
   //     logEvent(sessionId, ActionType.CLICK, {
   //       text: `User clicked 'Message' on hover card of @${username}`,
   //       page_url: window.location.href,
   //       element_identifier: `user-hovercard-message-${username}`,
-  //       coordinates: { x: 0, y: 0 },
+  //       coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
   //     });
 
   //     logEvent(sessionId, ActionType.GO_TO_URL, {

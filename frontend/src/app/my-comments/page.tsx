@@ -58,11 +58,12 @@ function CommentPageContent() {
     const handleSectionClick = (section: string) => {
         setActiveSection(section);
         if (sessionId) {
+            const rect = document.activeElement?.getBoundingClientRect();
             logEvent(sessionId, ActionType.CLICK, {
                 text: `User clicked section ${section}`,
                 page_url: window.location.href,
                 element_identifier: `sidebar-section-${section.toLowerCase()}`,
-                coordinates: { x: 0, y: 0 },
+                coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
             });
         }
     };

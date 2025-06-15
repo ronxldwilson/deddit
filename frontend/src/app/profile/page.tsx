@@ -163,11 +163,12 @@ function ProfileContent() {
 
         // Log section navigation
         if (sessionId) {
+            const rect = document.activeElement?.getBoundingClientRect();
             logEvent(sessionId, ActionType.CLICK, {
                 text: `Clicked on ${section} section`,
                 page_url: window.location.href,
                 element_identifier: `section-${section.toLowerCase().replace(' ', '-')}`,
-                coordinates: { x: 0, y: 0 }
+                coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
             });
         }
     };
@@ -234,11 +235,12 @@ function ProfileContent() {
 
         // Log edit start
         if (sessionId) {
+            const rect = document.activeElement?.getBoundingClientRect();
             logEvent(sessionId, ActionType.CLICK, {
                 text: 'Started editing post',
                 page_url: window.location.href,
                 element_identifier: `edit-post-${post.id}`,
-                coordinates: { x: 0, y: 0 }
+                coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
             });
         }
     };
@@ -320,11 +322,12 @@ function ProfileContent() {
 
         // Log comment edit start
         if (sessionId) {
+            const rect = document.activeElement?.getBoundingClientRect();
             logEvent(sessionId, ActionType.CLICK, {
                 text: 'Started editing comment',
                 page_url: window.location.href,
                 element_identifier: `edit-comment-${comment.id}`,
-                coordinates: { x: 0, y: 0 }
+                coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
             });
         }
     };

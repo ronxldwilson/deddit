@@ -78,16 +78,13 @@ function CreatePostFormContent({ userId }: { userId: string | null }) {
         if (isSubmitting) return;
 
         const submitBtn = document.getElementById('submit-post-button');
-        const rect = submitBtn?.getBoundingClientRect();
 
+        const rect = document.activeElement?.getBoundingClientRect();
         const clickPayload: ClickPayload = {
             text: 'User clicked Submit Post button',
             page_url: window.location.href,
             element_identifier: 'submit-post-button',
-            coordinates: {
-                x: rect?.left ?? 0,
-                y: rect?.top ?? 0,
-            },
+            coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
         };
         logEvent(sessionId, ActionType.CLICK, clickPayload);
 
@@ -179,15 +176,12 @@ function CreatePostFormContent({ userId }: { userId: string | null }) {
                         onChange={(e) => {
                             const selectedSubreddit = e.target.value;
                             setSubreddit(selectedSubreddit);
-
+                            const rect = document.activeElement?.getBoundingClientRect();
                             const payload: ClickPayload = {
                                 text: `User selected subreddit: ${selectedSubreddit}`,
                                 page_url: window.location.href,
                                 element_identifier: 'subreddit-dropdown',
-                                coordinates: {
-                                    x: 0,
-                                    y: 0
-                                }
+                                coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
                             };
 
                             logEvent(sessionId, ActionType.CLICK, payload);

@@ -479,11 +479,12 @@ export default function PostPage() {
               onClick={() => {
                 setCollapsed(!collapsed);
                 // Analytics for comment collapse/expand
+                const rect = document.activeElement?.getBoundingClientRect();
                 const clickPayload: ClickPayload = {
                   text: `User ${collapsed ? 'expanded' : 'collapsed'} comment ${comment.id}`,
                   page_url: window.location.href,
                   element_identifier: `comment-toggle-${comment.id}`,
-                  coordinates: { x: 0, y: 0 },
+                  coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
                 };
                 logAnalyticsEvent(ActionType.CLICK, clickPayload);
               }}
@@ -515,11 +516,12 @@ export default function PostPage() {
                 onClick={() => {
                   setReplying(!replying);
                   // Analytics
+                  const rect = document.activeElement?.getBoundingClientRect();
                   const clickPayload: ClickPayload = {
                     text: `User clicked reply on comment ${comment.id}`,
                     page_url: window.location.href,
                     element_identifier: `comment-reply-btn-${comment.id}`,
-                    coordinates: { x: 0, y: 0 },
+                    coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
                   };
                   logAnalyticsEvent(ActionType.CLICK, clickPayload);
                 }}
@@ -575,11 +577,12 @@ export default function PostPage() {
         sessionId={sessionId || ''}
         onLogout={() => {
           // Analytics - logout event
+          const rect = document.activeElement?.getBoundingClientRect();
           logAnalyticsEvent(ActionType.CLICK, {
             text: 'User logged out from post page',
             page_url: window.location.href,
             element_identifier: 'logout-button',
-            coordinates: { x: 0, y: 0 },
+            coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
           });
 
           localStorage.removeItem("userId");

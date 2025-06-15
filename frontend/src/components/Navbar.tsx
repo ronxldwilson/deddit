@@ -57,11 +57,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     if (!sessionId) return;
 
     if (search.trim()) {
+      const rect = document.activeElement?.getBoundingClientRect();
       logEvent(sessionId, ActionType.CLICK, {
         text: `User submitted search query: "${search.trim()}"`,
         page_url: window.location.href,
         element_identifier: "navbar-search-submit",
-        coordinates: { x: 0, y: 0 },
+        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
       });
       router.push(`/search?q=${encodeURIComponent(search.trim())}`);
     }

@@ -158,11 +158,12 @@ function SavedPostsPageContent() {
 
         // Log section navigation (though there's only one section currently)
         if (sessionId) {
+            const rect = document.activeElement?.getBoundingClientRect();
             logEvent(sessionId, ActionType.CLICK, {
                 text: `Clicked on ${section} section`,
                 page_url: window.location.href,
                 element_identifier: `section-${section.toLowerCase().replace(' ', '-')}`,
-                coordinates: { x: 0, y: 0 }
+                coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
             });
         }
     };
@@ -170,11 +171,12 @@ function SavedPostsPageContent() {
     const handlePostClick = (post: Post) => {
         // Log when user interacts with a saved post
         if (sessionId) {
+            const rect = document.activeElement?.getBoundingClientRect();
             logEvent(sessionId, ActionType.CLICK, {
                 text: `Clicked on saved post: ${post.title}`,
                 page_url: window.location.href,
                 element_identifier: `saved-post-${post.id}`,
-                coordinates: { x: 0, y: 0 }
+                coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
             });
         }
 
