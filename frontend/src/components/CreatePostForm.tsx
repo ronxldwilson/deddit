@@ -1,7 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import {
+    logEvent,
+    ActionType,
+    ClickPayload,
+    KeyPressPayload,
+    HoverPayload,
+    PageViewPayload,
+} from '../services/analyticsLogger'; // adjust path
 
 interface CreatePostFormProps {
     userId: string | null;
@@ -28,6 +36,17 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
     const [subreddit, setSubreddit] = useState('general');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const [sessionId, setSessionId] = useState<string>('');
+
+    useEffect(() => {
+        const sid = sessionStorage.getItem("sessionId");
+        if (sid) {
+            setSessionId(sid);
+        } else {
+            console.warn("Session ID not found in sessionStorage.");
+        }
+    }, []);
+
     useEffect(() => {
         const searchUserId = searchParams.get('userId');
         if (searchUserId && searchUserId !== 'undefined') {
@@ -40,6 +59,12 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
                 setEffectiveUserId(localStorageUserId);
             }
         }
+
+        const pageViewPayload: PageViewPayload = {
+            text: 'User viewed Create Post page',
+            page_url: window.location.href,
+        };
+        logEvent(sessionId, ActionType.PAGE_VIEW, pageViewPayload);
     }, [searchParams, userId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -52,12 +77,25 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
 
         if (isSubmitting) return;
 
+        const submitBtn = document.getElementById('submit-post-button');
+        const rect = submitBtn?.getBoundingClientRect();
+
+        const clickPayload: ClickPayload = {
+            text: 'User clicked Submit Post button',
+            page_url: window.location.href,
+            element_identifier: 'submit-post-button',
+            coordinates: {
+                x: rect?.left ?? 0,
+                y: rect?.top ?? 0,
+            },
+        };
+        logEvent(sessionId, ActionType.CLICK, clickPayload);
+
         setIsSubmitting(true);
 
-        // Add a forced delay to prevent double click burst
         setTimeout(() => {
             setIsSubmitting(false);
-        }, 2000); // 2 seconds delay (you can adjust this)
+        }, 2000);
 
         try {
             const res = await fetch('/api/create-post', {
@@ -96,8 +134,18 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
                         type="text"
                         placeholder="Enter your post title"
                         value={title}
-                        onChange={(e) => setTitle(e.target.value)}
+                        onChange={(e) => {
+                            setTitle(e.target.value);
+                            const payload: KeyPressPayload = {
+                                text: 'User typed in post title field',
+                                page_url: window.location.href,
+                                element_identifier: 'title-input',
+                                key: e.nativeEvent instanceof KeyboardEvent ? e.nativeEvent.key : '',
+                            };
+                            logEvent(sessionId, ActionType.KEY_PRESS, payload);
+                        }}
                         className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        id="title-input"
                         required
                     />
                 </div>
@@ -107,8 +155,18 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
                     <textarea
                         placeholder="Write your post content here..."
                         value={content}
-                        onChange={(e) => setContent(e.target.value)}
+                        onChange={(e) => {
+                            setContent(e.target.value);
+                            const payload: KeyPressPayload = {
+                                text: 'User typed in content field',
+                                page_url: window.location.href,
+                                element_identifier: 'content-textarea',
+                                key: e.nativeEvent instanceof KeyboardEvent ? e.nativeEvent.key : '',
+                            };
+                            logEvent(sessionId, ActionType.KEY_PRESS, payload);
+                        }}
                         className="w-full border border-gray-300 px-4 py-2 rounded-lg h-40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        id="content-textarea"
                         required
                     />
                 </div>
@@ -117,8 +175,19 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
                     <label className="block text-sm font-medium text-gray-700">Subreddit</label>
                     <select
                         value={subreddit}
-                        onChange={(e) => setSubreddit(e.target.value)}
+                        onChange={(e) => {
+                            setSubreddit(e.target.value);
+                        }}
+                        onMouseEnter={() => {
+                            const payload: HoverPayload = {
+                                text: 'User hovered on subreddit dropdown',
+                                page_url: window.location.href,
+                                element_identifier: 'subreddit-dropdown',
+                            };
+                            logEvent(sessionId, ActionType.HOVER, payload);
+                        }}
                         className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                        id="subreddit-dropdown"
                     >
                         {availableSubreddits.map((sub) => (
                             <option key={sub} value={sub}>
@@ -130,11 +199,12 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
 
                 <div className="pt-4">
                     <button
+                        id="submit-post-button"
                         type="submit"
                         disabled={isSubmitting}
                         className={`w-full font-semibold py-2 px-4 rounded-lg transition duration-150 ${isSubmitting
-                                ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
                             }`}
                     >
                         {isSubmitting ? 'Submitting...' : 'Submit Post'}
