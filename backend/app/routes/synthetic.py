@@ -10,11 +10,13 @@ from ..utils.session_manager import session_manager
 
 router = APIRouter()
 
+
 @router.post("/reset")
-def reset_environment(seed: str = Query(None)):
+def reset_environment(session_id: str = Query(...), seed: str = Query(None)):
+    """Reset the environment for a specific session"""
     db.reset_database()
-    session_manager.clear_session()
-    return {"status": "ok", "seed": seed}
+    session_manager.clear_session(session_id)  # ✅ Now passing session_id
+    return {"status": "ok", "seed": seed, "session_id": session_id}
 
 @router.post("/new_session")
 def new_session(seed: str = Query(None)): 

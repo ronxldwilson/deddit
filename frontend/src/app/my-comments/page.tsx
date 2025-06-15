@@ -98,13 +98,25 @@ export default function CommentPage() {
                     userId={typeof userId === 'string' && userId ? userId : (localStorage.getItem('userId') || '')}
                     sessionId={sessionId}
                     onLogout={() => {
-                        localStorage.removeItem('userId');
+                        // Clear userId
+                        localStorage.removeItem("userId");
+                        // setUserId(null);
+
+                        // Clear session data
+                        // setSessionId(null);
+                        sessionStorage.removeItem("sessionInitialized");
+                        sessionStorage.removeItem("sessionId");
+
+                        // Clear global session reference
+                        if (window.__SESSION_ID__) {
+                            delete window.__SESSION_ID__;
+                        }
                         window.location.href = '/'; // Redirect to home
                     }}
                 />
                 <div className="flex max-w-full mx-auto px-6 py-20 space-x-8">
 
-                    <LeftSideBar 
+                    <LeftSideBar
                         userId={typeof userId === 'string' ? userId : undefined}
                         sessionId={sessionId}
 

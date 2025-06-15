@@ -71,12 +71,24 @@ export default function SubredditPage() {
 
     return (
         <div className="min-h-screen max-w-full bg-white pb-12 px-4">
-            <Navbar 
+            <Navbar
                 userId={userId}
                 sessionId={window.__SESSION_ID__ || ''}
                 onLogout={() => {
-                    localStorage.removeItem('userId');
-                    window.location.href = '/';
+                    // Clear userId
+                    localStorage.removeItem("userId");
+                    // setUserId(null);
+
+                    // Clear session data
+                    // setSessionId(null);
+                    sessionStorage.removeItem("sessionInitialized");
+                    sessionStorage.removeItem("sessionId");
+
+                    // Clear global session reference
+                    if (window.__SESSION_ID__) {
+                        delete window.__SESSION_ID__;
+                    }
+                    window.location.href = '/'; // Redirect to home
                 }}
             />
 
@@ -115,8 +127,8 @@ export default function SubredditPage() {
                                     subreddit={subreddit} //same as the subreddit name
                                     votes={post.votes}
                                     content={post.content}
-                                    userID={userId}
-                                />
+                                    userID={userId} 
+                                    isInitiallySaved={false}                                />
                             ))}
                         </div>
                     )}
@@ -135,8 +147,8 @@ export default function SubredditPage() {
                             </p>
                             <hr className="my-2" />
                             <div className="text-sm text-gray-700 space-y-1">
-                                <p>📊 Members: <span className="font-semibold">{faker.number.int({max:100000})}</span></p>
-                                <p>🟢 Online: <span className="font-semibold">{faker.number.int({max:1000})}</span></p>
+                                <p>📊 Members: <span className="font-semibold">{faker.number.int({ max: 100000 })}</span></p>
+                                <p>🟢 Online: <span className="font-semibold">{faker.number.int({ max: 1000 })}</span></p>
                             </div>
                         </div>
 

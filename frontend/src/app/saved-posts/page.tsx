@@ -82,9 +82,21 @@ export default function SavedPostsPage() {
 
                 <Navbar
                     userId={userId || localStorage.getItem('userId') || ''}
-                    sessionId={window.__SESSION_ID__}
+                    sessionId={window.__SESSION_ID__ || ''}
                     onLogout={() => {
-                        localStorage.removeItem('userId');
+                        // Clear userId
+                        localStorage.removeItem("userId");
+                        // setUserId(null);
+
+                        // Clear session data
+                        // setSessionId(null);
+                        sessionStorage.removeItem("sessionInitialized");
+                        sessionStorage.removeItem("sessionId");
+
+                        // Clear global session reference
+                        if (window.__SESSION_ID__) {
+                            delete window.__SESSION_ID__;
+                        }
                         window.location.href = '/'; // Redirect to home
                     }}
                 />

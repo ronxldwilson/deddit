@@ -393,8 +393,20 @@ export default function PostPage() {
         userId={userID || localStorage.getItem('userId') || ''}
         sessionId={window.__SESSION_ID__ || ''}
         onLogout={() => {
-          localStorage.removeItem('userId');
-          window.location.href = '/';
+          // Clear userId
+          localStorage.removeItem("userId");
+          // setUserId(null);
+
+          // Clear session data
+          // setSessionId(null);
+          sessionStorage.removeItem("sessionInitialized");
+          sessionStorage.removeItem("sessionId");
+
+          // Clear global session reference
+          if (window.__SESSION_ID__) {
+            delete window.__SESSION_ID__;
+          }
+          window.location.href = '/'; // Redirect to home
         }}
       />
       <div className="flex py-20 bg-white min-h-screen">

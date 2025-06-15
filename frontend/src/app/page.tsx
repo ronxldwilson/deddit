@@ -6,7 +6,7 @@ import { FrontPage } from "../components/FrontPage";
 
 declare global {
   interface Window {
-    __SESSION_ID__: string;
+    __SESSION_ID__?: string;
   }
 }
 
@@ -81,8 +81,20 @@ export default function Home() {
             userId={userId}
             sessionId={sessionId}
             onLogout={() => {
+              // Clear userId
               localStorage.removeItem("userId");
               setUserId(null);
+
+              // Clear session data
+              setSessionId(null);
+              sessionStorage.removeItem("sessionInitialized");
+              sessionStorage.removeItem("sessionId");
+
+              // Clear global session reference
+              if (window.__SESSION_ID__) {
+                delete window.__SESSION_ID__;
+              }
+              window.location.href = '/'; // Redirect to home
             }}
           />
         )}

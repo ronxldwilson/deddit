@@ -24,11 +24,23 @@ export default function CreatePostPage() {
     return (
         <main className="min-h-screen p-4 bg-white">
             <div className="max-w-6xl mx-auto">
-                <Navbar 
+                <Navbar
                     userId={userId}
                     sessionId={window.__SESSION_ID__ || ''}
                     onLogout={() => {
-                        localStorage.removeItem('userId');
+                        // Clear userId
+                        localStorage.removeItem("userId");
+                        // setUserId(null);
+
+                        // Clear session data
+                        // setSessionId(null);
+                        sessionStorage.removeItem("sessionInitialized");
+                        sessionStorage.removeItem("sessionId");
+
+                        // Clear global session reference
+                        if (window.__SESSION_ID__) {
+                            delete window.__SESSION_ID__;
+                        }
                         window.location.href = '/'; // Redirect to home
                     }}
                 />

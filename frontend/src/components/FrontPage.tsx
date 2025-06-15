@@ -100,7 +100,22 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
       <Navbar
         userId={userId}
         sessionId={sessionId}
-        onLogout={onLogout}
+        onLogout={() => {
+          // Clear userId
+          localStorage.removeItem("userId");
+          // setUserId(null);
+
+          // Clear session data
+          // setSessionId(null);
+          sessionStorage.removeItem("sessionInitialized");
+          sessionStorage.removeItem("sessionId");
+
+          // Clear global session reference
+          if (window.__SESSION_ID__) {
+            delete window.__SESSION_ID__;
+          }
+          window.location.href = '/'; // Redirect to home
+        }}
       />
 
       <div className="pt-12 flex gap-6 m-0">

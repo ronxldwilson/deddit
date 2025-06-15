@@ -42,8 +42,20 @@ export default function SearchPage() {
                 userId={userId}
                 sessionId={sessionId}
                 onLogout={() => {
-                    localStorage.removeItem('userId');
-                    window.location.href = '/';
+                    // Clear userId
+                    localStorage.removeItem("userId");
+                    // setUserId(null);
+
+                    // Clear session data
+                    // setSessionId(null);
+                    sessionStorage.removeItem("sessionInitialized");
+                    sessionStorage.removeItem("sessionId");
+
+                    // Clear global session reference
+                    if (window.__SESSION_ID__) {
+                        delete window.__SESSION_ID__;
+                    }
+                    window.location.href = '/'; // Redirect to home
                 }}
             />
 

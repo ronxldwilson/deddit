@@ -428,34 +428,47 @@ export default function ProfilePage() {
 
                 <Navbar
                     userId={userId || localStorage.getItem('userId') || ''}
-                    sessionId={window.__SESSION_ID__}
+                    sessionId={window.__SESSION_ID__ || ''}
                     onLogout={() => {
-                        localStorage.removeItem('userId');
+                        // Clear userId
+                        localStorage.removeItem("userId");
+                        // setUserId(null);
+
+                        // Clear session data
+                        // setSessionId(null);
+                        sessionStorage.removeItem("sessionInitialized");
+                        sessionStorage.removeItem("sessionId");
+
+                        // Clear global session reference
+                        if (window.__SESSION_ID__) {
+                            delete window.__SESSION_ID__;
+                        }
                         window.location.href = '/'; // Redirect to home
                     }}
+                    
                 />
                 <div className="flex max-w-full mx-auto px-6 py-20 space-x-8">
                     {/* Sidebar */}
                     <LeftSideBar />
                     <div className='max-w-7xl px-12 flex space-x-8'>
 
-                    <aside className="w-60 max-h-fit bg-white border rounded-xl shadow-md p-4 space-y-4">
-                        {sections.map((section) => (
-                            <button
-                                key={section}
-                                onClick={() => setActiveSection(section)}
-                                className={`w-full text-left px-4 py-2 rounded-lg transition ${activeSection === section
-                                    ? 'bg-blue-100 text-blue-800 font-semibold'
-                                    : 'text-gray-700 hover:bg-gray-100'
-                                    }`}
-                            >
-                                {section}
-                            </button>
-                        ))}
-                    </aside>
+                        <aside className="w-60 max-h-fit bg-white border rounded-xl shadow-md p-4 space-y-4">
+                            {sections.map((section) => (
+                                <button
+                                    key={section}
+                                    onClick={() => setActiveSection(section)}
+                                    className={`w-full text-left px-4 py-2 rounded-lg transition ${activeSection === section
+                                        ? 'bg-blue-100 text-blue-800 font-semibold'
+                                        : 'text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                >
+                                    {section}
+                                </button>
+                            ))}
+                        </aside>
 
-                    {/* Main Content */}
-                    <main className="flex-1 space-y-6">{renderSection()}</main>
+                        {/* Main Content */}
+                        <main className="flex-1 space-y-6">{renderSection()}</main>
                     </div>
                 </div>
             </div>
