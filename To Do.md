@@ -40,6 +40,8 @@ Fix Search Page
 Profile in Navbar in Post Details Page
 Save button doesn't properly retain state in Post Page
 When moving from State post page and saving a post and going back to the home page, the save state is not retained
+make the saved post entirely DB dependent and not localstorage dependent
+Fix Saved Posts and My Comments page
 
 
 
@@ -56,9 +58,6 @@ Create post button idempotency is missing
 
 Subreddit posts are not unique
 
-make the saved post entirely DB dependent and not localstorage dependent
-
-Fix Saved Posts and My Comments page
 
 # Broken Links
 

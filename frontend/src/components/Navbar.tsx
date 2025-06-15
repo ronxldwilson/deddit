@@ -16,7 +16,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   userId: propUserId,
   sessionId,
-  onLogout = () => {}, // No-op by default
+  onLogout = () => { }, // No-op by default
 }) => {
   const [search, setSearch] = useState("");
   const [localUserId, setLocalUserId] = useState<string>("");
@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (sessionId && effectiveUserId) {
       logEvent(sessionId, ActionType.CLICK, {
         text: "User clicked the logout button",
@@ -51,6 +51,18 @@ export const Navbar: React.FC<NavbarProps> = ({
         coordinates: { x: 0, y: 0 },
       });
     }
+
+    try {
+      await fetch(`http://localhost:8000/_synthetic/reset?session_id=${sessionId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (err) {
+      console.error("Failed to call /reset:", err);
+    }
+
     onLogout();
   };
 

@@ -89,31 +89,6 @@ export default function PostPage() {
     }
   }
 
-  // This is to be used to fix the bookmark depenedency
-  // When bookmarked the data should be universally shown everywhere
-  // the idea is that you fetch the saved bookmarks, then you find the ids of the posts which are saved
-  // compare it to the current id and then set the bookmark state based on the if there is a match between saved posts and the current posts
-
-  const [savedPosts, setSavedPosts] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      const res = await fetch("http://localhost:8000/posts");
-      const data = await res.json();
-      setPost(data);
-    };
-
-    const fetchSaved = async () => {
-
-      const res = await fetch(`http://localhost:8000/users/${userID}/saved_posts`);
-      const data = await res.json();
-      setSavedPosts(data.map((post: any) => post.id.toString()));
-    }
-    fetchPosts();
-    fetchSaved();
-  }, [userID]);
-
-
   async function fetchComments(postId: string) {
     try {
       const res = await fetch(`http://localhost:8000/posts/${postId}/comments`);
@@ -346,7 +321,7 @@ export default function PostPage() {
     return (
       <div className="pl-4 border-l border-gray-300 my-2">
         <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-          {/* <span>{parseUserMentions(`u/${comment.author_username}`)} · {new Date(comment.created_at).toLocaleString()}</span> */}
+          <span>{parseUserMentions(`u/${comment.author_username}`)} · {new Date(comment.created_at).toLocaleString()}</span>
           <div className="flex gap-2">
             <button
               onClick={() => handleSaveComment(comment.id)}
@@ -460,7 +435,7 @@ export default function PostPage() {
         {/* Post and Comments */}
         <div className="flex-1 bg-white p-6 rounded-lg shadow">
           <div className="text-lg text-gray-600 mb-2">
-            {/* Posted by <span className="font-medium">{parseUserMentions(`u/${post.author.username}`)}</span> in <span className="font-medium">r/{post.subreddit}</span> */}
+            Posted by <span className="font-medium">{parseUserMentions(`u/${post.author.username}`)}</span> in <span className="font-medium">r/{post.subreddit}</span>
           </div>
           <h1 className="text-2xl font-bold mb-4 text-black">{post.title}</h1>
           <div className="text-gray-800 whitespace-pre-wrap mb-6">{post.content}</div>
