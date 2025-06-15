@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar } from './Navbar';
 import { PostCard } from './PostCard';
 import { logEvent, ActionType } from '../services/analyticsLogger';
@@ -14,13 +14,6 @@ interface Author {
   updated_at: string | null;
   password: string;
 }
-
-
-interface LeftSideBarProps {
-  userId: string;
-  sessionId: string;
-}
-
 
 interface Post {
   id: string;
@@ -42,10 +35,8 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<'hot' | 'new' | 'top'>('hot');
-
   const [savedPostIds, setSavedPostIds] = useState<string[]>([]);
 
-  // REMOVE useCallback
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -72,11 +63,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
     };
 
     fetchPosts();
-  }, [userId, sort, sessionId]); // ✅ Add sort here
-
-  // useEffect(() => {
-  //   fetchPosts();
-  // }, [fetchPosts, sessionId]);
+  }, [userId, sort, sessionId]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -101,38 +88,37 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
         userId={userId}
         sessionId={sessionId}
         onLogout={() => {
-          // Clear userId
           localStorage.removeItem("userId");
-          // setUserId(null);
-
-          // Clear session data
-          // setSessionId(null);
           sessionStorage.removeItem("sessionInitialized");
           sessionStorage.removeItem("sessionId");
 
-          // Clear global session reference
           if (window.__SESSION_ID__) {
             delete window.__SESSION_ID__;
           }
-          window.location.href = '/'; // Redirect to home
+          window.location.href = '/';
         }}
       />
 
       <div className="pt-12 flex gap-6 m-0">
-
-        {/* Left Sidebar */}
         <LeftSideBar userId={userId} sessionId={sessionId} />
 
-        {/* Main Content */}
         <div className="flex-1 max-w-2xl mx-auto">
-          {/* Title + Sort */}
           <div className="mb-6 flex items-center justify-between">
             <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
               Home
             </h1>
             <select
+              id="sort-dropdown"
               value={sort}
-              onChange={(e) => setSort(e.target.value as 'hot' | 'new' | 'top')}
+              onChange={(e) => {
+                const newSort = e.target.value as 'hot' | 'new' | 'top';
+                setSort(newSort);
+                logEvent(sessionId, ActionType.CLICK, {
+                  text: `User changed sort to ${newSort}`,
+                  page_url: window.location.href,
+                  element_identifier: "sort-dropdown",
+                });
+              }}
               className="text-sm border border-gray-300 text-black rounded-md px-3 py-1.5 bg-white shadow-sm hover:border-gray-400 focus:outline-none"
             >
               <option value="hot">🔥 Hot</option>
@@ -152,27 +138,36 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
           ) : (
             <div className="space-y-8">
               {posts.map((post) => (
-                <PostCard
+                <div
                   key={post.id}
-                  id={post.id}
-                  title={post.title}
-                  author={post.author.username}
-                  subreddit={post.subreddit}
-                  votes={post.votes}
-                  content={post.content}
-                  userID={userId}
-                  isInitiallySaved={savedPostIds.includes(post.id.toString())}
-                />
+                  id={`postcard-${post.id}`}
+                  onMouseEnter={() =>
+                    logEvent(sessionId, ActionType.HOVER, {
+                      text: `User hovered over post "${post.title}"`,
+                      page_url: window.location.href,
+                      element_identifier: `postcard-${post.id}`,
+                    })
+                  }
+                >
+                  <PostCard
+                    id={post.id}
+                    title={post.title}
+                    author={post.author.username}
+                    subreddit={post.subreddit}
+                    votes={post.votes}
+                    content={post.content}
+                    userID={userId}
+                    isInitiallySaved={savedPostIds.includes(post.id.toString())}
+                  />
+                </div>
               ))}
             </div>
           )}
+
         </div>
 
-        {/* Sidebar */}
         <aside className="w-80 hidden lg:block space-y-6">
           <div className="sticky top-24 space-y-6">
-
-            {/* About Section */}
             <div className="bg-white border rounded-xl p-4 shadow-md">
               <h2 className="text-base font-semibold text-gray-800 mb-2">About Deddit</h2>
               <p className="text-sm text-gray-600 leading-relaxed">
@@ -181,7 +176,6 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
               </p>
             </div>
 
-            {/* Popular Communities Section */}
             <div className="bg-white border rounded-xl p-4 shadow-md">
               <h2 className="text-base font-semibold text-gray-800 mb-4">Popular Communities</h2>
               <ul className="space-y-4">
@@ -194,7 +188,15 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
                   <li key={community.name} className="flex items-center justify-between">
                     <div>
                       <Link
+                        id={`popular-community-${community.name}`}
                         href={`/r/${community.name}`}
+                        onClick={() =>
+                          logEvent(sessionId, ActionType.CLICK, {
+                            text: `User clicked on popular community r/${community.name}`,
+                            page_url: window.location.href,
+                            element_identifier: `popular-community-${community.name}`,
+                          })
+                        }
                         className="text-sm font-medium text-blue-600 hover:underline"
                       >
                         r/{community.name}
