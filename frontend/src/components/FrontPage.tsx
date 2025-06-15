@@ -113,12 +113,18 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
               onChange={(e) => {
                 const newSort = e.target.value as 'hot' | 'new' | 'top';
                 setSort(newSort);
+
+                const rect = (e.target as HTMLElement).getBoundingClientRect();
+                const coordinates = { x: Math.round(rect.left + rect.width / 2), y: Math.round(rect.top + rect.height / 2) };
+
                 logEvent(sessionId, ActionType.CLICK, {
                   text: `User changed sort to ${newSort}`,
                   page_url: window.location.href,
                   element_identifier: "sort-dropdown",
+                  coordinates, // ✅ required for CLICK
                 });
               }}
+
               className="text-sm border border-gray-300 text-black rounded-md px-3 py-1.5 bg-white shadow-sm hover:border-gray-400 focus:outline-none"
             >
               <option value="hot">🔥 Hot</option>
