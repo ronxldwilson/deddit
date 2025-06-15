@@ -26,6 +26,7 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [subreddit, setSubreddit] = useState('general');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const searchUserId = searchParams.get('userId');
@@ -49,21 +50,35 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
             return;
         }
 
-        const res = await fetch('/api/create-post', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                title,
-                content,
-                subreddit,
-                user_id: effectiveUserId,
-            }),
-        });
+        if (isSubmitting) return;
 
-        if (res.ok) {
-            router.push('/');
-        } else {
-            alert('Error creating post');
+        setIsSubmitting(true);
+
+        // Add a forced delay to prevent double click burst
+        setTimeout(() => {
+            setIsSubmitting(false);
+        }, 2000); // 2 seconds delay (you can adjust this)
+
+        try {
+            const res = await fetch('/api/create-post', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title,
+                    content,
+                    subreddit,
+                    user_id: effectiveUserId,
+                }),
+            });
+
+            if (res.ok) {
+                router.push('/');
+            } else {
+                alert('Error creating post');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Unexpected error occurred.');
         }
     };
 
@@ -116,9 +131,13 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
                 <div className="pt-4">
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-150"
+                        disabled={isSubmitting}
+                        className={`w-full font-semibold py-2 px-4 rounded-lg transition duration-150 ${isSubmitting
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            }`}
                     >
-                        Submit Post
+                        {isSubmitting ? 'Submitting...' : 'Submit Post'}
                     </button>
                 </div>
             </form>
