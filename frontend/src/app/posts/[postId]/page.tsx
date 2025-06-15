@@ -51,7 +51,6 @@ export default function PostPage() {
 
   const [savedCommentIds, setSavedCommentIds] = useState<Set<number>>(new Set());
   const [userID, setUserID] = useState<string | null>(searchParams.get("userID"));
-  // const userID = searchParams.get("userID"); // Removed to avoid redeclaration
 
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,12 +58,20 @@ export default function PostPage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [savedComments, setSavedComments] = useState<{ [id: number]: 'saving' | 'saved' | null }>({});
 
-  // Post voting state - refactored similar to PostCard
+  // Post voting state
   const [voteState, setVoteState] = useState<"up" | "down" | null>(null);
   const [voteCount, setVoteCount] = useState<number>(0);
   const [isSaved, setIsSaved] = useState(false);
 
   const sessionId = typeof window !== 'undefined' && (window as any).__SESSION_ID__ ? (window as any).__SESSION_ID__ : '';
+
+  // Initialize userID from localStorage if not in URL params
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (!userID && storedUserId) {
+      setUserID(storedUserId);
+    }
+  }, [userID]);
 
   useEffect(() => {
     if (typeof postId === "string") {
@@ -85,14 +92,41 @@ export default function PostPage() {
     }
   }, [post, userID]);
 
+  // Log page view - improved with error handling and more details
   useEffect(() => {
-    // Log page view
-    const pageViewPayload: PageViewPayload = {
-      text: 'User viewed Post page',
-      page_url: window.location.href,
+    if (sessionId && postId) {
+      const pageViewPayload: PageViewPayload = {
+        text: `User viewed Post page - Post ID: ${postId}`,
+        page_url: window.location.href,
+      };
+
+      try {
+        logEvent(sessionId, ActionType.PAGE_VIEW, pageViewPayload);
+      } catch (error) {
+        console.error('Analytics logging failed:', error);
+      }
+    }
+  }, [postId, sessionId]);
+
+  // Fetch saved comments when userID changes
+  useEffect(() => {
+    if (!userID) return;
+
+    const fetchSavedComments = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/users/${userID}/saved_comments`);
+        if (!res.ok) throw new Error("Failed to fetch saved comments");
+
+        const data = await res.json();
+        const ids = new Set<number>(data.map((comment: { id: number }) => comment.id));
+        setSavedCommentIds(ids);
+      } catch (err) {
+        console.error("Error fetching saved comments:", err);
+      }
     };
-    if (sessionId) logEvent(sessionId, ActionType.PAGE_VIEW, pageViewPayload);
-  }, [postId]);
+
+    fetchSavedComments();
+  }, [userID]);
 
   async function fetchPost(postId: string) {
     try {
@@ -100,6 +134,8 @@ export default function PostPage() {
       if (res.ok) {
         const postData = await res.json();
         setPost(postData);
+      } else {
+        console.error('Failed to fetch post:', res.status, res.statusText);
       }
     } catch (err) {
       console.error("Failed to fetch post", err);
@@ -111,25 +147,39 @@ export default function PostPage() {
   async function fetchComments(postId: string) {
     try {
       const res = await fetch(`http://localhost:8000/posts/${postId}/comments`);
-      if (res.ok) setComments(await res.json());
+      if (res.ok) {
+        setComments(await res.json());
+      } else {
+        console.error('Failed to fetch comments:', res.status, res.statusText);
+      }
     } catch (err) {
       console.error("Failed to fetch comments", err);
     }
   }
 
+  // Helper function for analytics logging with error handling
+  const logAnalyticsEvent = (actionType: ActionType, payload: any) => {
+    if (sessionId) {
+      try {
+        logEvent(sessionId, actionType, payload);
+      } catch (error) {
+        console.error('Analytics logging failed:', error);
+      }
+    }
+  };
+
   const handleCommentSubmit = async () => {
     if (!newComment.trim() || !userID || !post?.id) return;
 
-    if (sessionId) {
-      const rect = document.activeElement?.getBoundingClientRect();
-      const clickPayload: ClickPayload = {
-        text: 'User clicked Post Comment',
-        page_url: window.location.href,
-        element_identifier: 'comment-submit',
-        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-      };
-      logEvent(sessionId, ActionType.CLICK, clickPayload);
-    }
+    // Analytics - improved with more context
+    const rect = document.activeElement?.getBoundingClientRect();
+    const clickPayload: ClickPayload = {
+      text: `User posted comment on post ${post.id}`,
+      page_url: window.location.href,
+      element_identifier: 'comment-submit',
+      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+    };
+    logAnalyticsEvent(ActionType.CLICK, clickPayload);
 
     try {
       const res = await fetch("http://localhost:8000/comments/", {
@@ -146,13 +196,20 @@ export default function PostPage() {
       if (res.ok) {
         setNewComment("");
         fetchComments(String(post.id));
+
+        // Analytics - successful comment post
+        logAnalyticsEvent(ActionType.PAGE_VIEW, {
+          text: 'Comment posted successfully',
+          page_url: window.location.href,
+        });
+      } else {
+        console.error('Failed to post comment:', res.status, res.statusText);
       }
     } catch (err) {
       console.error("Error posting comment:", err);
     }
   };
 
-  // Refactored voting logic similar to PostCard
   const handleVote = async (type: "up" | "down" | "neutral") => {
     if (!post || !userID) return;
 
@@ -174,6 +231,12 @@ export default function PostPage() {
         if (data.new_votes !== undefined) {
           setVoteCount(data.new_votes);
         }
+
+        // Analytics - successful vote
+        logAnalyticsEvent(ActionType.PAGE_VIEW, {
+          text: `Vote ${type} successful on post ${post.id}`,
+          page_url: window.location.href,
+        });
       } else {
         const error = await res.json();
         console.error("Vote failed", error.detail);
@@ -184,6 +247,18 @@ export default function PostPage() {
   };
 
   const handleUpvote = () => {
+    if (!post || !userID) return;
+
+    // Analytics with improved context
+    const rect = document.activeElement?.getBoundingClientRect();
+    const clickPayload: ClickPayload = {
+      text: `User upvoted post ${post.id}`,
+      page_url: window.location.href,
+      element_identifier: 'post-upvote',
+      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+    };
+    logAnalyticsEvent(ActionType.CLICK, clickPayload);
+
     if (voteState === "up") {
       setVoteState(null);
       setVoteCount(voteCount - 1);
@@ -197,20 +272,21 @@ export default function PostPage() {
       setVoteCount(voteCount + 1);
       handleVote("up");
     }
-
-    if (sessionId) {
-      const rect = document.activeElement?.getBoundingClientRect();
-      const clickPayload: ClickPayload = {
-        text: 'User clicked Upvote',
-        page_url: window.location.href,
-        element_identifier: 'post-upvote',
-        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-      };
-      logEvent(sessionId, ActionType.CLICK, clickPayload);
-    }
   };
 
   const handleDownvote = () => {
+    if (!post || !userID) return;
+
+    // Analytics with improved context
+    const rect = document.activeElement?.getBoundingClientRect();
+    const clickPayload: ClickPayload = {
+      text: `User downvoted post ${post.id}`,
+      page_url: window.location.href,
+      element_identifier: 'post-downvote',
+      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+    };
+    logAnalyticsEvent(ActionType.CLICK, clickPayload);
+
     if (voteState === "down") {
       setVoteState(null);
       setVoteCount(voteCount + 1);
@@ -224,32 +300,28 @@ export default function PostPage() {
       setVoteCount(voteCount - 1);
       handleVote("down");
     }
-
-    if (sessionId) {
-      const rect = document.activeElement?.getBoundingClientRect();
-      const clickPayload: ClickPayload = {
-        text: 'User clicked Downvote',
-        page_url: window.location.href,
-        element_identifier: 'post-downvote',
-        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-      };
-      logEvent(sessionId, ActionType.CLICK, clickPayload);
-    }
   };
 
-  // Refactored save logic similar to PostCard
   const handleSavePost = async () => {
     if (!post || !userID) return;
 
+    // Analytics
+    const rect = document.activeElement?.getBoundingClientRect();
+    const clickPayload: ClickPayload = {
+      text: `User ${isSaved ? 'unsaved' : 'saved'} post ${post.id}`,
+      page_url: window.location.href,
+      element_identifier: 'post-save',
+      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+    };
+    logAnalyticsEvent(ActionType.CLICK, clickPayload);
+
     try {
-      // Optional backend call
       await fetch(`http://localhost:8000/api/save_post/${post.id}`, {
         method: "POST",
         body: JSON.stringify({ user_id: userID }),
         headers: { "Content-Type": "application/json" },
       });
 
-      // LocalStorage logic scoped to current user
       const savedPostsKey = `savedPosts:${userID}`;
       const savedPosts = JSON.parse(localStorage.getItem(savedPostsKey) || "[]");
       let updatedPosts;
@@ -265,23 +337,22 @@ export default function PostPage() {
     } catch (err) {
       console.error("Save failed", err);
     }
-
-    if (sessionId) {
-      const rect = document.activeElement?.getBoundingClientRect();
-      const clickPayload: ClickPayload = {
-        text: 'User clicked Save Post',
-        page_url: window.location.href,
-        element_identifier: 'post-save',
-        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-      };
-      logEvent(sessionId, ActionType.CLICK, clickPayload);
-    }
   };
 
   const handleSaveComment = async (id: number) => {
     if (!userID) return alert("Login required to save.");
 
     setSavedComments(prev => ({ ...prev, [id]: 'saving' }));
+
+    // Analytics
+    const rect = document.activeElement?.getBoundingClientRect();
+    const clickPayload: ClickPayload = {
+      text: `User saved comment ${id}`,
+      page_url: window.location.href,
+      element_identifier: `comment-save-${id}`,
+      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+    };
+    logAnalyticsEvent(ActionType.CLICK, clickPayload);
 
     try {
       const res = await fetch(`http://localhost:8000/api/save_comment/${id}`, {
@@ -293,83 +364,15 @@ export default function PostPage() {
       if (res.ok) {
         setSavedCommentIds(prev => new Set(prev).add(id));
         setTimeout(() => setSavedComments(prev => ({ ...prev, [id]: null })), 1000);
+      } else {
+        console.error('Failed to save comment:', res.status, res.statusText);
+        setSavedComments(prev => ({ ...prev, [id]: null }));
       }
     } catch (err) {
       console.error("Save failed", err);
       setSavedComments(prev => ({ ...prev, [id]: null }));
     }
-
-    if (sessionId) {
-      const rect = document.activeElement?.getBoundingClientRect();
-      const clickPayload: ClickPayload = {
-        text: 'User clicked Save Comment',
-        page_url: window.location.href,
-        element_identifier: `comment-save-${id}`,
-        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-      };
-      logEvent(sessionId, ActionType.CLICK, clickPayload);
-    }
   };
-
-  const handleCommentVote = async (value: 1 | -1) => {
-    if (!userID) return;
-
-    try {
-      const res = await fetch(`http://localhost:8000/comments/${id}/vote`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userID, value }),
-      });
-
-      if (res.ok) {
-        const updated = await fetch(`http://localhost:8000/comments/${id}`).then(r => r.json());
-        // TODO: Update the comment's vote count in the comments state if needed
-        // setCommentVoteCount(updated.votes); // Removed: not defined in this scope
-      } else {
-        const error = await res.json();
-        alert(error.detail);
-      }
-    } catch (err) {
-      console.error("Vote failed", err);
-    }
-
-    if (sessionId) {
-      const rect = document.activeElement?.getBoundingClientRect();
-      const clickPayload: ClickPayload = {
-        text: 'User clicked Comment Upvote',
-        page_url: window.location.href,
-        element_identifier: `comment-upvote-${id}`,
-        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-      };
-      logEvent(sessionId, ActionType.CLICK, clickPayload);
-    }
-  };
-
-  useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setUserID(storedUserId);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!userID) return;
-
-    const fetchSavedComments = async () => {
-      try {
-        const res = await fetch(`http://localhost:8000/users/${userID}/saved_comments`);
-        if (!res.ok) throw new Error("Failed to fetch saved comments");
-
-        const data = await res.json(); // this should be an array of comments
-        const ids = new Set<number>(data.map((comment: { id: number }) => comment.id));
-        setSavedCommentIds(ids);
-      } catch (err) {
-        console.error("Error fetching saved comments:", err);
-      }
-    };
-
-    fetchSavedComments();
-  }, [userID]); // <-- only re-runs if userID changes
 
   function CommentThread({ comment }: { comment: Comment }) {
     const [collapsed, setCollapsed] = useState(false);
@@ -379,6 +382,16 @@ export default function PostPage() {
 
     const handleReplySubmit = async () => {
       if (!replyText.trim() || !userID) return;
+
+      // Analytics
+      const rect = document.activeElement?.getBoundingClientRect();
+      const clickPayload: ClickPayload = {
+        text: `User replied to comment ${comment.id} wih ${replyText} `,
+        page_url: window.location.href,
+        element_identifier: `comment-reply-submit-${comment.id}`,
+        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+      };
+      logAnalyticsEvent(ActionType.CLICK, clickPayload);
 
       try {
         const res = await fetch("http://localhost:8000/comments/", {
@@ -396,25 +409,26 @@ export default function PostPage() {
           setReplyText("");
           setReplying(false);
           fetchComments(String(comment.post_id));
+        } else {
+          console.error('Failed to post reply:', res.status, res.statusText);
         }
       } catch (err) {
         console.error("Failed to post reply:", err);
-      }
-
-      if (sessionId) {
-        const rect = document.activeElement?.getBoundingClientRect();
-        const clickPayload: ClickPayload = {
-          text: 'User clicked Submit Reply',
-          page_url: window.location.href,
-          element_identifier: `comment-reply-submit-${comment.id}`,
-          coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-        };
-        logEvent(sessionId, ActionType.CLICK, clickPayload);
       }
     };
 
     const handleCommentVote = async (value: 1 | -1) => {
       if (!userID) return;
+
+      // Analytics
+      const rect = document.activeElement?.getBoundingClientRect();
+      const clickPayload: ClickPayload = {
+        text: `User ${value === 1 ? 'upvoted' : 'downvoted'} comment ${comment.id}`,
+        page_url: window.location.href,
+        element_identifier: `comment-${value === 1 ? 'upvote' : 'downvote'}-${comment.id}`,
+        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+      };
+      logAnalyticsEvent(ActionType.CLICK, clickPayload);
 
       try {
         const res = await fetch(`http://localhost:8000/comments/${comment.id}/vote`, {
@@ -433,17 +447,6 @@ export default function PostPage() {
       } catch (err) {
         console.error("Vote failed", err);
       }
-
-      if (sessionId) {
-        const rect = document.activeElement?.getBoundingClientRect();
-        const clickPayload: ClickPayload = {
-          text: 'User clicked Comment Upvote',
-          page_url: window.location.href,
-          element_identifier: `comment-upvote-${comment.id}`,
-          coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-        };
-        logEvent(sessionId, ActionType.CLICK, clickPayload);
-      }
     };
 
     return (
@@ -452,19 +455,7 @@ export default function PostPage() {
           <span>{parseUserMentions(`u/${comment.author_username}`)} · {new Date(comment.created_at).toLocaleString()}</span>
           <div className="flex gap-2">
             <button
-              onClick={() => {
-                if (sessionId) {
-                  const rect = document.activeElement?.getBoundingClientRect();
-                  const clickPayload: ClickPayload = {
-                    text: 'User clicked Save Comment',
-                    page_url: window.location.href,
-                    element_identifier: `comment-save-${comment.id}`,
-                    coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-                  };
-                  logEvent(sessionId, ActionType.CLICK, clickPayload);
-                }
-                handleSaveComment(comment.id);
-              }}
+              onClick={() => handleSaveComment(comment.id)}
               className="text-green-600 hover:text-green-800"
             >
               {savedCommentIds.has(comment.id) ? (
@@ -475,7 +466,17 @@ export default function PostPage() {
             </button>
 
             <button
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={() => {
+                setCollapsed(!collapsed);
+                // Analytics for comment collapse/expand
+                const clickPayload: ClickPayload = {
+                  text: `User ${collapsed ? 'expanded' : 'collapsed'} comment ${comment.id}`,
+                  page_url: window.location.href,
+                  element_identifier: `comment-toggle-${comment.id}`,
+                  coordinates: { x: 0, y: 0 },
+                };
+                logAnalyticsEvent(ActionType.CLICK, clickPayload);
+              }}
               className="text-blue-600 hover:underline"
             >
               [{collapsed ? "+" : "–"}]
@@ -488,55 +489,29 @@ export default function PostPage() {
             <div className="text-gray-800 mb-2">{comment.content}</div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <button
-                onClick={() => {
-                  if (sessionId) {
-                    const rect = document.activeElement?.getBoundingClientRect();
-                    const clickPayload: ClickPayload = {
-                      text: 'User clicked Comment Upvote',
-                      page_url: window.location.href,
-                      element_identifier: `comment-upvote-${comment.id}`,
-                      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-                    };
-                    logEvent(sessionId, ActionType.CLICK, clickPayload);
-                  }
-                  handleCommentVote(1);
-                }}
+                onClick={() => handleCommentVote(1)}
                 className="hover:text-red-500"
               >
                 <ArrowUp className="w-4 h-4" />
               </button>
               <span>{commentVoteCount}</span>
               <button
-                onClick={() => {
-                  if (sessionId) {
-                    const rect = document.activeElement?.getBoundingClientRect();
-                    const clickPayload: ClickPayload = {
-                      text: 'User clicked Comment Downvote',
-                      page_url: window.location.href,
-                      element_identifier: `comment-downvote-${comment.id}`,
-                      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-                    };
-                    logEvent(sessionId, ActionType.CLICK, clickPayload);
-                  }
-                  handleCommentVote(-1);
-                }}
+                onClick={() => handleCommentVote(-1)}
                 className="hover:text-blue-500"
               >
                 <ArrowDown className="w-4 h-4" />
               </button>
               <button
                 onClick={() => {
-                  if (sessionId) {
-                    const rect = document.activeElement?.getBoundingClientRect();
-                    const clickPayload: ClickPayload = {
-                      text: 'User clicked Reply Button',
-                      page_url: window.location.href,
-                      element_identifier: `comment-reply-btn-${comment.id}`,
-                      coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-                    };
-                    logEvent(sessionId, ActionType.CLICK, clickPayload);
-                  }
                   setReplying(!replying);
+                  // Analytics
+                  const clickPayload: ClickPayload = {
+                    text: `User clicked reply on comment ${comment.id}`,
+                    page_url: window.location.href,
+                    element_identifier: `comment-reply-btn-${comment.id}`,
+                    coordinates: { x: 0, y: 0 },
+                  };
+                  logAnalyticsEvent(ActionType.CLICK, clickPayload);
                 }}
                 className="text-blue-600 hover:underline ml-2"
               >
@@ -553,32 +528,18 @@ export default function PostPage() {
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   onKeyDown={(e) => {
-                    if (sessionId) {
-                      const payload: KeyPressPayload = {
-                        text: 'User typed in reply input',
-                        page_url: window.location.href,
-                        element_identifier: `comment-reply-input-${comment.id}`,
-                        key: e.key,
-                      };
-                      logEvent(sessionId, ActionType.KEY_PRESS, payload);
-                    }
+                    const payload: KeyPressPayload = {
+                      text: 'User typed in reply input',
+                      page_url: window.location.href,
+                      element_identifier: `comment-reply-input-${comment.id}`,
+                      key: e.key,
+                    };
+                    logAnalyticsEvent(ActionType.KEY_PRESS, payload);
                   }}
                 />
                 <button
                   className="mt-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                  onClick={() => {
-                    if (sessionId) {
-                      const rect = document.activeElement?.getBoundingClientRect();
-                      const clickPayload: ClickPayload = {
-                        text: 'User clicked Submit Reply',
-                        page_url: window.location.href,
-                        element_identifier: `comment-reply-submit-${comment.id}`,
-                        coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
-                      };
-                      logEvent(sessionId, ActionType.CLICK, clickPayload);
-                    }
-                    handleReplySubmit();
-                  }}
+                  onClick={handleReplySubmit}
                 >
                   Submit Reply
                 </button>
@@ -603,43 +564,43 @@ export default function PostPage() {
         userId={userID || localStorage.getItem('userId') || ''}
         sessionId={sessionId || ''}
         onLogout={() => {
-          // Clear userId
-          localStorage.removeItem("userId");
-          // setUserId(null);
+          // Analytics - logout event
+          logAnalyticsEvent(ActionType.CLICK, {
+            text: 'User logged out from post page',
+            page_url: window.location.href,
+            element_identifier: 'logout-button',
+            coordinates: { x: 0, y: 0 },
+          });
 
-          // Clear session data
-          // setSessionId(null);
+          localStorage.removeItem("userId");
           sessionStorage.removeItem("sessionInitialized");
           sessionStorage.removeItem("sessionId");
 
-          // Clear global session reference
           if (window.__SESSION_ID__) {
             delete window.__SESSION_ID__;
           }
-          window.location.href = '/'; // Redirect to home
+          window.location.href = '/';
         }}
       />
       <div className="flex py-20 bg-white min-h-screen">
         <div className="px-4">
           <LeftSideBar
             userId={userID ?? undefined}
-            sessionId=""
+            sessionId={sessionId || ""}
           />
         </div>
 
-        {/* Post Voting Column - Refactored */}
+        {/* Post Voting Column */}
         <div className="flex flex-col items-center bg-white p-2 rounded-lg shadow h-fit text-black">
           <button
             onClick={handleUpvote}
             onMouseEnter={() => {
-              if (sessionId) {
-                const payload: HoverPayload = {
-                  text: 'User hovered on post upvote',
-                  page_url: window.location.href,
-                  element_identifier: 'post-upvote',
-                };
-                logEvent(sessionId, ActionType.HOVER, payload);
-              }
+              const payload: HoverPayload = {
+                text: 'User hovered on post upvote',
+                page_url: window.location.href,
+                element_identifier: 'post-upvote',
+              };
+              logAnalyticsEvent(ActionType.HOVER, payload);
             }}
             className={`transition-colors ${voteState === "up" ? "text-orange-500" : "hover:text-orange-500"}`}
           >
@@ -649,14 +610,12 @@ export default function PostPage() {
           <button
             onClick={handleDownvote}
             onMouseEnter={() => {
-              if (sessionId) {
-                const payload: HoverPayload = {
-                  text: 'User hovered on post downvote',
-                  page_url: window.location.href,
-                  element_identifier: 'post-downvote',
-                };
-                logEvent(sessionId, ActionType.HOVER, payload);
-              }
+              const payload: HoverPayload = {
+                text: 'User hovered on post downvote',
+                page_url: window.location.href,
+                element_identifier: 'post-downvote',
+              };
+              logAnalyticsEvent(ActionType.HOVER, payload);
             }}
             className={`transition-colors ${voteState === "down" ? "text-blue-500" : "hover:text-blue-500"}`}
           >
@@ -691,15 +650,13 @@ export default function PostPage() {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               onKeyDown={(e) => {
-                if (sessionId) {
-                  const payload: KeyPressPayload = {
-                    text: 'User typed in comment input',
-                    page_url: window.location.href,
-                    element_identifier: 'comment-input',
-                    key: e.key,
-                  };
-                  logEvent(sessionId, ActionType.KEY_PRESS, payload);
-                }
+                const payload: KeyPressPayload = {
+                  text: 'User typed in comment input',
+                  page_url: window.location.href,
+                  element_identifier: 'comment-input',
+                  key: e.key,
+                };
+                logAnalyticsEvent(ActionType.KEY_PRESS, payload);
               }}
             />
             <button
