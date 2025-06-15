@@ -95,7 +95,7 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
 
         setTimeout(() => {
             setIsSubmitting(false);
-        }, 2000);
+        }, 4000);
 
         try {
             const res = await fetch('/api/create-post', {
@@ -174,9 +174,23 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Subreddit</label>
                     <select
+                        id="subreddit-dropdown"
                         value={subreddit}
                         onChange={(e) => {
-                            setSubreddit(e.target.value);
+                            const selectedSubreddit = e.target.value;
+                            setSubreddit(selectedSubreddit);
+
+                            const payload: ClickPayload = {
+                                text: `User selected subreddit: ${selectedSubreddit}`,
+                                page_url: window.location.href,
+                                element_identifier: 'subreddit-dropdown',
+                                coordinates: {
+                                    x: 0,
+                                    y: 0
+                                }
+                            };
+
+                            logEvent(sessionId, ActionType.CLICK, payload);
                         }}
                         onMouseEnter={() => {
                             const payload: HoverPayload = {
@@ -184,11 +198,12 @@ export const CreatePostForm = ({ userId }: CreatePostFormProps) => {
                                 page_url: window.location.href,
                                 element_identifier: 'subreddit-dropdown',
                             };
+
                             logEvent(sessionId, ActionType.HOVER, payload);
                         }}
                         className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
-                        id="subreddit-dropdown"
                     >
+
                         {availableSubreddits.map((sub) => (
                             <option key={sub} value={sub}>
                                 {sub}

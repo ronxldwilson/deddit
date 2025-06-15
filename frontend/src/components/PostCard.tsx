@@ -154,11 +154,11 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
   const handleHover = () => {
-    logEvent(sessionId, ActionType.HOVER, {
-      text: `User hovered over post "${title}"`,
-      page_url: window.location.href,
-      element_identifier: `postcard-${id}`,
-    });
+    // logEvent(sessionId, ActionType.HOVER, {
+    //   text: `User hovered over post "${title}"`,
+    //   page_url: window.location.href,
+    //   element_identifier: `postcard-${id}`,
+    // });
   };
 
   useEffect(() => {

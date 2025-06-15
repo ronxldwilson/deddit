@@ -6,6 +6,9 @@ import { faker } from '@faker-js/faker';
 import { Navbar } from '../../components/Navbar';
 import { LeftSideBar } from '@/components/LeftSideBar';
 
+import { logEvent, ActionType } from '../../services/analyticsLogger';
+import { useRouter } from 'next/navigation';
+
 interface Post {
     id: string;
     title: string;
@@ -18,29 +21,122 @@ const sections = ['Saved Posts'];
 export default function SavedPostsPage() {
     const searchParams = useSearchParams();
     const userId = (searchParams.get('userId') === 'undefined' || null) ? searchParams.get('userId') : localStorage.getItem('userId');
+    
+    const router = useRouter();
 
     const [savedPosts, setSavedPosts] = useState<Post[]>([]);
     const [activeSection, setActiveSection] = useState(sections[0]);
     const [loading, setLoading] = useState(true);
+
+    // Get sessionId from window if available
+    const sessionId = typeof window !== 'undefined' && (window as any).__SESSION_ID__ ? (window as any).__SESSION_ID__ : undefined;
+
+    // Log page view on component mount
+    useEffect(() => {
+        if (sessionId) {
+            logEvent(sessionId, ActionType.PAGE_VIEW, {
+                text: `Saved Posts page viewed for user ${userId}`,
+                page_url: window.location.href
+            });
+        }
+    }, [sessionId, userId]);
+
+    // ✅ FIXED: Moved useEffect to top level - Log section view when posts are loaded
+    useEffect(() => {
+        if (sessionId && savedPosts.length > 0 && activeSection === 'Saved Posts') {
+            logEvent(sessionId, ActionType.CUSTOM, {
+                text: 'Saved posts section viewed',
+                custom_action: 'saved_posts_section_viewed',
+                data: {
+                    userId,
+                    postsDisplayed: savedPosts.length,
+                    isEmpty: savedPosts.length === 0
+                }
+            });
+        }
+    }, [sessionId, savedPosts.length, activeSection, userId]);
 
     useEffect(() => {
         if (!userId) return;
 
         const fetchData = async () => {
             setLoading(true);
+
+            // Log data fetch start
+            // if (sessionId) {
+            //     logEvent(sessionId, ActionType.CUSTOM, {
+            //         text: 'Started fetching saved posts data',
+            //         custom_action: 'saved_posts_fetch_start',
+            //         data: { userId }
+            //     });
+            // }
+
             try {
                 const savedPostsRes = await fetch(`http://localhost:8000/users/${userId}/saved_posts`);
 
-                setSavedPosts(await savedPostsRes.json());
+                if (savedPostsRes.ok) {
+                    const postsData = await savedPostsRes.json();
+                    setSavedPosts(postsData);
+
+                    // Log successful data load
+                    if (sessionId) {
+                        logEvent(sessionId, ActionType.CUSTOM, {
+                            text: 'Saved posts data loaded successfully',
+                            custom_action: 'saved_posts_loaded',
+                            data: {
+                                userId,
+                                postsCount: postsData.length,
+                                responseStatus: savedPostsRes.status
+                            }
+                        });
+                    }
+                } else {
+                    console.error('Failed to fetch saved posts:', savedPostsRes.status);
+
+                    // Log fetch failure
+                    if (sessionId) {
+                        logEvent(sessionId, ActionType.CUSTOM, {
+                            text: 'Failed to fetch saved posts',
+                            custom_action: 'saved_posts_fetch_failed',
+                            data: {
+                                userId,
+                                statusCode: savedPostsRes.status,
+                                statusText: savedPostsRes.statusText
+                            }
+                        });
+                    }
+                }
             } catch (error) {
-                console.error('Error fetching profile:', error);
+                console.error('Error fetching saved posts:', error);
+
+                // Log error
+                if (sessionId) {
+                    logEvent(sessionId, ActionType.CUSTOM, {
+                        text: 'Error fetching saved posts data',
+                        custom_action: 'saved_posts_fetch_error',
+                        data: {
+                            userId,
+                            error: error?.toString(),
+                            errorName: error instanceof Error ? error.name : 'Unknown'
+                        }
+                    });
+                }
             } finally {
                 setLoading(false);
+
+                // Log data fetch completion
+                if (sessionId) {
+                    logEvent(sessionId, ActionType.CUSTOM, {
+                        text: 'Saved posts data fetch completed',
+                        custom_action: 'saved_posts_fetch_complete',
+                        data: { userId }
+                    });
+                }
             }
         };
 
         fetchData();
-    }, [userId]);
+    }, [userId, sessionId]);
 
     if (loading) {
         return (
@@ -50,13 +146,46 @@ export default function SavedPostsPage() {
         );
     }
 
-    const renderSection = () => {
+    const handleSectionClick = (section: string) => {
+        setActiveSection(section);
 
+        // Log section navigation (though there's only one section currently)
+        if (sessionId) {
+            logEvent(sessionId, ActionType.CLICK, {
+                text: `Clicked on ${section} section`,
+                page_url: window.location.href,
+                element_identifier: `section-${section.toLowerCase().replace(' ', '-')}`,
+                coordinates: { x: 0, y: 0 }
+            });
+        }
+    };
+
+    const handlePostClick = (post: Post) => {
+        // Log when user interacts with a saved post
+        if (sessionId) {
+            logEvent(sessionId, ActionType.CLICK, {
+                text: `Clicked on saved post: ${post.title}`,
+                page_url: window.location.href,
+                element_identifier: `saved-post-${post.id}`,
+                coordinates: { x: 0, y: 0 }
+            });
+        }
+
+        // Route to the dedicated post page
+        router.push(`/posts/${post.id}`);
+    };
+
+    const renderSection = () => {
         switch (activeSection) {
             case 'Saved Posts':
+                // ✅ FIXED: Removed useEffect from here
                 return savedPosts.length ? (
                     savedPosts.map((post) => (
-                        <div key={post.id} className="bg-white border p-4 rounded-lg shadow-sm">
+                        <div
+                            key={post.id}
+                            className="bg-white border p-4 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                            onClick={() => handlePostClick(post)}
+                        >
                             <h3 className="font-semibold text-lg text-blue-700">{post.title}</h3>
                             <p className="text-gray-700">{post.content}</p>
                             <span className="text-xs text-gray-400">
@@ -65,31 +194,38 @@ export default function SavedPostsPage() {
                         </div>
                     ))
                 ) : (
-                    <p className="text-gray-500">No saved posts.</p>
+                    <div>
+                        <p className="text-gray-500">No saved posts.</p>
+                    </div>
                 );
 
             default:
                 return null;
         }
     };
-    // Get sessionId from window if available, otherwise undefined
-    const sessionId = typeof window !== 'undefined' && (window as any).__SESSION_ID__ ? (window as any).__SESSION_ID__ : undefined;
-
 
     return (
         <>
             <div className="min-h-screen bg-white">
-
                 <Navbar
                     userId={userId || localStorage.getItem('userId') || ''}
-                    sessionId={window.__SESSION_ID__ || ''}
+                    sessionId={sessionId || ''}
                     onLogout={() => {
-                        // Clear userId
-                        localStorage.removeItem("userId");
-                        // setUserId(null);
+                        // Log logout event
+                        if (sessionId) {
+                            logEvent(sessionId, ActionType.CUSTOM, {
+                                text: 'User logged out from saved posts page',
+                                custom_action: 'logout',
+                                data: {
+                                    userId,
+                                    page: 'saved_posts',
+                                    savedPostsCount: savedPosts.length
+                                }
+                            });
+                        }
 
-                        // Clear session data
-                        // setSessionId(null);
+                        // Clear storage
+                        localStorage.removeItem("userId");
                         sessionStorage.removeItem("sessionInitialized");
                         sessionStorage.removeItem("sessionId");
 
@@ -112,7 +248,7 @@ export default function SavedPostsPage() {
                             {sections.map((section) => (
                                 <button
                                     key={section}
-                                    onClick={() => setActiveSection(section)}
+                                    onClick={() => handleSectionClick(section)}
                                     className={`w-full text-left px-4 py-2 rounded-lg transition ${activeSection === section
                                         ? 'bg-blue-100 text-blue-800 font-semibold'
                                         : 'text-gray-700 hover:bg-gray-100'
