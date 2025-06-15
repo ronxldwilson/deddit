@@ -17,6 +17,7 @@ class ActionType(PyEnum):
     GO_FORWARD = "go_forward"
     GO_TO_URL = "go_to_url"
     SET_STORAGE = "set_storage"
+    PAGE_VIEW = "page_view"
     CUSTOM = "custom" # For custom actions
 
 class HttpRequestPayload(BaseModel):
@@ -77,6 +78,10 @@ class SetStoragePayload(BaseModel):
     key: str
     value: str
 
+class PageViewPayload(BaseModel):
+    text:str
+    page_url:str
+
 # Use custom actions for any action that is not covered by the other payloads
 class CustomPayload(BaseModel):
     text: str # Natural language description of the custom action
@@ -93,7 +98,8 @@ LogPayload = Union[HttpRequestPayload,
                    GoForwardPayload,
                    GoToUrlPayload,
                    SetStoragePayload,
-                   CustomPayload]
+                   CustomPayload,
+                   PageViewPayload]
 
 class Log(Base):
     __tablename__ = "logs"
@@ -131,4 +137,6 @@ class Log(Base):
             self.payload = SetStoragePayload(**payload).model_dump()
         elif action_type == ActionType.CUSTOM:
             self.payload = CustomPayload(**payload).model_dump()
+        elif action_type == ActionType.PAGE_VIEW:
+            self.payload = PageViewPayload(**payload).model_dump()
 

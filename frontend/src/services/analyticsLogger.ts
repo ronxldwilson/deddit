@@ -8,8 +8,8 @@ export enum ActionType {
   GO_FORWARD = "go_forward",
   GO_TO_URL = "go_to_url",
   SET_STORAGE = "set_storage",
+  PAGE_VIEW = "page_view",
   CUSTOM = "custom",
-  PAGE_VIEW = "PAGE_VIEW"
 }
 
 export interface ClickPayload {
@@ -20,6 +20,11 @@ export interface ClickPayload {
     x: number;
     y: number;
   };
+}
+
+export interface PageViewPayload{
+  text:string,
+  page_url:string
 }
 
 export interface ScrollPayload {
@@ -82,7 +87,8 @@ export type LogPayload =
   | GoForwardPayload
   | GoToUrlPayload
   | SetStoragePayload
-  | CustomPayload;
+  | CustomPayload
+  | PageViewPayload;
 
 // Log interface matching Python's Log model
 export interface Log {
