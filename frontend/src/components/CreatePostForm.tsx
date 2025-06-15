@@ -77,8 +77,6 @@ function CreatePostFormContent({ userId }: { userId: string | null }) {
 
         if (isSubmitting) return;
 
-        const submitBtn = document.getElementById('submit-post-button');
-
         const rect = document.activeElement?.getBoundingClientRect();
         const clickPayload: ClickPayload = {
             text: 'User clicked Submit Post button',

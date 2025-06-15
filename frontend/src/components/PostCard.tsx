@@ -86,7 +86,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
 
-  const handleClickLog = (action: string, elementId: string, e: React.MouseEvent) => {
+  const handleClickLog = (action: string, elementId: string, ) => {
     const rect = document.activeElement?.getBoundingClientRect();
     logEvent(sessionId, ActionType.CLICK, {
       text: `User clicked ${action} on post "${title}"`,
@@ -96,8 +96,8 @@ export const PostCard: React.FC<PostCardProps> = ({
     });
   };
 
-  const handleUpvote = (e: React.MouseEvent) => {
-    handleClickLog('upvote', `postcard-${id}-upvote`, e);
+  const handleUpvote = () => {
+    handleClickLog('upvote', `postcard-${id}-upvote`, );
 
     if (isVoting) return;
     if (voteState === 'up') {
@@ -115,8 +115,8 @@ export const PostCard: React.FC<PostCardProps> = ({
     }
   };
 
-  const handleDownvote = (e: React.MouseEvent) => {
-    handleClickLog('downvote', `postcard-${id}-downvote`, e);
+  const handleDownvote = () => {
+    handleClickLog('downvote', `postcard-${id}-downvote`);
 
     if (isVoting) return;
     if (voteState === 'down') {
@@ -134,8 +134,8 @@ export const PostCard: React.FC<PostCardProps> = ({
     }
   };
 
-  const handleSave = async (e: React.MouseEvent) => {
-    handleClickLog('save', `postcard-${id}-save`, e);
+  const handleSave = async () => {
+    handleClickLog('save', `postcard-${id}-save`);
 
     if (isSaving) return;
     setIsSaving(true);
@@ -154,8 +154,8 @@ export const PostCard: React.FC<PostCardProps> = ({
     }
   };
 
-  const handlePostClick = (e: React.MouseEvent) => {
-    handleClickLog('post link', `postcard-${id}-link`, e);
+  const handlePostClick = () => {
+    handleClickLog('post link', `postcard-${id}-link`);
   };
 
   const handleHover = () => {
