@@ -70,7 +70,10 @@ export const PostCard: React.FC<PostCardProps> = ({
     try {
       const res = await fetch('http://localhost:8000/vote', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json',
+          "x-session-id": sessionId || "no_session",
+        },
         body: JSON.stringify({ post_id: numericPostId, user_id: userID, vote: type }),
       });
 
@@ -86,7 +89,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
 
-  const handleClickLog = (action: string, elementId: string, ) => {
+  const handleClickLog = (action: string, elementId: string,) => {
     const rect = document.activeElement?.getBoundingClientRect();
     logEvent(sessionId, ActionType.CLICK, {
       text: `User clicked ${action} on post "${title}"`,
@@ -97,7 +100,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
   const handleUpvote = () => {
-    handleClickLog('upvote', `postcard-${id}-upvote`, );
+    handleClickLog('upvote', `postcard-${id}-upvote`,);
 
     if (isVoting) return;
     if (voteState === 'up') {
