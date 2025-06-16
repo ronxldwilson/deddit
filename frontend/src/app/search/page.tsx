@@ -95,8 +95,10 @@ function SearchPageContent() {
 }
 
 export default function SearchPage() {
-    <Suspense fallback={<div>Loading...</div>}>
-        <SearchPageContent />
-    </Suspense>
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <SearchPageContent />
+        </Suspense>
+    )
 
 }
