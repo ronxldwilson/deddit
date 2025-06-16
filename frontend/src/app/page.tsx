@@ -61,9 +61,6 @@ export default function Home() {
     );
   }
 
-  console.log("Session ID:", sessionId);
-  console.log("User ID:", userId);
-
   return (
     <div className="min-h-screen max-w-full bg-gradient-to-b from-gray-50 via-white to-gray-100 pb-12">
       <div className="mx-auto py-8 px-4">

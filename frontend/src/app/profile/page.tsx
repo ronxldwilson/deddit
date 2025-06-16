@@ -689,8 +689,8 @@ function ProfileContent() {
         }
     };
 
-    console.log(userId)
-    console.log(sessionId)
+    // console.log(userId)
+    // console.log(sessionId)
 
     return (
         <>

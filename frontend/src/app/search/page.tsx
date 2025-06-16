@@ -35,7 +35,7 @@ function SearchPageContent() {
         }
     }, [query]);
 
-    console.log(results)
+    // console.log(results)
 
 
     return (

@@ -15,7 +15,7 @@ function CreatePostPageContent() {
     if (!userId) {
         return <div className="text-center mt-10 text-red-500">Please log in to create a post.</div>;
     }
-    console.log("from create post page:", userId)
+    // console.log("from create post page:", userId)
 
     return (
         <main className="min-h-screen p-4 bg-white">

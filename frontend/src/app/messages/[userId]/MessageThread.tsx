@@ -46,7 +46,7 @@ export function MessageThread({ otherUsername }: Props) {
 
   useEffect(() => {
     if (userId && receiverId) {
-      console.log('🔍 Fetching thread between', userId, 'and', receiverId);
+      // console.log('🔍 Fetching thread between', userId, 'and', receiverId);
       fetchMessages(userId, receiverId);
     }
   }, [userId, receiverId]);
