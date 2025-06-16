@@ -50,26 +50,10 @@ ________________________________________________________________________________
 
 # Bug List:
 
-When a post is saved in home page and then gone to the same post, the save state is not retained
-when we go to a subreddit, the post card shows r/tech but when you open it, it will show r/meme
-Subreddit posts are not unique
-
-
-
-# Broken Links
 
 __________________________________________________________________________________
-To Do:
-
-Highlight
-########################### 
-build the project
-check if the ids are tagged properly
-check if all pages have logging enabled
-
-add test cases for the various scenarios
-remove notes page
-########################### 
+# To Do:
+element identifiers in css
 
 
 82. Infinite scroll for posts/comments
