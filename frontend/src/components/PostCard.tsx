@@ -146,7 +146,9 @@ export const PostCard: React.FC<PostCardProps> = ({
     try {
       await fetch(`http://localhost:8000/api/save_post/${id}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',
+          "x-session-id": sessionId || "no_session",
+         },
         body: JSON.stringify({ user_id: userID }),
       });
       setIsSaved(!isSaved);

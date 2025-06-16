@@ -204,14 +204,47 @@ class SavePayload(BaseModel):
     user_id: str  # or UUID if you're using UUIDs
 
 @router.post("/save_post/{post_id}")
-def save_post(post_id: int, payload: SavePayload, db: Session = Depends(db.get_db)):
+def save_post(post_id: int, request: Request, payload: SavePayload, db: Session = Depends(db.get_db)):
+    session_id = request.headers.get("x-session-id", "no_session")
     exists = db.query(SavedPost).filter_by(user_id=payload.user_id, post_id=post_id).first()
+
     if exists:
         db.delete(exists)
         db.commit()
+
+        logger.log_action(
+            session_id,
+            ActionType.DB_UPDATE, 
+            {
+                "table_name": "saved_posts",
+                "update_type": "delete",
+                "text": f"User {payload.user_id} unsaved Post {post_id}",
+                "values": {
+                    "user_id": payload.user_id,
+                    "post_id": post_id
+                }
+            }
+        )
+
         return {"status": "unsaved"}
+
     db.add(SavedPost(user_id=payload.user_id, post_id=post_id))
     db.commit()
+
+    logger.log_action(
+        session_id,
+        ActionType.DB_UPDATE,
+        {
+            "table_name": "saved_posts",
+            "update_type": "insert",
+            "text": f"User {payload.user_id} saved Post {post_id}",
+            "values": {
+                "user_id": payload.user_id,
+                "post_id": post_id
+            }
+        }
+    )
+
     return {"status": "saved"}
 
 @router.post("/save_comment/{comment_id}")

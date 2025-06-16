@@ -232,7 +232,9 @@ export default function PostPage() {
     try {
       const res = await fetch("http://localhost:8000/vote", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          "x-session-id": sessionId || "no_session",
+         },
         body: JSON.stringify(votePayload),
       });
 
