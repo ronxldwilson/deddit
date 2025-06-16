@@ -190,6 +190,10 @@ function ProfileContent() {
         try {
             const res = await fetch(`http://localhost:8000/posts/${postId}`, {
                 method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "x-session-id": sessionId || "no_session",
+                },
             });
 
             if (res.ok) {
@@ -251,6 +255,7 @@ function ProfileContent() {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    "x-session-id": sessionId || "no_session",
                 },
                 body: JSON.stringify({
                     title: editedTitle,
@@ -338,6 +343,7 @@ function ProfileContent() {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    "x-session-id": sessionId || "no_session",
                 },
                 body: JSON.stringify({
                     content: editedCommentContent,
@@ -416,6 +422,10 @@ function ProfileContent() {
         try {
             const res = await fetch(`http://localhost:8000/comments/${commentId}`, {
                 method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "x-session-id": sessionId || "no_session",
+                },
             });
 
             if (res.ok) {

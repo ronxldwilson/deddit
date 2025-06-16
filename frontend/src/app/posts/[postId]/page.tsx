@@ -230,6 +230,7 @@ export default function PostPage() {
     };
 
     try {
+      const sessionId = sessionStorage.getItem("sessionId");
       const res = await fetch("http://localhost:8000/vote", {
         method: "POST",
         headers: { "Content-Type": "application/json",
@@ -328,10 +329,13 @@ export default function PostPage() {
     logAnalyticsEvent(ActionType.CLICK, clickPayload);
 
     try {
+      const sessionId = sessionStorage.getItem("sessionId");
       await fetch(`http://localhost:8000/api/save_post/${post.id}`, {
         method: "POST",
         body: JSON.stringify({ user_id: userID }),
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          "x-session-id": sessionId || "no_session",
+         },
       });
 
       const savedPostsKey = `savedPosts:${userID}`;

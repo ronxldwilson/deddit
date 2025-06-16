@@ -248,12 +248,45 @@ def save_post(post_id: int, request: Request, payload: SavePayload, db: Session 
     return {"status": "saved"}
 
 @router.post("/save_comment/{comment_id}")
-def save_comment(comment_id: int, payload: SavePayload, db: Session = Depends(db.get_db)):
+def save_comment(comment_id: int, request: Request, payload: SavePayload, db: Session = Depends(db.get_db)):
+    session_id = request.headers.get("x-session-id", "no_session")
+
     exists = db.query(SavedComment).filter_by(user_id=payload.user_id, comment_id=comment_id).first()
     if exists:
         db.delete(exists)
-        db.commit()
+        db.commit() 
+ 
+        logger.log_action(  
+            session_id,
+            ActionType.DB_UPDATE,
+            {
+                "table_name": "saved_comments",
+                "update_type": "delete",
+                "text": f"User {payload.user_id} unsaved Comment {comment_id}",
+                "values": {
+                    "user_id": payload.user_id,
+                    "comment_id": comment_id
+                }
+            }
+        )
+
         return {"status": "unsaved"}
+
     db.add(SavedComment(user_id=payload.user_id, comment_id=comment_id))
     db.commit()
+
+    logger.log_action(
+        session_id,
+        ActionType.DB_UPDATE,
+        {
+            "table_name": "saved_comments",
+            "update_type": "insert",
+            "text": f"User {payload.user_id} saved Comment {comment_id}",
+            "values": {
+                "user_id": payload.user_id,
+                "comment_id": comment_id
+            }
+        }
+    )
+
     return {"status": "saved"}
