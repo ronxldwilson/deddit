@@ -93,9 +93,11 @@ function CreatePostFormContent({ userId }: { userId: string | null }) {
         }, 4000);
 
         try {
-            const res = await fetch('/api/create-post', {
+            const res = await fetch('http://localhost:8000/posts/create', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({
                     title,
                     content,
@@ -107,7 +109,8 @@ function CreatePostFormContent({ userId }: { userId: string | null }) {
             if (res.ok) {
                 router.push('/');
             } else {
-                alert('Error creating post');
+                const errorData = await res.json();
+                alert(`Error creating post: ${errorData.detail || 'Unknown error'}`);
             }
         } catch (err) {
             console.error(err);
