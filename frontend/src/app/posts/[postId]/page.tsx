@@ -89,7 +89,7 @@ export default function PostPage() {
     }
   }, [postId]);
 
-  // console.log(savedComments)
+  console.log(savedComments)
   // Initialize vote count and saved state when post loads
   useEffect(() => {
     if (post && userID) {
