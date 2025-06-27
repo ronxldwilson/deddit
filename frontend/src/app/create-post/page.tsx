@@ -22,7 +22,7 @@ function CreatePostPageContent() {
             <div className="max-w-6xl mx-auto">
                 <Navbar
                     userId={userId}
-                    sessionId={window.__SESSION_ID__ || ''}
+                    sessionId={typeof window !== 'undefined' ? window.__SESSION_ID__ || '' : ''}
                     onLogout={() => {
                         // Clear userId
                         localStorage.removeItem("userId");
@@ -34,10 +34,12 @@ function CreatePostPageContent() {
                         sessionStorage.removeItem("sessionId");
 
                         // Clear global session reference
-                        if (window.__SESSION_ID__) {
+                        if (typeof window !== 'undefined' && window.__SESSION_ID__) {
                             delete window.__SESSION_ID__;
                         }
-                        window.location.href = '/'; // Redirect to home
+                        if (typeof window !== 'undefined') {
+                            window.location.href = '/'; // Redirect to home
+                        }
                     }}
                 />
 
