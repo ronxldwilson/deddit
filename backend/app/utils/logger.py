@@ -11,35 +11,43 @@ class Logger:
         self.db = db
 
     def log_action(self, session_id: str, action_type: ActionType, payload: LogPayload):
-        db = next(self.db.get_db())
-        
-        entry = Log(
-            session_id=session_id,
-            action_type=action_type,
-            payload=payload
-        )
+        db_session = next(self.db.get_db())
+        try:
+            entry = Log(
+                session_id=session_id,
+                action_type=action_type,
+                payload=payload
+            )
 
-        db.add(entry)
-        db.commit()
-        db.refresh(entry)
+            db_session.add(entry)
+            db_session.commit()
+            db_session.refresh(entry)
+        finally:
+            db_session.close()  # ✅ Always close the session
 
     def get_logs(self, session_id: str = None) -> List[Dict[str, Any]]:
-        db = next(self.db.get_db())
-        query = db.query(Log)
-        if session_id:
-            query = query.filter(Log.session_id == session_id)
-        logs = query.all()
-        return [{
-            "timestamp": log.timestamp,
-            "session_id": log.session_id,
-            "action_type": log.action_type,
-            "payload": log.payload
-        } for log in logs]
+        db_session = next(self.db.get_db())
+        try:
+            query = db_session.query(Log)
+            if session_id:
+                query = query.filter(Log.session_id == session_id)
+            logs = query.all()
+            return [{
+                "timestamp": log.timestamp,
+                "session_id": log.session_id,
+                "action_type": log.action_type,
+                "payload": log.payload
+            } for log in logs]
+        finally:
+            db_session.close()  # ✅ Always close the session
 
     def clear_logs(self):
-        db = next(self.db.get_db())
-        db.query(Log).delete()
-        db.commit()
+        db_session = next(self.db.get_db())
+        try:
+            db_session.query(Log).delete()
+            db_session.commit()
+        finally:
+            db_session.close()  # ✅ Always close the session
 
 logger = Logger(db)
 

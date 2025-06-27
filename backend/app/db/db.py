@@ -10,7 +10,7 @@ from .base import Base
 from .models import User, Note, Post, Comment
 
 
-class Database:
+class Database: 
     def __init__(self):
         self.db_path = os.path.join(os.path.dirname(__file__), "app.sqlite")
         self.db_url = f"sqlite:///{self.db_path}"
@@ -18,7 +18,15 @@ class Database:
         self.SessionLocal = None
 
     def create_database(self):
-        self.engine = create_engine(self.db_url, connect_args={"check_same_thread": False})
+        self.engine = create_engine(
+            self.db_url, 
+            connect_args={"check_same_thread": False}, 
+            pool_size=20,
+            max_overflow=40,
+            pool_timeout=60,
+            pool_recycle=3600,
+            pool_pre_ping=True 
+        )
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         Base.metadata.create_all(bind=self.engine)
 

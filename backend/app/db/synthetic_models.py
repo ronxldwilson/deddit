@@ -115,28 +115,41 @@ class Log(Base):
         self.action_type = action_type
         
         # Validate and set the payload based on action type
-        if action_type == ActionType.HTTP_REQUEST:
-            self.payload = HttpRequestPayload(**payload).model_dump()
-        elif action_type == ActionType.DB_UPDATE:
-            self.payload = DbUpdatePayload(**payload).model_dump()
-        elif action_type == ActionType.CLICK:
-            self.payload = ClickPayload(**payload).model_dump()
-        elif action_type == ActionType.SCROLL:
-            self.payload = ScrollPayload(**payload).model_dump()
-        elif action_type == ActionType.HOVER:
-            self.payload = HoverPayload(**payload).model_dump()
-        elif action_type == ActionType.KEY_PRESS:
-            self.payload = KeyPressPayload(**payload).model_dump()
-        elif action_type == ActionType.GO_BACK:
-            self.payload = GoBackPayload(**payload).model_dump()
-        elif action_type == ActionType.GO_FORWARD:
-            self.payload = GoForwardPayload(**payload).model_dump()
-        elif action_type == ActionType.GO_TO_URL:
-            self.payload = GoToUrlPayload(**payload).model_dump()
-        elif action_type == ActionType.SET_STORAGE:
-            self.payload = SetStoragePayload(**payload).model_dump()
-        elif action_type == ActionType.CUSTOM:
-            self.payload = CustomPayload(**payload).model_dump()
-        elif action_type == ActionType.PAGE_VIEW:
-            self.payload = PageViewPayload(**payload).model_dump()
+        try:
+            if action_type == ActionType.HTTP_REQUEST:
+                self.payload = HttpRequestPayload(**payload).model_dump()
+            elif action_type == ActionType.DB_UPDATE:
+                self.payload = DbUpdatePayload(**payload).model_dump()
+            elif action_type == ActionType.CLICK:
+                self.payload = ClickPayload(**payload).model_dump()
+            elif action_type == ActionType.SCROLL:
+                self.payload = ScrollPayload(**payload).model_dump()
+            elif action_type == ActionType.HOVER:
+                self.payload = HoverPayload(**payload).model_dump()
+            elif action_type == ActionType.KEY_PRESS:
+                self.payload = KeyPressPayload(**payload).model_dump()
+            elif action_type == ActionType.GO_BACK:
+                self.payload = GoBackPayload(**payload).model_dump()
+            elif action_type == ActionType.GO_FORWARD:
+                self.payload = GoForwardPayload(**payload).model_dump()
+            elif action_type == ActionType.GO_TO_URL:
+                self.payload = GoToUrlPayload(**payload).model_dump()
+            elif action_type == ActionType.SET_STORAGE:
+                self.payload = SetStoragePayload(**payload).model_dump()
+            elif action_type == ActionType.CUSTOM:
+                self.payload = CustomPayload(**payload).model_dump()
+            elif action_type == ActionType.PAGE_VIEW:
+                self.payload = PageViewPayload(**payload).model_dump()
+            else:
+                # Fallback to storing raw payload if action type is not recognized
+                self.payload = payload
+        except Exception as e:
+            # If payload validation fails, store the raw payload with error info
+            print(f"Payload validation failed for action_type {action_type}: {e}")
+            print(f"Payload data: {payload}")
+            self.payload = {
+                "error": "Payload validation failed",
+                "original_payload": payload,
+                "validation_error": str(e)
+            }
 

@@ -40,6 +40,11 @@ def new_session(seed: str = Query(None)):
 def log_event(request: Request, content: Dict[str, Any] = Body(...)):
     session_id = request.query_params.get("session_id", "no_session")
     action_type_str = content.get("actionType")
+    
+    # Debug logging
+    print(f"Received log_event: session_id={session_id}, action_type={action_type_str}")
+    print(f"Full content: {content}")
+    
     try:
         action_type = ActionType(action_type_str)
     except ValueError:
@@ -49,6 +54,8 @@ def log_event(request: Request, content: Dict[str, Any] = Body(...)):
         )
     
     action_payload = content.get("payload", {})
+    print(f"Action payload: {action_payload}")
+    
     logger.log_action(session_id, action_type, action_payload)
     return {"status": "logged"}
 
