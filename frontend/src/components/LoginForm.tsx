@@ -30,9 +30,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
     const y = Math.round(rect.top);
 
     logEvent(sessionId, ActionType.CLICK, {
-      text: "User clicked on the create post button",
+      text: `User clicked ${isRegister ? "register" : "login"} submit button`,
       page_url: window.location.href,
-      element_identifier: "create-post-button",
+      element_identifier: `${isRegister ? "register" : "login"}-submit-button`,
       coordinates: { x, y }, // ✅ now int
     });
 
@@ -166,6 +166,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ sessionId, onLoginSuccess 
 
         <button
           type="submit"
+          id={`${isRegister ? "register" : "login"}-submit-button`}
           className="w-full py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
         >
           {isRegister ? "Register" : "Sign In"}

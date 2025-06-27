@@ -176,13 +176,15 @@ export const FrontPage: React.FC<FrontPageProps> = ({ userId, sessionId, onLogou
                       <Link
                         id={`popular-community-${community.name}`}
                         href={`/r/${community.name}`}
-                        onClick={() =>
+                        onClick={() => {
+                          const rect = document.activeElement?.getBoundingClientRect();
                           logEvent(sessionId, ActionType.CLICK, {
                             text: `User clicked on popular community r/${community.name}`,
                             page_url: window.location.href,
                             element_identifier: `popular-community-${community.name}`,
-                          })
-                        }
+                            coordinates: { x: Math.round(rect?.left ?? 0), y: Math.round(rect?.top ?? 0) },
+                          });
+                        }}
                         className="text-sm font-medium text-blue-600 hover:underline"
                       >
                         r/{community.name}
